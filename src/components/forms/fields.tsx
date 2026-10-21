@@ -2,7 +2,6 @@
 
 import { useId } from "react";
 import type { SubmitState } from "@/components/forms/useFormSubmit";
-import { site } from "@/data/site";
 
 type FieldProps = {
   label: string;
@@ -161,7 +160,7 @@ export function FormNotice({ state, success }: { state: SubmitState; success: Re
           We&rsquo;ve put your details into an email so nothing gets lost — just hit send.
         </p>
         <a href={state.mailto} className="btn btn-primary mt-4">
-          Open email to {site.email}
+          Open email to {state.to}
         </a>
       </div>
     );

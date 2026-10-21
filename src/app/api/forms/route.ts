@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { formSchema, type FormPayload } from "@/lib/forms";
+import { formSchema, wholesaleLineIssues, type FormPayload } from "@/lib/forms";
 import { sendToInbox } from "@/lib/email";
-import { eventPackages } from "@/data/events";
-import { wholesaleFormats } from "@/data/wholesale";
+import { getEvents, getSiteSettings, getWholesale } from "@/lib/content";
+import type { EventsContent, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
 import { money } from "@/lib/format";
 
-function render(payload: FormPayload): { subject: string; text: string; replyTo: string } {
+type Rendered = { subject: string; text: string; replyTo: string };
+
+function render(payload: FormPayload, events: EventsContent, wholesale: WholesaleContent): Rendered {
   switch (payload.type) {
     case "contact":
       return {
@@ -27,7 +29,7 @@ function render(payload: FormPayload): { subject: string; text: string; replyTo:
         text: `Please add ${payload.email} to the newsletter list.`,
       };
     case "event": {
-      const pkg = eventPackages.find((p) => p.id === payload.package);
+      const pkg = events.packages.find((p) => p.id === payload.package);
       return {
         subject: `Event booking request — ${payload.eventDate} — ${payload.name}`,
         replyTo: payload.email,
@@ -46,15 +48,13 @@ function render(payload: FormPayload): { subject: string; text: string; replyTo:
       };
     }
     case "wholesale": {
+      const formatOf = (id: string) => wholesale.formats.find((f) => f.id === id);
       const lines = payload.lines.map((l) => {
-        const format = wholesaleFormats.find((f) => f.id === l.format);
-        const total = format ? money(format.price * l.qty) : "";
-        return `- ${l.qty} × ${format?.label ?? l.format} — ${l.flavour} ${total && `(${total})`}`;
+        const format = formatOf(l.format);
+        const total = format ? ` (${money(format.price * l.qty)})` : "";
+        return `- ${l.qty} × ${format?.label ?? l.format} — ${l.flavour}${total}`;
       });
-      const subtotal = payload.lines.reduce((sum, l) => {
-        const format = wholesaleFormats.find((f) => f.id === l.format);
-        return sum + (format ? format.price * l.qty : 0);
-      }, 0);
+      const subtotal = payload.lines.reduce((sum, l) => sum + (formatOf(l.format)?.price ?? 0) * l.qty, 0);
       return {
         subject: `Wholesale order — ${payload.business} (${payload.area})`,
         replyTo: payload.email,
@@ -94,16 +94,48 @@ export async function POST(request: Request) {
 
   const parsed = formSchema.safeParse(body);
   if (!parsed.success) {
+    const issues: { path: PropertyKey[]; message: string }[] = [...parsed.error.issues];
+    // Also report quantity problems on wholesale lines, so every error shows in one round trip.
+    const raw = body as { type?: unknown; lines?: unknown };
+    if (raw?.type === "wholesale" && Array.isArray(raw.lines)) {
+      const { formats } = await getWholesale();
+      raw.lines.forEach((line: { format?: unknown; qty?: unknown }, i) => {
+        const format = formats.find((f) => f.id === line?.format);
+        const qty = Number(line?.qty);
+        if (format && qty > 0 && qty % format.multiple !== 0) {
+          issues.push({
+            path: ["lines", i, "qty"],
+            message: `${format.label} are ordered in multiples of ${format.multiple}`,
+          });
+        }
+      });
+    }
     return NextResponse.json(
-      { ok: false, error: "Please check the highlighted fields", issues: parsed.error.issues },
+      { ok: false, error: "Please check the highlighted fields", issues },
       { status: 422 },
     );
   }
+  const payload = parsed.data;
 
-  const delivered = await sendToInbox(render(parsed.data));
+  const [settings, events, wholesale] = await Promise.all([getSiteSettings(), getEvents(), getWholesale()]);
+
+  if (payload.type === "wholesale") {
+    const flavoursFor = (format: WholesaleFormat) =>
+      wholesale.flavourGroups.filter((g) => g.availableIn.includes(format.kind)).flatMap((g) => g.flavours);
+    const issues = wholesaleLineIssues(payload.lines, wholesale.formats, flavoursFor);
+    if (issues.length) {
+      return NextResponse.json(
+        { ok: false, error: "Please check the highlighted fields", issues },
+        { status: 422 },
+      );
+    }
+  }
+
+  const message = render(payload, events, wholesale);
+  const delivered = await sendToInbox(message, settings.contact.email);
   if (!delivered) {
     return NextResponse.json(
-      { ok: false, error: "unavailable", fallback: render(parsed.data) },
+      { ok: false, error: "unavailable", fallback: { ...message, to: settings.contact.email } },
       { status: 503 },
     );
   }

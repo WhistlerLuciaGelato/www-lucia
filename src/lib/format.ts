@@ -35,3 +35,9 @@ export function prettyDate(isoDate: string): string {
 export function isIsoDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T12:00:00Z`));
 }
+
+/** "(604) 967-3886" → "tel:+16049673886" (assumes a North American number without a country code). */
+export function phoneHref(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  return `tel:+${digits.length === 10 ? `1${digits}` : digits}`;
+}

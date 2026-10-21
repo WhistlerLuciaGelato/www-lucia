@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { nav, site } from "@/data/site";
+import { getSiteSettings } from "@/lib/content";
+import { phoneHref } from "@/lib/format";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { Container, Mountains } from "@/components/ui";
 
-export function Footer() {
+export async function Footer() {
+  const { contact } = await getSiteSettings();
   return (
     <footer className="mt-24">
       <Mountains className="-mb-px" />
@@ -19,31 +22,31 @@ export function Footer() {
               className="h-16 w-auto rounded-2xl bg-snow p-2"
             />
             <address className="mt-6 not-italic leading-relaxed">
-              <p className="font-bold">{site.kitchen.label}</p>
-              <p>{site.kitchen.street}</p>
-              <p>{site.kitchen.city}</p>
+              <p className="font-bold">Our kitchen at Base II</p>
+              <p>{contact.kitchenStreet}</p>
+              <p>{contact.kitchenCity}</p>
               <p className="mt-4">
                 <a
-                  href={`mailto:${site.email}`}
+                  href={`mailto:${contact.email}`}
                   className="underline decoration-2 underline-offset-4 hover:decoration-snow/50"
                 >
-                  {site.email}
+                  {contact.email}
                 </a>
               </p>
               <p>
                 <a
-                  href={site.phoneHref}
+                  href={phoneHref(contact.phone)}
                   className="underline decoration-2 underline-offset-4 hover:decoration-snow/50"
                 >
-                  {site.phone}
+                  {contact.phone}
                 </a>
               </p>
               <p className="mt-4">
                 <a
-                  href={site.instagram}
+                  href={contact.instagramUrl}
                   className="underline decoration-2 underline-offset-4 hover:decoration-snow/50"
                 >
-                  Instagram {site.instagramHandle}
+                  Instagram {contact.instagramHandle}
                 </a>
               </p>
             </address>

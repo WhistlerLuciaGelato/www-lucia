@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { FormPayload } from "@/lib/forms";
-import { site } from "@/data/site";
 
 export type SubmitState =
   | { status: "idle" }
@@ -10,7 +9,7 @@ export type SubmitState =
   | { status: "success" }
   | { status: "error"; message: string; fieldErrors: Record<string, string> }
   /** Email delivery isn't configured: offer a prefilled email instead. */
-  | { status: "fallback"; mailto: string };
+  | { status: "fallback"; mailto: string; to: string };
 
 type Issue = { path: (string | number)[]; message: string };
 
@@ -29,15 +28,15 @@ export function useFormSubmit() {
         ok?: boolean;
         error?: string;
         issues?: Issue[];
-        fallback?: { subject: string; text: string };
+        fallback?: { subject: string; text: string; to: string };
       };
       if (res.ok && data.ok) {
         setState({ status: "success" });
         return true;
       }
       if (res.status === 503 && data.fallback) {
-        const mailto = `mailto:${site.email}?subject=${encodeURIComponent(data.fallback.subject)}&body=${encodeURIComponent(data.fallback.text)}`;
-        setState({ status: "fallback", mailto });
+        const mailto = `mailto:${data.fallback.to}?subject=${encodeURIComponent(data.fallback.subject)}&body=${encodeURIComponent(data.fallback.text)}`;
+        setState({ status: "fallback", mailto, to: data.fallback.to });
         return false;
       }
       const fieldErrors: Record<string, string> = {};
@@ -54,7 +53,7 @@ export function useFormSubmit() {
     } catch {
       setState({
         status: "error",
-        message: `We couldn't reach the server. Please try again, or email ${site.email}.`,
+        message: "We couldn't reach the server. Please check your connection and try again.",
         fieldErrors: {},
       });
       return false;

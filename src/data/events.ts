@@ -1,13 +1,6 @@
-export type EventPackage = {
-  id: "classic" | "signature" | "experience";
-  name: string;
-  basePrice: number; // CAD dollars
-  baseGuests: number;
-  perGuest: number; // CAD dollars per additional guest
-  features: string[];
-  accent: "lakeside" | "strawberry" | "heatwave";
-};
+import type { EventPackage } from "@/lib/content-types";
 
+// Default events content, used until the Sanity Studio has its own.
 export const eventPackages: EventPackage[] = [
   {
     id: "classic",
@@ -53,11 +46,11 @@ export const eventPackages: EventPackage[] = [
   },
 ];
 
-export const travelFees = [
+export const travelFees: { area: string; fee: number }[] = [
   { area: "Whistler", fee: 0 },
   { area: "Squamish / Pemberton", fee: 100 },
   { area: "Vancouver", fee: 200 },
-] as const;
+];
 
 export const eventTerms = [
   "No travel fee within Whistler",

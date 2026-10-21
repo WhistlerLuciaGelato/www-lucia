@@ -1,19 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { eventPackages, estimateEvent, travelFees, type EventPackage } from "@/data/events";
+import { estimateEvent } from "@/data/events";
+import type { EventsContent } from "@/lib/content-types";
 import { useToday } from "@/lib/cart-store";
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
 
-const travelOptions = [...travelFees.map((t) => t.area), "Other"] as const;
-
-export function EventBookingForm() {
+export function EventBookingForm({
+  packages: eventPackages,
+  travelFees,
+}: {
+  packages: EventsContent["packages"];
+  travelFees: EventsContent["travelFees"];
+}) {
+  const travelOptions = [...travelFees.map((t) => t.area), "Other"];
   const { state, submit, fieldError } = useFormSubmit();
   const today = useToday();
-  const [pkgId, setPkgId] = useState<EventPackage["id"] | "unsure">("signature");
+  const [pkgId, setPkgId] = useState(eventPackages[1]?.id ?? eventPackages[0]?.id ?? "unsure");
   const [guests, setGuests] = useState("75");
-  const [travel, setTravel] = useState<(typeof travelOptions)[number]>("Whistler");
+  const [travel, setTravel] = useState(travelOptions[0]);
 
   const pkg = eventPackages.find((p) => p.id === pkgId);
   const fee = travelFees.find((t) => t.area === travel)?.fee;
@@ -113,7 +119,7 @@ export function EventBookingForm() {
         label="Area"
         name="travel"
         value={travel}
-        onChange={(e) => setTravel(e.target.value as (typeof travelOptions)[number])}
+        onChange={(e) => setTravel(e.target.value)}
         error={fieldError("travel")}
       >
         {travelOptions.map((t) => (
@@ -122,12 +128,7 @@ export function EventBookingForm() {
           </option>
         ))}
       </SelectField>
-      <SelectField
-        label="Package"
-        name="package"
-        value={pkgId}
-        onChange={(e) => setPkgId(e.target.value as EventPackage["id"] | "unsure")}
-      >
+      <SelectField label="Package" name="package" value={pkgId} onChange={(e) => setPkgId(e.target.value)}>
         {eventPackages.map((p) => (
           <option key={p.id} value={p.id}>
             {p.name}

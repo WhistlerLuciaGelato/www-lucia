@@ -5,6 +5,7 @@ brand guidelines (v2.0) and the proposed site map.
 
 - **Next.js 16** (App Router, Cache Components) + **React 19** + **Tailwind CSS 4**
 - **Stripe Checkout** for pint and gelato-cake orders (pickup only)
+- **Sanity** content editor at `/studio`, so the client can update flavours, prices, hours and more
 - **Resend** for contact, event booking, wholesale order and newsletter forms
 - Every page is statically prerendered; only `/api/*` and the order confirmation run on the server
 
@@ -23,6 +24,10 @@ Other scripts: `npm run build`, `npm run start`, `npm run lint`.
 | Variable                         | Purpose                                                                                       |
 | -------------------------------- | --------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_SITE_URL`           | Canonical URL (metadata, sitemap, Stripe redirect URLs)                                       |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID`  | Connects the content editor. Without it, the site serves the built-in content in `src/data`.  |
+| `NEXT_PUBLIC_SANITY_DATASET`     | Sanity dataset (default `production`)                                                         |
+| `SANITY_REVALIDATE_SECRET`       | Secret for the publish webhook, so edits go live within seconds                               |
+| `SANITY_API_WRITE_TOKEN`         | Only for the one-time `npm run seed`; don't add it to the deployed site                       |
 | `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID` | Adobe Fonts kit with **Sauna Pro** and **Oskar One**. Without it, free stand-ins are used.     |
 | `STRIPE_SECRET_KEY`              | Turns on online checkout. Without it, the cart offers a pre-filled "email my order" button.   |
 | `STRIPE_AUTOMATIC_TAX`           | `true` once Stripe Tax is set up on the account                                               |
@@ -45,21 +50,55 @@ Nothing breaks when a key is missing: the site degrades to email so no order or 
 | `/wholesale`                              | Wholesale info & delivery schedule · searchable flavours list · order form        |
 | `/about` · `/contact`                     | Our story, Meet Lucia · contact details and form                                  |
 
-## Editing content
+## Content editor (Sanity Studio)
 
-Almost all copy and pricing lives in typed data files — no CMS required:
+The client edits the site at **`/studio`** (for example `https://luciagelato.com/studio`), signing in with
+Google or email. Publishing a change updates the site within seconds.
 
-| File                     | What's in it                                                     |
-| ------------------------ | ---------------------------------------------------------------- |
-| `src/data/site.ts`       | Contact details, addresses, social links, navigation             |
-| `src/data/flavours.ts`   | The retail pint lineup (copy, dietary tags, label colour, bear)  |
-| `src/data/shop.ts`       | Pint & cake prices, lead times, cake options, pickup window      |
-| `src/data/locations.ts`  | Seasonal spots (map pins), hours, grocery stores, scoop shops    |
-| `src/data/events.ts`     | Event packages, travel fees, terms, FAQ                          |
-| `src/data/wholesale.ts`  | Wholesale formats & pricing, delivery schedule, flavour list     |
+What they can edit:
 
-Prices are in CAD cents (`1200` = $12.00), except event packages, which are whole dollars.
-The server always re-prices the cart from these files, so a price can never be changed from the browser.
+| In the Studio                           | What it controls                                                              |
+| --------------------------------------- | ----------------------------------------------------------------------------- |
+| Announcement & contact                  | Site-wide banner ("Closed today — too windy!"), email, phone, Instagram, addresses |
+| Pint flavours                           | Name, description, dietary tags, image, Lucia illustration, sort order, **sold out** switch |
+| Online shop: prices, pickup & cakes     | Pint price, notice needed, pickup hours, location and days, **closed dates**, cake sizes/prices, bases, flavour combos |
+| **Opening hours & locations** (top of the menu) | Hours per spot (different hours for different days), **closed today** with a note (clears itself the next day), closed for the season, map pins |
+| Stockists                               | Grocery stores, scoop shops, restaurants/cafés/hotels                         |
+| Weddings & events                       | Packages and prices, travel fees, terms, FAQ                                  |
+| Wholesale                               | Formats and prices, delivery schedule, flavour lists                          |
+
+Page headlines and long-form copy (home, about) stay in the code for now.
+
+Until a Sanity project is connected, and for any document that hasn't been created yet, the site falls back
+to the built-in content in `src/data/*.ts`. Those files are also what `npm run seed` copies into Sanity.
+Prices in the Studio are entered in dollars; the code works in cents.
+
+### Setting up Sanity (one time)
+
+1. Create a free project at [sanity.io/manage](https://www.sanity.io/manage) with a **public** dataset called
+   `production`. Put its project id in `NEXT_PUBLIC_SANITY_PROJECT_ID`.
+2. In the project's **API → CORS origins**, add `http://localhost:3000` and the live site URL, both with
+   **Allow credentials** ticked (the Studio needs this to sign in).
+3. Create an API token with **Editor** permissions, put it in `.env.local` as `SANITY_API_WRITE_TOKEN`, and run
+   `npm run seed`. This fills the Studio with everything currently on the site, pint images included.
+   Running it again overwrites Studio edits, so run it only on a fresh dataset. Delete the token afterwards.
+4. In **API → Webhooks**, add a webhook to `https://<site>/api/revalidate`, triggered on create, update and
+   delete, with a secret that matches `SANITY_REVALIDATE_SECRET`. Without it, edits still appear within the hour.
+5. In **Members**, invite the client (Editor role is plenty).
+
+### Code-side details
+
+- Schema: `src/sanity/schemaTypes/`, Studio layout: `src/sanity/structure.ts`, config: `sanity.config.ts`.
+- All reads go through `src/lib/content.ts`, cached with `use cache` and tagged so the webhook can refresh them.
+- The cart and checkout re-price every order from the live catalogue on the server, and refuse items that have
+  been removed or marked sold out. Cake options and wholesale formats are identified by their Sanity array
+  keys, which the seed script sets to the same ids the site used before.
+
+## Pickup calendar
+
+The cart uses a calendar (react-day-picker) instead of a plain date field. It greys out days inside the
+order's notice period (the longest of its items: pints vs cakes), days of the week without pickup, and
+closed dates, all set in the Studio. The checkout API enforces the same rules (`src/lib/pickup.ts`).
 
 ## Brand implementation
 
@@ -76,7 +115,8 @@ The server always re-prices the cart from these files, so a price can never be c
 
 ## Before launch — please confirm
 
-These are placeholders or assumptions, marked `TODO(client)` in the code where relevant:
+These are placeholders or assumptions, marked `TODO(client)` in the code where relevant. Once Sanity is set
+up, the client can correct most of them in the Studio themselves:
 
 - [ ] **Retail pint price** — set to $12.00 (`src/data/shop.ts`)
 - [ ] **Pint lead time** (2 days) and **pickup window** (12–5pm) at the Base II kitchen
@@ -93,5 +133,6 @@ These are placeholders or assumptions, marked `TODO(client)` in the code where r
       (trailer, kitchen, scooping) in the brand's candid, analog style when available
 - [ ] High-resolution **brand assets** — the bear illustrations and pint renders were extracted from the PDF
       at roughly 270 px; the originals from the brand asset download would look sharper
+- [ ] **Pickup days and closed dates** — defaults to every day, closed Dec 25 and Jan 1
 - [ ] Stripe account, Stripe Tax decision (gelato pints are generally zero-rated basic groceries — check with
-      the accountant), Resend domain verification, Adobe Fonts kit
+      the accountant), Resend domain verification, Adobe Fonts kit, Sanity project (see above)

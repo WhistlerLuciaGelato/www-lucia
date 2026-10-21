@@ -188,3 +188,59 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Pickup calendar (react-day-picker), in brand colours. */
+.lucia-calendar .rdp-root {
+  --rdp-accent-color: var(--color-lake-deep);
+  --rdp-accent-background-color: var(--color-mist);
+  --rdp-today-color: var(--color-berry);
+  --rdp-day-width: 100%;
+  --rdp-day-height: 2.6rem;
+  --rdp-day_button-width: 2.5rem;
+  --rdp-day_button-height: 2.5rem;
+  --rdp-disabled-opacity: 0.3;
+  font-family: var(--font-ui);
+  width: 100%;
+}
+.lucia-calendar .rdp-months,
+.lucia-calendar .rdp-month,
+.lucia-calendar .rdp-month_grid {
+  width: 100%;
+  max-width: none;
+}
+.lucia-calendar .rdp-month_grid {
+  table-layout: fixed;
+}
+.lucia-calendar .rdp-month_caption {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--color-ink);
+  padding-left: 0.5rem;
+}
+.lucia-calendar .rdp-weekday {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-lake-deep);
+}
+.lucia-calendar .rdp-day_button {
+  margin: 0 auto;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+.lucia-calendar .rdp-day:not(.rdp-disabled):not(.rdp-selected) .rdp-day_button:hover {
+  background: var(--color-mist);
+}
+.lucia-calendar .rdp-selected .rdp-day_button {
+  background: var(--color-lake-deep);
+  border-color: var(--color-lake-deep);
+  color: #fff;
+}
+.lucia-calendar .lucia-closed .rdp-day_button {
+  text-decoration: line-through;
+}
+.lucia-calendar .rdp-chevron {
+  fill: var(--color-lake-deep);
+}

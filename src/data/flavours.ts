@@ -1,3 +1,5 @@
+import type { PintFlavour } from "@/lib/content-types";
+
 export type Diet = "dairy-free" | "vegan" | "gluten-free";
 
 export type Bear =
@@ -13,25 +15,13 @@ export type Bear =
   | "whitewater"
   | "zipline";
 
-export type PintFlavour = {
-  slug: string;
-  name: string;
-  /** "Sorbet" etc. Shown under the name, as on the pint label. */
-  style: "Gelato" | "Sorbet" | "Dairy-free gelato";
-  blurb: string;
-  diet: Diet[];
-  /** Label colour, used for card accents. */
-  color: string;
-  /** What Lucia is up to on the label. */
-  activity: string;
-  bear: Bear;
-};
+type DefaultPint = Omit<PintFlavour, "image" | "available">;
 
 /**
  * The 2025 retail pint lineup (473 mL), matching the new packaging.
  * Dietary tags follow the icons printed on each label.
  */
-export const pintFlavours: PintFlavour[] = [
+export const pintFlavours: DefaultPint[] = [
   {
     slug: "salted-caramel",
     name: "Salted Caramel",
@@ -149,7 +139,3 @@ export const dietLabels: Record<Diet, string> = {
   vegan: "Vegan",
   "gluten-free": "Gluten-free",
 };
-
-export function getPintFlavour(slug: string) {
-  return pintFlavours.find((f) => f.slug === slug);
-}

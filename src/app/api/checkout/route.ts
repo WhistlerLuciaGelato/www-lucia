@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { cartSchema, priceCart } from "@/lib/cart";
-import { addDays, isIsoDate, prettyDate, todayInWhistler } from "@/lib/format";
+import { getCatalogue } from "@/lib/content";
+import { isIsoDate, prettyDate, todayInWhistler } from "@/lib/format";
+import { pickupProblem } from "@/lib/pickup";
 import { getStripe } from "@/lib/stripe";
-import { pickup } from "@/data/shop";
 import { site } from "@/data/site";
 
 const checkoutSchema = z.object({
@@ -26,19 +27,22 @@ export async function POST(request: Request) {
   }
 
   const { items, pickupDate, notes } = parsed.data;
-  const { lines, leadDays } = priceCart(items);
+  const catalogue = await getCatalogue();
+  const { shop } = catalogue;
+  const { lines, unavailable, leadDays } = priceCart(items, catalogue);
+  if (unavailable.length > 0) {
+    return NextResponse.json(
+      { error: "Something in your cart is no longer available. Please review your cart and try again." },
+      { status: 409 },
+    );
+  }
   if (lines.length === 0) {
     return NextResponse.json({ error: "Your cart is empty." }, { status: 422 });
   }
 
-  const earliest = addDays(todayInWhistler(), leadDays);
-  if (pickupDate < earliest) {
-    return NextResponse.json(
-      {
-        error: `The earliest pickup for this order is ${prettyDate(earliest)}.`,
-      },
-      { status: 422 },
-    );
+  const problem = pickupProblem(pickupDate, shop, leadDays, todayInWhistler());
+  if (problem) {
+    return NextResponse.json({ error: problem }, { status: 422 });
   }
 
   const stripe = getStripe();
@@ -65,7 +69,7 @@ export async function POST(request: Request) {
       automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === "true" },
       custom_text: {
         submit: {
-          message: `Pickup on ${prettyDate(pickupDate)}, ${pickup.window}, at ${pickup.where}.`,
+          message: `Pickup on ${prettyDate(pickupDate)}, ${shop.pickupWindow}, at ${shop.pickupWhere}.`,
         },
       },
       metadata: {

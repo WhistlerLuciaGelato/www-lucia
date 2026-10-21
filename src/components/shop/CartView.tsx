@@ -4,17 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cart, useCart, useToday } from "@/lib/cart-store";
-import { itemKey, priceCart, type CartItem } from "@/lib/cart";
-import { addDays, money, prettyDate } from "@/lib/format";
-import { CAKE_MAX_QTY, PINT_MAX_PER_FLAVOUR, pickup } from "@/data/shop";
-import { site } from "@/data/site";
+import { itemKey, priceCart } from "@/lib/cart";
+import type { Catalogue } from "@/lib/content-types";
+import { money, prettyDate } from "@/lib/format";
+import { pickupProblem } from "@/lib/pickup";
+import { CAKE_MAX_QTY, PINT_MAX_PER_FLAVOUR } from "@/data/shop";
+import { PickupCalendar } from "@/components/shop/PickupCalendar";
 import { Bear } from "@/components/ui";
 
-function thumb(item: CartItem) {
-  return item.kind === "pint" ? `/pints/${item.flavour}.webp` : null;
-}
-
-function emailOrderLink(summary: string, pickupDate: string, notes: string) {
+function emailOrderLink(to: string, summary: string, pickupDate: string, notes: string) {
   const body = [
     "Hi Lucia team,",
     "",
@@ -28,14 +26,14 @@ function emailOrderLink(summary: string, pickupDate: string, notes: string) {
     "Name:",
     "Phone:",
   ].join("\n");
-  return `mailto:${site.email}?subject=${encodeURIComponent("Pickup order")}&body=${encodeURIComponent(body)}`;
+  return `mailto:${to}?subject=${encodeURIComponent("Pickup order")}&body=${encodeURIComponent(body)}`;
 }
 
-export function CartView() {
+export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; contactEmail: string }) {
   const items = useCart();
   const today = useToday();
-  const { lines, subtotal, leadDays } = priceCart(items);
-  const earliest = today ? addDays(today, leadDays) : null;
+  const { shop } = catalogue;
+  const { lines, unavailable, subtotal, leadDays } = priceCart(items, catalogue);
 
   const [pickupDate, setPickupDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -43,8 +41,8 @@ export function CartView() {
     { state: "idle" } | { state: "loading" } | { state: "error"; message: string } | { state: "unavailable" }
   >({ state: "idle" });
 
-  // If the cart changes so the chosen date is now too early, make the visitor choose again.
-  const dateTooEarly = Boolean(pickupDate && earliest && pickupDate < earliest);
+  // If the cart changes so the chosen date no longer works (e.g. a cake was added), ask again.
+  const dateProblem = pickupDate && today ? pickupProblem(pickupDate, shop, leadDays, today) : null;
 
   if (items.length === 0) {
     return (
@@ -98,7 +96,7 @@ export function CartView() {
           {items.map((item) => {
             const line = lines.find((l) => l.key === itemKey(item));
             if (!line) return null;
-            const src = thumb(item);
+            const src = line.image;
             const max = item.kind === "pint" ? PINT_MAX_PER_FLAVOUR : CAKE_MAX_QTY;
             return (
               <li key={line.key} className="flex gap-4 p-5 sm:p-6">
@@ -107,7 +105,7 @@ export function CartView() {
                     <Image src={src} alt="" width={96} height={96} className="h-full w-full object-contain" />
                   ) : (
                     <span className="display text-3xl text-strawberry" aria-hidden>
-                      {item.kind === "cake" && item.size === "9in" ? '9"' : '7"'}
+                      {line.name.split(" ")[0]}
                     </span>
                   )}
                 </div>
@@ -148,6 +146,21 @@ export function CartView() {
             );
           })}
         </ul>
+        {unavailable.length > 0 ? (
+          <div role="alert" className="mt-4 rounded-3xl bg-butter p-4 font-ui text-sm text-ink">
+            <p className="font-bold">
+              {unavailable.length === 1 ? "One item is" : `${unavailable.length} items are`} no longer
+              available and won&rsquo;t be included.
+            </p>
+            <button
+              type="button"
+              onClick={() => unavailable.forEach((i) => cart.remove(itemKey(i)))}
+              className="mt-1 font-bold text-lake-deep underline underline-offset-2"
+            >
+              Remove from cart
+            </button>
+          </div>
+        ) : null}
         <div className="mt-4 flex flex-wrap gap-4 font-ui text-sm font-bold">
           <Link href="/order/pints" className="text-lake-deep underline underline-offset-2">
             + Add pints
@@ -162,30 +175,26 @@ export function CartView() {
         <div className="rounded-blob bg-mist p-6 sm:p-8 lg:sticky lg:top-28">
           <h2 className="subhead text-2xl text-lakeside">Pickup details</h2>
           <p className="mt-2 text-sm text-ink/80">
-            {pickup.where} · {pickup.window}
+            {shop.pickupWhere} · {shop.pickupWindow}
           </p>
 
-          <label htmlFor="pickup-date" className="label mt-5">
+          <p className="label mt-5" id="pickup-label">
             Pickup date
-          </label>
-          <input
-            id="pickup-date"
-            type="date"
-            className="field"
-            min={earliest ?? undefined}
-            value={pickupDate}
-            onChange={(e) => setPickupDate(e.target.value)}
-            aria-describedby="pickup-hint"
-            required
-          />
-          <p
-            id="pickup-hint"
-            className={`mt-1.5 font-ui text-sm ${dateTooEarly ? "font-bold text-berry" : "text-ink/70"}`}
-          >
-            {earliest
-              ? `${dateTooEarly ? "Too soon — the" : "The"} earliest pickup for this order is ${prettyDate(earliest)}.`
-              : `We need ${leadDays} days' notice for this order.`}
           </p>
+          <div role="group" aria-labelledby="pickup-label">
+            <PickupCalendar
+              shop={shop}
+              leadDays={leadDays}
+              today={today}
+              value={dateProblem ? "" : pickupDate}
+              onChange={setPickupDate}
+            />
+          </div>
+          {dateProblem ? (
+            <p role="alert" className="mt-2 font-ui text-sm font-bold text-berry">
+              {dateProblem} Please choose another day.
+            </p>
+          ) : null}
 
           <label htmlFor="order-notes" className="label mt-5">
             Notes <span className="font-normal text-ink/50">(optional)</span>
@@ -214,7 +223,7 @@ export function CartView() {
           <button
             type="button"
             className="btn btn-primary mt-6 w-full"
-            disabled={!pickupDate || dateTooEarly || status.state === "loading"}
+            disabled={!pickupDate || Boolean(dateProblem) || lines.length === 0 || status.state === "loading"}
             onClick={checkout}
           >
             {status.state === "loading" ? "Heading to checkout…" : "Checkout securely"}
@@ -236,7 +245,7 @@ export function CartView() {
                   Send us your order by email and we&rsquo;ll confirm pickup and payment.
                 </p>
                 <a
-                  href={emailOrderLink(summary, pickupDate, notes.trim())}
+                  href={emailOrderLink(contactEmail, summary, pickupDate, notes.trim())}
                   className="btn btn-primary mt-3 w-full"
                 >
                   Email my order

@@ -1,15 +1,8 @@
-export type SeasonalSpot = {
-  id: string;
-  name: string;
-  area: string;
-  season: "Winter" | "Summer";
-  description: string;
-  lat: number;
-  lng: number;
-};
+import type { Location } from "@/lib/content-types";
 
 // Coordinates are approximate pins for the map embed.
-export const seasonalSpots: SeasonalSpot[] = [
+// TODO(client): confirm days and hours for each location before launch.
+export const seasonalSpots: Location[] = [
   {
     id: "roundhouse",
     name: "Roundhouse Lodge",
@@ -18,6 +11,9 @@ export const seasonalSpots: SeasonalSpot[] = [
     description: "Refuel mid-mountain with a scoop and a view of the Coast Mountains.",
     lat: 50.0676,
     lng: -122.9474,
+    scheduleSeason: "Ski season (Nov – Apr)",
+    hours: [{ days: "Daily", time: "During lift hours" }],
+    seasonClosed: false,
   },
   {
     id: "blackcomb-kids",
@@ -27,6 +23,9 @@ export const seasonalSpots: SeasonalSpot[] = [
     description: "Right by the magic carpet, for après-ski scoops with the little shredders.",
     lat: 50.1146,
     lng: -122.9485,
+    scheduleSeason: "Ski season (Nov – Apr)",
+    hours: [{ days: "Daily", time: "During lift hours" }],
+    seasonClosed: false,
   },
   {
     id: "lost-lake",
@@ -36,6 +35,9 @@ export const seasonalSpots: SeasonalSpot[] = [
     description: "Find the trailer by the beach — swim, scoop, repeat.",
     lat: 50.1255,
     lng: -122.9392,
+    scheduleSeason: "Summer (late Jun – Sep)",
+    hours: [{ days: "Daily", time: "12 – 7pm" }],
+    seasonClosed: false,
   },
   {
     id: "olympic-plaza",
@@ -45,41 +47,9 @@ export const seasonalSpots: SeasonalSpot[] = [
     description: "Summer concerts, festivals and lazy afternoons on the lawn.",
     lat: 50.1191,
     lng: -122.9551,
-  },
-];
-
-export type ScheduleRow = {
-  spot: string;
-  season: string;
-  days: string;
-  hours: string;
-};
-
-// TODO(client): confirm days and hours for each location before launch.
-export const schedule: ScheduleRow[] = [
-  {
-    spot: "Roundhouse Lodge",
-    season: "Ski season (Nov – Apr)",
-    days: "Daily",
-    hours: "During lift hours",
-  },
-  {
-    spot: "Kids Park, Blackcomb Base",
-    season: "Ski season (Nov – Apr)",
-    days: "Daily",
-    hours: "During lift hours",
-  },
-  {
-    spot: "Gelato trailer — Lost Lake Park",
-    season: "Summer (late Jun – Sep)",
-    days: "Daily",
-    hours: "12 – 7pm",
-  },
-  {
-    spot: "Gelato trailer — Whistler Olympic Plaza",
-    season: "Summer (late Jun – Sep)",
-    days: "Event days & weekends",
-    hours: "12 – 8pm",
+    scheduleSeason: "Summer (late Jun – Sep)",
+    hours: [{ days: "Event days & weekends", time: "12 – 8pm" }],
+    seasonClosed: false,
   },
 ];
 

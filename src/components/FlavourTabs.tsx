@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { FlavourGroup } from "@/data/wholesale";
+import type { FlavourGroup } from "@/lib/content-types";
 
 export function FlavourTabs({ groups }: { groups: FlavourGroup[] }) {
   const [active, setActive] = useState(groups[0].id);

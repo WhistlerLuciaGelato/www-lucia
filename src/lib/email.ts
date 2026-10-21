@@ -1,5 +1,4 @@
 import "server-only";
-import { site } from "@/data/site";
 
 export type EmailMessage = {
   subject: string;
@@ -15,7 +14,7 @@ export function emailConfigured(): boolean {
  * Sends a notification to the Lucia inbox through Resend's HTTP API.
  * Returns false when email isn't configured so callers can tell the visitor to email directly.
  */
-export async function sendToInbox(message: EmailMessage): Promise<boolean> {
+export async function sendToInbox(message: EmailMessage, inbox: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
 
@@ -27,7 +26,7 @@ export async function sendToInbox(message: EmailMessage): Promise<boolean> {
     },
     body: JSON.stringify({
       from: process.env.FORMS_FROM_EMAIL ?? "Lucia Gelato website <onboarding@resend.dev>",
-      to: (process.env.FORMS_TO_EMAIL ?? site.email).split(",").map((s) => s.trim()),
+      to: (process.env.FORMS_TO_EMAIL || inbox).split(",").map((s) => s.trim()),
       reply_to: message.replyTo,
       subject: message.subject,
       text: message.text,

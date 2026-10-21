@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { SeasonalSpot } from "@/data/locations";
+import type { Location } from "@/lib/content-types";
+import { LocationStatus } from "@/components/LocationStatus";
 
 function embedUrl(spot: { lat: number; lng: number }) {
   const d = 0.012;
@@ -9,7 +10,7 @@ function embedUrl(spot: { lat: number; lng: number }) {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${spot.lat},${spot.lng}`;
 }
 
-export function LocationMap({ spots }: { spots: SeasonalSpot[] }) {
+export function LocationMap({ spots }: { spots: Location[] }) {
   const [activeId, setActiveId] = useState(spots[0]?.id);
   const active = spots.find((s) => s.id === activeId) ?? spots[0];
 
@@ -52,6 +53,12 @@ export function LocationMap({ spots }: { spots: SeasonalSpot[] }) {
                 <span className={`mt-2 block text-[0.95rem] ${selected ? "text-snow/90" : "text-ink/75"}`}>
                   {spot.description}
                 </span>
+                <LocationStatus
+                  closedOn={spot.closedOn}
+                  closureNote={spot.closureNote}
+                  seasonClosed={spot.seasonClosed}
+                  inverted={selected}
+                />
               </button>
             </li>
           );

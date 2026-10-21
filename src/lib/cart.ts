@@ -1,31 +1,22 @@
 import { z } from "zod";
-import { getPintFlavour } from "@/data/flavours";
-import {
-  CAKE_LEAD_DAYS,
-  CAKE_MAX_QTY,
-  PINT_LEAD_DAYS,
-  PINT_MAX_PER_FLAVOUR,
-  PINT_PRICE,
-  cakeBases,
-  cakeCombos,
-  cakeSizes,
-} from "@/data/shop";
+import { CAKE_MAX_QTY, PINT_MAX_PER_FLAVOUR } from "@/data/shop";
+import type { Catalogue } from "@/lib/content-types";
 
 /**
  * Cart items carry only ids and quantities. Names and prices are always looked up
- * from the catalogue, so the server never trusts a price sent by the browser.
+ * in the catalogue, so the server never trusts a price sent by the browser.
  */
 export const pintItemSchema = z.object({
   kind: z.literal("pint"),
-  flavour: z.string().min(1).max(64),
+  flavour: z.string().min(1).max(96),
   qty: z.number().int().min(1).max(PINT_MAX_PER_FLAVOUR),
 });
 
 export const cakeItemSchema = z.object({
   kind: z.literal("cake"),
-  size: z.enum(cakeSizes.map((s) => s.id) as [string, ...string[]]),
-  base: z.enum(cakeBases.map((b) => b.id) as [string, ...string[]]),
-  combo: z.enum(cakeCombos.map((c) => c.id) as [string, ...string[]]),
+  size: z.string().min(1).max(64),
+  base: z.string().min(1).max(64),
+  combo: z.string().min(1).max(64),
   message: z.string().trim().max(60).optional(),
   qty: z.number().int().min(1).max(CAKE_MAX_QTY),
 });
@@ -41,6 +32,7 @@ export type PricedLine = {
   key: string;
   name: string;
   detail: string;
+  image?: string;
   unitPrice: number;
   qty: number;
   total: number;
@@ -54,25 +46,27 @@ export function itemKey(item: CartItem): string {
     : `cake:${item.size}:${item.base}:${item.combo}:${item.message ?? ""}`;
 }
 
-export function priceItem(item: CartItem): PricedLine | null {
+/** Prices one item, or returns null if it's no longer for sale (removed or sold out). */
+export function priceItem(item: CartItem, { shop, pints }: Catalogue): PricedLine | null {
   if (item.kind === "pint") {
-    const flavour = getPintFlavour(item.flavour);
-    if (!flavour) return null;
+    const flavour = pints.find((p) => p.slug === item.flavour);
+    if (!flavour || !flavour.available) return null;
     return {
       key: itemKey(item),
       name: `${flavour.name} pint`,
       detail: `${flavour.style} · 473 mL`,
-      unitPrice: PINT_PRICE,
+      image: flavour.image || undefined,
+      unitPrice: shop.pintPrice,
       qty: item.qty,
-      total: PINT_PRICE * item.qty,
-      leadDays: PINT_LEAD_DAYS,
+      total: shop.pintPrice * item.qty,
+      leadDays: shop.pintLeadDays,
     };
   }
-  const size = cakeSizes.find((s) => s.id === item.size);
-  const base = cakeBases.find((b) => b.id === item.base);
-  const combo = cakeCombos.find((c) => c.id === item.combo);
+  const size = shop.cakeSizes.find((s) => s.id === item.size);
+  const base = shop.cakeBases.find((b) => b.id === item.base);
+  const combo = shop.cakeCombos.find((c) => c.id === item.combo);
   if (!size || !base || !combo) return null;
-  const parts = [`${combo.flavours}`, `${base.label} base`, `serves ${size.serves}`];
+  const parts = [combo.flavours, `${base.label} base`, `serves ${size.serves}`];
   if (item.message) parts.push(`“${item.message}”`);
   return {
     key: itemKey(item),
@@ -81,14 +75,20 @@ export function priceItem(item: CartItem): PricedLine | null {
     unitPrice: size.price,
     qty: item.qty,
     total: size.price * item.qty,
-    leadDays: CAKE_LEAD_DAYS,
+    leadDays: shop.cakeLeadDays,
   };
 }
 
-export function priceCart(items: CartItem[]) {
-  const lines = items.map(priceItem).filter((l): l is PricedLine => l !== null);
+export function priceCart(items: CartItem[], catalogue: Catalogue) {
+  const lines: PricedLine[] = [];
+  const unavailable: CartItem[] = [];
+  for (const item of items) {
+    const line = priceItem(item, catalogue);
+    if (line) lines.push(line);
+    else unavailable.push(item);
+  }
   const subtotal = lines.reduce((sum, l) => sum + l.total, 0);
   const leadDays = lines.reduce((max, l) => Math.max(max, l.leadDays), 0);
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
-  return { lines, subtotal, leadDays, count };
+  return { lines, unavailable, subtotal, leadDays, count };
 }

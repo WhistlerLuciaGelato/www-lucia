@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Josefin_Sans, Nunito, Sansita } from "next/font/google";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { site } from "@/data/site";
 import "./globals.css";
 
@@ -42,23 +40,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-CA" className={`${sansita.variable} ${nunito.variable} ${josefin.variable} h-full`}>
+    <html lang="en-CA" className={`${sansita.variable} ${nunito.variable} ${josefin.variable}`}>
       <head>
         {adobeKit ? <link rel="stylesheet" href={`https://use.typekit.net/${adobeKit}.css`} /> : null}
       </head>
-      <body className="flex min-h-full flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-lake-deep focus:px-4 focus:py-2 focus:text-white"
-        >
-          Skip to content
-        </a>
-        <Header />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

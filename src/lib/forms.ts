@@ -1,6 +1,5 @@
 import { z } from "zod";
-import type { EventPackage } from "@/data/events";
-import { wholesaleFormats } from "@/data/wholesale";
+import type { WholesaleFormat } from "@/lib/content-types";
 
 const name = z.string().trim().min(1, "Please tell us your name").max(120);
 const email = z.email("Please enter a valid email").max(200);
@@ -30,33 +29,44 @@ export const eventSchema = z.object({
   eventDate: isoDate,
   eventType: z.enum(["wedding", "private", "corporate", "festival", "other"]),
   location: z.string().trim().min(1, "Where is the event?").max(200),
-  travel: z.enum(["Whistler", "Squamish / Pemberton", "Vancouver", "Other"]),
+  // Travel areas and packages are editable in the Studio; the API checks them against live content.
+  travel: z.string().trim().min(1).max(120),
   guests: z.coerce.number().int().min(1, "How many guests?").max(5000),
-  package: z.enum(["classic", "signature", "experience", "unsure"] satisfies (
-    | EventPackage["id"]
-    | "unsure"
-  )[]),
+  package: z.string().trim().min(1).max(64),
   message,
 });
 
-const formatIds = wholesaleFormats.map((f) => f.id) as [string, ...string[]];
+export const wholesaleLineSchema = z.object({
+  format: z.string().min(1).max(64),
+  flavour: z.string().trim().min(1, "Pick a flavour").max(120),
+  qty: z.coerce.number().int().min(1).max(999),
+});
 
-export const wholesaleLineSchema = z
-  .object({
-    format: z.enum(formatIds),
-    flavour: z.string().trim().min(1, "Pick a flavour").max(120),
-    qty: z.coerce.number().int().min(1).max(999),
-  })
-  .superRefine((line, ctx) => {
-    const format = wholesaleFormats.find((f) => f.id === line.format);
-    if (format && line.qty % format.multiple !== 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["qty"],
+/** Checks each line against the current formats and flavour lists. Returns zod-style issues. */
+export function wholesaleLineIssues(
+  lines: z.infer<typeof wholesaleLineSchema>[],
+  formats: WholesaleFormat[],
+  flavoursFor: (format: WholesaleFormat) => string[],
+) {
+  const issues: { path: (string | number)[]; message: string }[] = [];
+  lines.forEach((line, i) => {
+    const format = formats.find((f) => f.id === line.format);
+    if (!format) {
+      issues.push({ path: ["lines", i, "format"], message: "This format is no longer available" });
+      return;
+    }
+    if (line.qty % format.multiple !== 0) {
+      issues.push({
+        path: ["lines", i, "qty"],
         message: `${format.label} are ordered in multiples of ${format.multiple}`,
       });
     }
+    if (!flavoursFor(format).includes(line.flavour)) {
+      issues.push({ path: ["lines", i, "flavour"], message: "Pick a flavour from the list" });
+    }
   });
+  return issues;
+}
 
 export const wholesaleSchema = z.object({
   type: z.literal("wholesale"),
@@ -64,7 +74,7 @@ export const wholesaleSchema = z.object({
   name,
   email,
   phone: z.string().trim().min(7, "Please add a phone number").max(40),
-  area: z.enum(["Whistler", "Squamish", "Pemberton"]),
+  area: z.string().trim().min(1).max(120),
   address: z.string().trim().min(1, "Where should we deliver?").max(300),
   deliveryDate: isoDate.optional().or(z.literal("")),
   newAccount: z.boolean().optional(),

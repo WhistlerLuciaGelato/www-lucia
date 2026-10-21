@@ -4,16 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { cart } from "@/lib/cart-store";
 import { money } from "@/lib/format";
-import {
-  CAKE_LEAD_DAYS,
-  CAKE_MAX_QTY,
-  cakeBases,
-  cakeCombos,
-  cakeSizes,
-  type CakeBaseId,
-  type CakeComboId,
-  type CakeSizeId,
-} from "@/data/shop";
+import { CAKE_MAX_QTY } from "@/data/shop";
+import type { Shop } from "@/lib/content-types";
 
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -80,17 +72,18 @@ function Choice({
   );
 }
 
-export function CakeBuilder() {
-  const [size, setSize] = useState<CakeSizeId>("7in");
-  const [base, setBase] = useState<CakeBaseId>("chocolate-oreo");
-  const [combo, setCombo] = useState<CakeComboId>("gelato");
+export function CakeBuilder({ shop }: { shop: Shop }) {
+  const { cakeSizes, cakeBases, cakeCombos, cakeLeadDays } = shop;
+  const [size, setSize] = useState(cakeSizes[0].id);
+  const [base, setBase] = useState(cakeBases[0].id);
+  const [combo, setCombo] = useState(cakeCombos[0].id);
   const [message, setMessage] = useState("");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const sizeInfo = cakeSizes.find((s) => s.id === size)!;
-  const baseInfo = cakeBases.find((b) => b.id === base)!;
-  const comboInfo = cakeCombos.find((c) => c.id === combo)!;
+  const sizeInfo = cakeSizes.find((s) => s.id === size) ?? cakeSizes[0];
+  const baseInfo = cakeBases.find((b) => b.id === base) ?? cakeBases[0];
+  const comboInfo = cakeCombos.find((c) => c.id === combo) ?? cakeCombos[0];
 
   return (
     <form
@@ -128,7 +121,7 @@ export function CakeBuilder() {
                 checked={base === b.id}
                 onChange={() => setBase(b.id)}
                 title={b.label}
-                note={"note" in b ? b.note : undefined}
+                note={b.note}
               />
             ))}
           </div>
@@ -172,7 +165,7 @@ export function CakeBuilder() {
             placeholder="Happy birthday, Lucy!"
           />
           <p className="mt-4 font-ui text-sm text-ink/70">
-            You&rsquo;ll pick your pickup date at checkout — at least {CAKE_LEAD_DAYS} days from today.
+            You&rsquo;ll pick your pickup date at checkout — at least {cakeLeadDays} days from today.
           </p>
         </Step>
       </div>

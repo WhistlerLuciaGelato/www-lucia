@@ -1,17 +1,13 @@
-export type WholesaleFormat = {
-  id: "tub-5l" | "tub-5l-alcohol" | "pint" | "snack";
-  label: string;
-  price: number; // CAD cents
-  /** Orders must be placed in multiples of this. */
-  multiple: number;
-  note?: string;
-};
+import type { FlavourGroup, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
+
+// Default wholesale content, used until the Sanity Studio has its own. Prices in CAD cents.
 
 export const wholesaleFormats: WholesaleFormat[] = [
-  { id: "tub-5l", label: "5 L tub — gelato or sorbet", price: 5500, multiple: 1 },
-  { id: "tub-5l-alcohol", label: "5 L tub — alcohol-based", price: 7000, multiple: 1 },
+  { id: "tub-5l", kind: "tub", label: "5 L tub — gelato or sorbet", price: 5500, multiple: 1 },
+  { id: "tub-5l-alcohol", kind: "alcohol-tub", label: "5 L tub — alcohol-based", price: 7000, multiple: 1 },
   {
     id: "pint",
+    kind: "pint",
     label: "473 mL pints",
     price: 695,
     multiple: 9,
@@ -19,6 +15,7 @@ export const wholesaleFormats: WholesaleFormat[] = [
   },
   {
     id: "snack",
+    kind: "snack",
     label: "250 mL snack size",
     price: 380,
     multiple: 18,
@@ -26,7 +23,7 @@ export const wholesaleFormats: WholesaleFormat[] = [
   },
 ];
 
-export const deliverySchedule = [
+export const deliverySchedule: WholesaleContent["deliverySchedule"] = [
   {
     area: "Whistler",
     days: "Tuesday & Thursday",
@@ -42,13 +39,12 @@ export const deliverySchedule = [
     days: "Tuesday",
     terms: "Free delivery on orders over $400 · orders under $400 may incur a $40 fee",
   },
-] as const;
-
-export type FlavourGroup = { id: string; label: string; note?: string; flavours: string[] };
+];
 
 export const wholesaleFlavours: FlavourGroup[] = [
   {
     id: "gelato",
+    availableIn: ["tub", "pint", "snack"],
     label: "Gelato",
     flavours: [
       "Banana Bread",
@@ -105,6 +101,7 @@ export const wholesaleFlavours: FlavourGroup[] = [
   },
   {
     id: "sorbetto",
+    availableIn: ["tub", "pint", "snack"],
     label: "Sorbetto",
     note: "Dairy-free",
     flavours: [
@@ -142,6 +139,7 @@ export const wholesaleFlavours: FlavourGroup[] = [
   },
   {
     id: "vegan",
+    availableIn: ["tub", "pint", "snack"],
     label: "Vegan gelato",
     note: "Dairy-free & vegan",
     flavours: [
@@ -157,6 +155,7 @@ export const wholesaleFlavours: FlavourGroup[] = [
   },
   {
     id: "alcohol",
+    availableIn: ["alcohol-tub"],
     label: "Alcohol-based",
     note: "Available in 5 L tubs",
     flavours: [
@@ -180,6 +179,7 @@ export const wholesaleFlavours: FlavourGroup[] = [
   },
   {
     id: "sandwiches",
+    availableIn: [],
     label: "Gelato cookie sandwiches",
     flavours: ["Vanilla Gelato", "Chocolate Gelato", "Mango Sorbet", "Wildberry Sorbet"],
   },

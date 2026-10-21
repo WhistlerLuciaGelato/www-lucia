@@ -1,25 +1,24 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { wholesaleFlavours, wholesaleFormats, type WholesaleFormat } from "@/data/wholesale";
+import type { WholesaleContent, WholesaleFormat } from "@/lib/content-types";
 import { money } from "@/lib/format";
 import { useToday } from "@/lib/cart-store";
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
 
-type Line = { id: number; format: WholesaleFormat["id"]; flavour: string; qty: number };
+type Line = { id: number; format: string; flavour: string; qty: number };
 
-// Which flavour groups each format can be ordered in.
-const flavourGroupsFor: Record<WholesaleFormat["id"], string[]> = {
-  "tub-5l": ["gelato", "sorbetto", "vegan"],
-  "tub-5l-alcohol": ["alcohol"],
-  pint: ["gelato", "sorbetto", "vegan"],
-  snack: ["gelato", "sorbetto", "vegan"],
-};
-
-const newLine = (id: number): Line => ({ id, format: "tub-5l", flavour: "", qty: 1 });
-
-export function WholesaleOrderForm() {
+export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
+  const { formats: wholesaleFormats, flavourGroups, deliverySchedule } = content;
+  const newLine = (id: number): Line => ({
+    id,
+    format: wholesaleFormats[0].id,
+    flavour: "",
+    qty: wholesaleFormats[0].multiple,
+  });
+  const groupsFor = (format: WholesaleFormat) =>
+    flavourGroups.filter((g) => g.availableIn.includes(format.kind));
   const { state, submit, fieldError } = useFormSubmit();
   const today = useToday();
   const [lines, setLines] = useState<Line[]>(() => [newLine(0)]);
@@ -61,7 +60,7 @@ export function WholesaleOrderForm() {
           name: get("name"),
           email: get("email"),
           phone: get("phone"),
-          area: get("area") as "Whistler",
+          area: get("area"),
           address: get("address"),
           deliveryDate: get("deliveryDate"),
           newAccount: d.get("newAccount") === "on",
@@ -89,10 +88,10 @@ export function WholesaleOrderForm() {
         error={fieldError("email")}
       />
       <Field label="Phone" name="phone" type="tel" required autoComplete="tel" error={fieldError("phone")} />
-      <SelectField label="Delivery area" name="area" defaultValue="Whistler" error={fieldError("area")}>
-        <option>Whistler</option>
-        <option>Squamish</option>
-        <option>Pemberton</option>
+      <SelectField label="Delivery area" name="area" error={fieldError("area")}>
+        {deliverySchedule.map((d) => (
+          <option key={d.area}>{d.area}</option>
+        ))}
       </SelectField>
       <Field
         label="Preferred delivery date"
@@ -115,8 +114,8 @@ export function WholesaleOrderForm() {
         <legend className="label">Your order</legend>
         <ul className="space-y-3">
           {lines.map((line, index) => {
-            const format = wholesaleFormats.find((f) => f.id === line.format)!;
-            const groups = wholesaleFlavours.filter((g) => flavourGroupsFor[line.format].includes(g.id));
+            const format = wholesaleFormats.find((f) => f.id === line.format) ?? wholesaleFormats[0];
+            const groups = groupsFor(format);
             const qtyError = fieldError(`lines.${index}.qty`);
             const flavourError = fieldError(`lines.${index}.flavour`);
             const badMultiple = line.qty > 0 && line.qty % format.multiple !== 0;
@@ -134,8 +133,8 @@ export function WholesaleOrderForm() {
                     className="field"
                     value={line.format}
                     onChange={(e) => {
-                      const nextFormat = e.target.value as WholesaleFormat["id"];
-                      const f = wholesaleFormats.find((x) => x.id === nextFormat)!;
+                      const nextFormat = e.target.value;
+                      const f = wholesaleFormats.find((x) => x.id === nextFormat) ?? wholesaleFormats[0];
                       update(line.id, { format: nextFormat, flavour: "", qty: f.multiple });
                     }}
                   >
