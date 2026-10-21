@@ -2,7 +2,7 @@
  * Copies the built-in content (src/data) into a Sanity dataset, so the Studio starts
  * filled in with everything currently on the site, pint images included.
  *
- *   SANITY_API_WRITE_TOKEN=... node --env-file=.env.local scripts/seed-sanity.mts
+ *   SANITY_API_WRITE_TOKEN=... npm run seed
  *   node scripts/seed-sanity.mts --dry-run     # print the documents without writing
  *
  * Safe to re-run: documents use fixed ids and are replaced. Re-running overwrites
@@ -18,12 +18,12 @@ import { deliverySchedule, wholesaleFlavours, wholesaleFormats } from "../src/da
 import { site } from "../src/data/site.ts";
 
 const dryRun = process.argv.includes("--dry-run");
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "kkqmc2m3";
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 const token = process.env.SANITY_API_WRITE_TOKEN;
 
-if (!dryRun && (!projectId || !token)) {
-  console.error("Set NEXT_PUBLIC_SANITY_PROJECT_ID and SANITY_API_WRITE_TOKEN (or pass --dry-run).");
+if (!dryRun && !token) {
+  console.error("Set SANITY_API_WRITE_TOKEN (or pass --dry-run).");
   process.exit(1);
 }
 
