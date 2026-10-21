@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+/*
+ * Whistler Lucia Gelato — brand tokens (Brand Guidelines v2.0, 2025).
+ * Names match the guideline swatches so designers and devs speak the same language.
+ */
+@theme {
+  /* Primary */
+  --color-lakeside: #4e92a3;
+  --color-strawberry: #f58e90;
+  --color-snow: #fffef4;
+  --color-bluebird: #78bdc7;
+  --color-alpine: #bce4e7;
+  --color-alpenglow: #ffb0a6;
+  --color-blush: #fcd5d1;
+
+  /* Secondary */
+  --color-heatwave: #f79236;
+  --color-sunflower: #ffdf4f;
+  --color-grass: #b1b62d;
+  --color-sunset: #ffc88b;
+  --color-peach: #ffe1c2;
+  --color-butter: #fff6a5;
+  --color-cream: #fffce1;
+  --color-lime: #d9dd59;
+  --color-light-green: #deeaae;
+
+  /*
+   * Accessible companions. The brand palette is intentionally soft, so body copy
+   * and small UI text use darker tints of Lakeside/Strawberry to meet WCAG AA on Snow.
+   */
+  --color-ink: #1f3b42;
+  --color-lake-deep: #2f6e7e;
+  --color-berry: #b8434b;
+  --color-mist: #e3f3f5;
+
+  /* Fonts: Adobe Fonts names first (when a kit is configured), then free fallbacks. */
+  --font-display: "sauna-pro", var(--font-sansita), ui-serif, Georgia, serif;
+  --font-body: "sauna-pro", var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-eyebrow: "oskar-one", var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
+  --font-ui: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-blob: 3rem;
+  --shadow-pop: 0 6px 0 0 rgb(31 59 66 / 0.12);
+  --shadow-soft: 0 10px 30px -12px rgb(31 59 66 / 0.25);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-snow);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-lakeside);
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+
+  ::selection {
+    background: var(--color-blush);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  /* Headlines: Sauna Pro Black Italic, with the soft lift shown throughout the guidelines. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-shadow: 0 4px 10px rgb(31 59 66 / 0.12);
+  }
+
+  /* Long headlines & subheadings: Sauna Pro Bold Italic. */
+  .subhead {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.15;
+  }
+
+  /* Eyebrow subheading: Oskar One Regular. */
+  .eyebrow {
+    font-family: var(--font-eyebrow);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.85rem 1.6rem;
+    font-family: var(--font-eyebrow);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.875rem;
+    line-height: 1;
+    box-shadow: var(--shadow-pop);
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease,
+      background-color 150ms ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 0 rgb(31 59 66 / 0.12);
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-primary {
+    background: var(--color-lake-deep);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: #275f6d;
+  }
+  .btn-berry {
+    background: var(--color-strawberry);
+    color: #3d1416;
+  }
+  .btn-berry:hover {
+    background: #f37b7e;
+  }
+  .btn-ghost {
+    background: var(--color-snow);
+    color: var(--color-lake-deep);
+    box-shadow: inset 0 0 0 2px var(--color-lakeside);
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 1rem;
+    border: 2px solid var(--color-alpine);
+    background: #fff;
+    padding: 0.7rem 1rem;
+    font-family: var(--font-ui);
+    color: var(--color-ink);
+    transition: border-color 150ms ease;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-lakeside);
+  }
+  .label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-lake-deep);
+  }
+
+  .prose-lucia p + p {
+    margin-top: 1em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
