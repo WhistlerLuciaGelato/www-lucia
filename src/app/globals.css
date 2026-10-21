@@ -34,10 +34,13 @@
   --color-berry: #b8434b;
   --color-mist: #e3f3f5;
 
-  /* Fonts: Adobe Fonts names first (when a kit is configured), then free fallbacks. */
-  --font-display: "sauna-pro", var(--font-sansita), ui-serif, Georgia, serif;
-  --font-body: "sauna-pro", var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
-  --font-eyebrow: "oskar-one", var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
+  /*
+   * Fonts: the brand's Adobe Fonts (Sauna, Oskar) from the Typekit kit, then free stand-ins
+   * that only show if the kit fails to load. Family names must match the kit's CSS.
+   */
+  --font-display: "sauna-new", var(--font-sansita), ui-serif, Georgia, serif;
+  --font-body: "sauna-new", var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-eyebrow: "oskar", var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
   --font-ui: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 
   --radius-blob: 3rem;

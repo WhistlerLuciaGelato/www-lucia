@@ -28,7 +28,7 @@ Other scripts: `npm run build`, `npm run start`, `npm run lint`.
 | `NEXT_PUBLIC_SANITY_DATASET`     | Sanity dataset (default `production`)                                                         |
 | `SANITY_REVALIDATE_SECRET`       | Secret for the publish webhook, so edits go live within seconds                               |
 | `SANITY_API_WRITE_TOKEN`         | Only for the one-time `npm run seed`; don't add it to the deployed site                       |
-| `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID` | Adobe Fonts kit with **Sauna Pro** and **Oskar One**. Without it, free stand-ins are used.     |
+| `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID` | Overrides the Adobe Fonts kit (default `rkt6eeo`, with Sauna and Oskar). |
 | `STRIPE_SECRET_KEY`              | Turns on online checkout. Without it, the cart offers a pre-filled "email my order" button.   |
 | `STRIPE_AUTOMATIC_TAX`           | `true` once Stripe Tax is set up on the account                                               |
 | `RESEND_API_KEY`                 | Delivers form submissions. Without it, forms fall back to a pre-filled email to the inbox.    |
@@ -105,9 +105,13 @@ closed dates, all set in the Studio. The checkout API enforces the same rules (`
 - Colour tokens use the guideline names (`lakeside`, `strawberry`, `snow`, `bluebird`, `alpine`, `heatwave`…)
   in `src/app/globals.css`. Body text and buttons use darker tints (`ink`, `lake-deep`, `berry`) so they pass
   WCAG AA on Snow — the pastel palette alone is too light for small text.
-- Type roles follow the guidelines: Sauna Pro Black Italic for headlines (`.display`), Bold Italic for long
-  headlines (`.subhead`), Oskar One for eyebrows and buttons (`.eyebrow`, `.btn`), Nunito as the backup. Until an
-  Adobe Fonts kit is configured, Sansita and Josefin Sans stand in for Sauna and Oskar.
+- Type roles follow the guidelines: Sauna Black Italic for headlines (`.display`), Bold Italic for long
+  headlines (`.subhead`), Sauna Regular for body copy, Oskar for eyebrows and buttons (`.eyebrow`, `.btn`), and
+  Nunito for small UI text. Sauna and Oskar load from the Adobe Fonts kit `rkt6eeo` (families `sauna-new` and
+  `oskar`); Sansita and Josefin Sans only show if the kit fails to load.
+- The kit currently has Sauna Regular and Bold (roman and italic) but **not Sauna Black Italic**, so headlines
+  render in Bold Italic. Adding Black Italic to the Adobe web project fixes that with no code change.
+- Adobe web projects only serve fonts to the domains listed in the project, so add the live domain there.
 - `public/brand/` holds vector artwork traced from the guidelines PDF: primary logo, the cover mountain,
   the "Made on the Mountain" and "Since 2007" badges, the W mark and the dietary icons.
 - `public/bears/` holds the Lucia illustrations and `public/pints/` the 2025 pint renders, both extracted from
@@ -135,4 +139,6 @@ up, the client can correct most of them in the Studio themselves:
       at roughly 270 px; the originals from the brand asset download would look sharper
 - [ ] **Pickup days and closed dates** — defaults to every day, closed Dec 25 and Jan 1
 - [ ] Stripe account, Stripe Tax decision (gelato pints are generally zero-rated basic groceries — check with
-      the accountant), Resend domain verification, Adobe Fonts kit, Sanity project (see above)
+      the accountant), Resend domain verification, Sanity project (see above)
+- [ ] **Adobe Fonts:** add Sauna Black Italic to the web project, add the live domain, and move the kit to the
+      client's Adobe account (then set `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID`)
