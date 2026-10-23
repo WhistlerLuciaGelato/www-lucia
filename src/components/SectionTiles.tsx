@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { TilesMarquee } from "@/components/TilesMarquee";
 
 const tiles = [
   {
@@ -53,6 +54,7 @@ function TileList({ hidden = false }: { hidden?: boolean }) {
               width={t.img.w}
               height={t.img.h}
               sizes="230px"
+              draggable={false}
               className="mt-4 h-[13.5rem] w-auto object-contain transition duration-300 group-hover:-translate-y-1 group-hover:rotate-2"
             />
           </Link>
@@ -68,17 +70,17 @@ function TileList({ hidden = false }: { hidden?: boolean }) {
 }
 
 /**
- * The four section tiles from the home page design, as a slow, endless sideways drift.
- * It pauses on hover or keyboard focus, and becomes a plain scrollable row when the
- * visitor prefers reduced motion.
+ * The four section tiles from the home page design, as a slow, endless sideways drift
+ * that visitors can drag, swipe or scroll. It pauses on hover or keyboard focus, and
+ * only moves when pushed if the visitor prefers reduced motion.
  */
 export function SectionTiles() {
   return (
-    <section aria-label="Explore" className="tiles-marquee overflow-hidden py-16 lg:py-[7.5rem]">
-      <div className="tiles-track flex w-max">
+    <section className="py-16 lg:py-[7.5rem]">
+      <TilesMarquee label="Explore">
         <TileList />
         <TileList hidden />
-      </div>
+      </TilesMarquee>
     </section>
   );
 }

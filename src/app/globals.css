@@ -284,31 +284,16 @@
   fill: var(--color-lake-deep);
 }
 
-/* Home page section tiles: endless sideways drift (two copies of the list, moved by half). */
-.tiles-track {
-  animation: tiles-drift 45s linear infinite;
+/* Home page section tiles: a scroller with a hidden scrollbar, drifted and dragged by TilesMarquee. */
+.tiles-marquee {
+  overflow-x: auto;
+  scrollbar-width: none;
+  cursor: grab;
 }
-.tiles-marquee:hover .tiles-track,
-.tiles-marquee:focus-within .tiles-track {
-  animation-play-state: paused;
+.tiles-marquee::-webkit-scrollbar {
+  display: none;
 }
-@keyframes tiles-drift {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tiles-marquee {
-    overflow-x: auto;
-  }
-  .tiles-track {
-    animation: none;
-    padding-inline: 1rem;
-  }
-  .tiles-track > [aria-hidden="true"] {
-    display: none;
-  }
+.tiles-marquee[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
 }
