@@ -120,11 +120,12 @@ type PintDoc = {
   bear?: Bear;
   available?: boolean;
   image?: { asset?: { _ref: string } };
+  lid?: "local" | "dairy-free" | "none";
 };
 
 const pintsQuery = defineQuery(
   `*[_type == "pintFlavour" && defined(slug.current)] | order(orderRank asc, name asc) {
-    name, "slug": slug.current, style, blurb, diet, color, activity, bear, available, image
+    name, "slug": slug.current, style, blurb, diet, color, activity, bear, available, image, lid
   }`,
 );
 
@@ -136,7 +137,12 @@ export async function getPintFlavours(): Promise<PintFlavour[]> {
 
   setLifetime(docs === undefined);
   if (!docs?.length) {
-    return defaultPints.map((p) => ({ ...p, image: `/pints/${p.slug}.webp`, available: true }));
+    return defaultPints.map(({ render, ...p }) => ({
+      ...p,
+      image: render ? `/pints/render/${p.slug}.webp` : `/pints/${p.slug}.webp`,
+      lid: render ? (p.diet.includes("dairy-free") ? "dairy-free" : "local") : undefined,
+      available: true,
+    }));
   }
   return docs.map((d) => ({
     slug: d.slug,
@@ -148,7 +154,13 @@ export async function getPintFlavours(): Promise<PintFlavour[]> {
     activity: d.activity ?? "",
     bear: d.bear ?? "bike",
     available: d.available !== false,
-    image: d.image?.asset ? urlFor(d.image).width(720).height(720).fit("fill").bg("fffef4").url() : "",
+    // Transparent renders (shown with a lid) keep their transparency; other photos sit on Snow.
+    image: d.image?.asset
+      ? d.lid === "local" || d.lid === "dairy-free"
+        ? urlFor(d.image).width(700).url()
+        : urlFor(d.image).width(720).height(720).fit("fill").bg("fffef4").url()
+      : "",
+    lid: d.lid === "local" || d.lid === "dairy-free" ? d.lid : undefined,
   }));
 }
 

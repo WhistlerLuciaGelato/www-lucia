@@ -1,62 +1,100 @@
 import Image from "next/image";
-import type { PintFlavour } from "@/lib/content-types";
+import type { Diet, PintFlavour } from "@/lib/content-types";
+import { dietLabels } from "@/data/flavours";
 import { money } from "@/lib/format";
 import { AddPintButton } from "@/components/shop/AddPintButton";
-import { Bear, DietPills } from "@/components/ui";
+import { Bear } from "@/components/ui";
 
-/** Pass `price` (CAD cents) to show the add-to-cart controls. */
+const dietTagColor: Record<Diet, string> = {
+  "dairy-free": "text-lakeside",
+  vegan: "text-grass",
+  "gluten-free": "text-heatwave",
+};
+
+/** Flavour card from the website design. Pass `price` (CAD cents) to show add-to-cart controls. */
 export function PintCard({ flavour, price }: { flavour: PintFlavour; price?: number }) {
   const shop = price !== undefined;
+  const dairyFree = flavour.diet.includes("dairy-free");
+  const isSorbet = flavour.style === "Sorbet";
+
   return (
     <article
       id={flavour.slug}
-      className="group flex scroll-mt-28 flex-col overflow-hidden rounded-blob bg-white shadow-soft ring-1 ring-alpine/60"
+      className={`flex w-full max-w-[21.875rem] scroll-mt-32 flex-col items-center gap-2.5 rounded-blob px-6 py-[3.125rem] text-center ${
+        dairyFree ? "bg-mist" : "bg-snow"
+      }`}
     >
-      <div className="relative bg-snow">
-        {flavour.image ? (
+      <div className="relative h-[15.5rem] w-[14.25rem] shrink-0 overflow-hidden">
+        {flavour.image && flavour.lid ? (
+          <>
+            <Image
+              src={`/pints/render/lid-${flavour.lid}.webp`}
+              alt=""
+              width={750}
+              height={500}
+              className="absolute top-0 left-[calc(50%+1px)] h-[14.583rem] w-[21.875rem] max-w-none -translate-x-1/2"
+            />
+            <Image
+              src={flavour.image}
+              alt={`${flavour.name} pint`}
+              width={560}
+              height={551}
+              sizes="232px"
+              className="absolute top-2.5 left-1/2 h-[14.3125rem] w-[14.5rem] max-w-none -translate-x-1/2 object-contain"
+            />
+          </>
+        ) : flavour.image ? (
           <Image
             src={flavour.image}
-            alt={`${flavour.name} pint${flavour.activity ? ` — ${flavour.activity.toLowerCase()} on the label` : ""}`}
+            alt={`${flavour.name} pint`}
             width={720}
             height={720}
-            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
-            className="aspect-square w-full object-contain p-4 transition duration-300 group-hover:scale-[1.03] group-hover:-rotate-1"
+            sizes="228px"
+            className="h-full w-full object-contain"
           />
         ) : (
-          <div
-            className="grid aspect-square w-full place-items-center"
-            style={{ backgroundColor: `${flavour.color}22` }}
-          >
-            <Bear name={flavour.bear} className="w-1/2" />
+          <div className="grid h-full w-full place-items-center">
+            <Bear name={flavour.bear} className="w-3/4" />
           </div>
         )}
         {shop && !flavour.available ? (
-          <span className="eyebrow absolute top-4 left-4 rounded-full bg-ink px-3 py-1.5 text-snow">
+          <span className="eyebrow absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-ink px-3 py-1.5 !text-xs text-snow">
             Sold out
           </span>
         ) : null}
       </div>
-      <div className="flex flex-1 flex-col p-6">
-        <p className="eyebrow flex items-center gap-2 text-ink/70">
-          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: flavour.color }} aria-hidden />
-          {flavour.style}
-        </p>
-        <h3 className="subhead mt-1.5 text-2xl text-ink">{flavour.name}</h3>
-        <p className="mt-3 flex-1 leading-relaxed text-ink/80">{flavour.blurb}</p>
-        <div className="mt-5 flex items-center justify-between gap-3">
-          <DietPills diet={flavour.diet} />
-          {shop ? <p className="font-ui text-xl font-extrabold text-ink">{money(price)}</p> : null}
+
+      <h3 className="subhead max-w-[15.75rem] text-2xl leading-[0.9] text-balance text-ink">
+        {flavour.name}
+      </h3>
+      <p className="max-w-[18.25rem] text-base leading-[1.2] text-black/80">{flavour.blurb}</p>
+
+      <ul
+        className="flex max-w-[20.7rem] flex-wrap justify-center gap-2.5"
+        aria-label="Type and dietary information"
+      >
+        <li
+          className={`tag !text-snow ${isSorbet ? "border-bluebird !bg-bluebird" : "border-alpenglow !bg-alpenglow"}`}
+        >
+          {isSorbet ? "Sorbet" : "Gelato"}
+        </li>
+        {flavour.diet.map((d) => (
+          <li key={d} className={`tag ${dietTagColor[d]}`}>
+            {dietLabels[d]}
+          </li>
+        ))}
+      </ul>
+
+      {shop ? (
+        <div className="mt-4 flex w-full flex-col items-center gap-3 border-t border-black/10 pt-5">
+          <p className="font-ui text-xl font-extrabold text-ink">{money(price)}</p>
+          {flavour.available ? (
+            <AddPintButton flavour={flavour.slug} name={flavour.name} />
+          ) : (
+            <p className="font-ui font-bold text-ink/60">Back soon — check our other flavours.</p>
+          )}
         </div>
-        {shop ? (
-          <div className="mt-5 border-t border-alpine pt-5">
-            {flavour.available ? (
-              <AddPintButton flavour={flavour.slug} name={flavour.name} />
-            ) : (
-              <p className="font-ui font-bold text-ink/60">Back soon — check our other flavours.</p>
-            )}
-          </div>
-        ) : null}
-      </div>
+      ) : null}
     </article>
   );
 }

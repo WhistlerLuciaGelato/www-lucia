@@ -1,284 +1,149 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getEvents, getLocations, getPintFlavours, getShop } from "@/lib/content";
+import { getPintFlavours } from "@/lib/content";
 import { PintCard } from "@/components/shop/PintCard";
-import { Bear, Container, Mountains, SectionHeading } from "@/components/ui";
-
-const pathways = [
-  {
-    href: "/find-us",
-    eyebrow: "Find us",
-    title: "Chase the trailer",
-    body: "Roundhouse in winter, the lakes in summer, and grocery freezers all along the Sea to Sky.",
-    bg: "bg-alpine",
-    bear: "bike",
-  },
-  {
-    href: "/order",
-    eyebrow: "Order",
-    title: "Pints & cakes",
-    body: "Pick up pints and made-to-order gelato cakes from our kitchen at Base II.",
-    bg: "bg-blush",
-    bear: "snowboard-pink",
-  },
-  {
-    href: "/events",
-    eyebrow: "Events",
-    title: "Gelato at your party",
-    body: "Weddings, birthdays and corporate days — with or without the trailer.",
-    bg: "bg-peach",
-    bear: "kayak",
-  },
-  {
-    href: "/wholesale",
-    eyebrow: "Wholesale",
-    title: "Stock Lucia",
-    body: "5 L tubs, pints and snack cups for cafés, restaurants and retailers.",
-    bg: "bg-light-green",
-    bear: "bmx",
-  },
-];
-
-const personality = [
-  { word: "Local", color: "text-lakeside" },
-  { word: "Handmade", color: "text-strawberry" },
-  { word: "Adventurous", color: "text-heatwave" },
-  { word: "Youthful", color: "text-[#e9c429]" },
-  { word: "Whimsical", color: "text-grass" },
-];
+import { BackToTop } from "@/components/BackToTop";
+import { SectionTiles } from "@/components/SectionTiles";
 
 export default async function Home() {
-  const [pintFlavours, seasonalSpots, shop, events] = await Promise.all([
-    getPintFlavours(),
-    getLocations(),
-    getShop(),
-    getEvents(),
-  ]);
+  const pintFlavours = await getPintFlavours();
   const featured = pintFlavours.slice(0, 6);
-  const cheapestPackage = [...events.packages].sort((a, b) => a.basePrice - b.basePrice)[0];
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <Container className="relative grid items-center gap-10 pt-12 pb-4 lg:grid-cols-2 lg:pt-20">
-          <div className="relative z-10 text-center lg:text-left">
-            <p className="eyebrow text-berry">Locally crafted · Since 2007</p>
-            <h1 className="display mt-5 text-6xl text-lakeside sm:text-7xl xl:text-8xl">
+      {/* Hero: full-bleed photo with a soft blue wash, copy bottom-left. */}
+      <section className="relative isolate overflow-hidden bg-lakeside text-snow">
+        <Image
+          src="/home/hero-mango-cone.webp"
+          alt="A mango sorbet cone held up against snowy mountains"
+          width={2560}
+          height={1707}
+          priority
+          sizes="(min-width: 1024px) 168vw, 100vw"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[38%_center] lg:inset-auto lg:top-[calc(50%+3rem)] lg:left-0 lg:h-auto lg:w-[168%] lg:max-w-none lg:-translate-y-1/2"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 mix-blend-multiply"
+          style={{
+            backgroundImage: "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(14,56,89,0.3) 72%)",
+          }}
+        />
+        <div className="mx-auto flex min-h-[38rem] max-w-[90rem] flex-col justify-between px-4 pt-8 pb-14 sm:px-8 lg:h-[47.6875rem] lg:px-[6.25rem] lg:pt-[3.125rem] lg:pb-[6.25rem]">
+          <p className="eyebrow !text-base sm:pl-2.5 lg:!text-xl">Locally crafted since 2007</p>
+          <div className="max-w-[37.5rem]">
+            <h1 className="display text-6xl [text-shadow:0_2px_16px_rgb(14_56_89/0.25)] sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
               Made on the Mountain
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-ink/85 sm:text-xl lg:mx-0">
-              Small-batch gelato and sorbetto, handmade in our kitchen at Base II — the only frozen treats
-              made right here in Whistler.
+            <p className="mt-7 max-w-[25.625rem] text-base tracking-[0.02em] sm:pl-2.5">
+              Small-batch gelato and sorbet, handmade in our kitchen at Base II — the only frozen treats made
+              right here in Whistler.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
-              <Link href="/find-us" className="btn btn-primary">
-                Find Lucia today
+            <div className="mt-8 flex flex-wrap gap-4 sm:ml-2 sm:gap-6">
+              <Link href="/find-us" className="btn btn-sky min-w-[7.875rem]">
+                Find us
               </Link>
-              <Link href="/order/pints" className="btn btn-berry">
-                Order pints
+              <Link href="/order" className="btn btn-blush min-w-[7.875rem]">
+                Order
               </Link>
             </div>
           </div>
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div className="absolute inset-6 rounded-full bg-alpine/60 blur-2xl" aria-hidden />
+        </div>
+      </section>
+
+      {/* Colourful section tiles with Lucia, drifting sideways. */}
+      <SectionTiles />
+
+      {/* Flavours */}
+      <section className="bg-rose px-4 pt-16 pb-20 sm:px-8 lg:pt-[3.875rem] lg:pb-[4.5rem]">
+        <h2 className="display mx-auto max-w-[37.5rem] text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
+          Find your flavour
+        </h2>
+        <div className="mx-auto mt-12 grid max-w-[71rem] justify-items-center gap-x-[3.2rem] gap-y-10 sm:grid-cols-2 lg:mt-[4.25rem] lg:grid-cols-3 lg:items-start lg:gap-y-[4.25rem]">
+          {featured.map((f) => (
+            <PintCard key={f.slug} flavour={f} />
+          ))}
+        </div>
+        <div className="mt-14 flex flex-wrap justify-center gap-4 lg:mt-[6.5rem] lg:gap-[1.875rem]">
+          <Link href="/our-gelato" className="btn btn-berry">
+            See all flavours
+          </Link>
+          <Link href="/order/pints" className="btn btn-ghost">
+            Order pints for pickup
+          </Link>
+        </div>
+      </section>
+
+      {/* Where's Lucia? */}
+      <section className="px-4 py-20 sm:px-8 lg:pt-[6.25rem] lg:pb-[7.5rem]">
+        <div className="mx-auto grid max-w-[70.5rem] items-center gap-12 lg:grid-cols-2">
+          <div>
+            <p className="eyebrow !text-lg text-lakeside lg:!text-xl">Where&rsquo;s Lucia?</p>
+            <h2 className="display mt-6 max-w-[37.5rem] text-6xl text-strawberry sm:text-7xl lg:mt-10 lg:text-[5rem] lg:leading-[0.85]">
+              Find your next scoop or pint
+            </h2>
+            <div className="mt-12 max-w-[20rem] space-y-11 lg:mt-16">
+              <div>
+                <p className="text-base tracking-[0.02em] text-lakeside">
+                  Craving a scoop? Discover our seasonal locations and local scoop partners.
+                </p>
+                <Link href="/find-us#map" className="btn btn-sky mt-3.5">
+                  See the map
+                </Link>
+              </div>
+              <div>
+                <p className="text-base tracking-[0.02em] text-strawberry">
+                  Explore our grocery stockists &amp; restaurant vendors throughout the Sea to Sky.
+                </p>
+                <Link href="/find-us#grocery" className="btn btn-blush mt-3.5">
+                  See vendors
+                </Link>
+              </div>
+            </div>
+          </div>
+          <Image
+            src="/home/trailer-crew.webp"
+            alt="The Lucia crew waving from the gelato trailer"
+            width={1100}
+            height={1100}
+            sizes="(min-width: 1024px) 549px, 90vw"
+            className="mx-auto aspect-square w-full max-w-[34.3125rem] lg:mr-0"
+          />
+        </div>
+      </section>
+
+      {/* Our story */}
+      <section className="px-4 sm:px-8">
+        <div className="mx-auto grid max-w-[72.5rem] items-center gap-10 rounded-[3.5rem] bg-mist p-6 sm:p-[2.9375rem] lg:grid-cols-[22.2rem_1fr] lg:rounded-[6.25rem] lg:gap-0">
+          <div className="relative mx-auto aspect-[355/500] w-full max-w-[22.2rem] overflow-hidden rounded-[5.25rem]">
             <Image
-              src="/bears/snowboard-large.png"
-              alt="Lucia the bear snowboarding"
-              width={856}
-              height={656}
-              priority
-              sizes="(min-width: 1024px) 40vw, 80vw"
-              className="relative w-full -rotate-3 drop-shadow-[0_18px_24px_rgba(31,59,66,0.18)]"
+              src="/home/story-skiers.webp"
+              alt="Two skiers sharing a Lucia gelato cone on the mountain"
+              width={900}
+              height={1375}
+              sizes="(min-width: 1024px) 355px, 90vw"
+              className="h-full w-full object-cover object-[50%_35%]"
             />
           </div>
-        </Container>
-        <Mountains className="-mt-10 sm:-mt-24" />
-      </section>
-
-      {/* Pathways */}
-      <section className="bg-mist py-16 sm:py-20">
-        <Container>
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {pathways.map((p) => (
-              <li key={p.href}>
-                <Link
-                  href={p.href}
-                  className={`group relative flex h-full min-h-72 flex-col overflow-hidden rounded-blob ${p.bg} p-7 shadow-pop transition hover:-translate-y-1`}
-                >
-                  <p className="eyebrow text-ink/70">{p.eyebrow}</p>
-                  <h2 className="subhead mt-2 text-3xl text-ink">{p.title}</h2>
-                  <p className="mt-3 max-w-[16rem] leading-relaxed text-ink/80">{p.body}</p>
-                  <span className="mt-auto pt-6 font-ui font-extrabold text-lake-deep">
-                    Let&rsquo;s go{" "}
-                    <span aria-hidden className="inline-block transition group-hover:translate-x-1">
-                      →
-                    </span>
-                  </span>
-                  <Bear
-                    name={p.bear}
-                    className="absolute -right-4 -bottom-2 w-32 opacity-90 transition group-hover:-translate-y-1 group-hover:rotate-3"
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
-
-      {/* Lineup */}
-      <section className="py-20 sm:py-28">
-        <Container>
-          <SectionHeading
-            eyebrow="The pint lineup"
-            title="Find your flavour"
-            tone="strawberry"
-            intro="Dense, smooth and intense — gelato the Italian way, with a little Whistler whimsy on every label."
-          />
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((f) => (
-              <PintCard key={f.slug} flavour={f} />
-            ))}
-          </div>
-          <div className="mt-12 flex flex-wrap justify-center gap-3">
-            <Link href="/our-gelato" className="btn btn-ghost">
-              See every flavour
-            </Link>
-            <Link href="/order/pints" className="btn btn-primary">
-              Order pints for pickup
-            </Link>
-          </div>
-        </Container>
-      </section>
-
-      {/* Story */}
-      <section className="py-8">
-        <Container>
-          <div className="grid items-center gap-10 overflow-hidden rounded-[4rem] bg-blush/60 p-8 sm:p-12 lg:grid-cols-2 lg:p-16">
-            <div>
-              <p className="eyebrow text-berry">Our story</p>
-              <h2 className="display mt-4 text-5xl text-strawberry sm:text-6xl">Proudly local, since 2007</h2>
-              <div className="prose-lucia mt-6 text-lg leading-relaxed text-ink/85">
-                <p>
-                  It all started with a trip to Italy and a simple pleasure: stopping for gelato after a long
-                  day outside. Back home in Whistler, we set out to bring that feeling to the mountain.
-                </p>
-                <p>
-                  We source from the Sea to Sky, celebrate the community that shaped us, and never forget
-                  where we come from. Bold, joyful, a little whimsical. <strong>Just like Whistler.</strong>
-                </p>
-              </div>
-              <Link href="/about" className="btn btn-primary mt-8">
-                Read our story
-              </Link>
-            </div>
-            <div className="relative mx-auto w-full max-w-sm">
-              <Image
-                src="/photos/skiers-cones.webp"
-                alt="Two skiers sharing gelato cones in the snow"
-                width={1200}
-                height={1833}
-                sizes="(min-width: 1024px) 30vw, 80vw"
-                className="aspect-[4/5] w-full rounded-[3rem] object-cover shadow-soft"
-              />
-              <Image
-                src="/brand/made-on-the-mountain.svg"
-                alt=""
-                aria-hidden
-                width={160}
-                height={160}
-                className="absolute -bottom-8 -left-8 h-32 w-32 rotate-[-8deg] rounded-full bg-snow p-2 shadow-soft"
-              />
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Seasons */}
-      <section className="py-20 sm:py-28">
-        <Container>
-          <SectionHeading
-            eyebrow="Where's Lucia?"
-            title="Winter on the hill, summer by the lake"
-            intro="We follow the seasons — and the sunshine. Check the schedule before you go: mountain weather has a mind of its own."
-          />
-          <div className="mt-12 grid gap-5 md:grid-cols-2">
-            {(["Winter", "Summer"] as const).map((season) => (
-              <div
-                key={season}
-                className={`relative overflow-hidden rounded-blob p-8 sm:p-10 ${season === "Winter" ? "bg-alpine" : "bg-butter"}`}
-              >
-                <p className="eyebrow text-ink/70">{season}</p>
-                <ul className="mt-4 space-y-5">
-                  {seasonalSpots
-                    .filter((s) => s.season === season)
-                    .map((s) => (
-                      <li key={s.id}>
-                        <p className="subhead text-2xl text-ink">{s.name}</p>
-                        <p className="font-ui text-sm font-bold text-lake-deep">{s.area}</p>
-                      </li>
-                    ))}
-                </ul>
-                <Bear
-                  name={season === "Winter" ? "ski-jump" : "kayak"}
-                  className="absolute -right-3 bottom-0 w-36 sm:w-44"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link href="/find-us" className="btn btn-primary">
-              Map, hours &amp; stockists
-            </Link>
-          </div>
-        </Container>
-      </section>
-
-      {/* Cakes + events */}
-      <section>
-        <Container className="grid gap-5 lg:grid-cols-5">
-          <div className="relative overflow-hidden rounded-blob bg-lake-deep p-8 text-snow sm:p-12 lg:col-span-3">
-            <p className="eyebrow text-alpine">Gelato cakes</p>
-            <h2 className="display mt-4 text-5xl sm:text-6xl">Make it a cake</h2>
-            <p className="mt-5 max-w-md text-lg leading-relaxed text-snow/90">
-              Two layers of gelato or sorbet on your choice of base.{" "}
-              {shop.cakeSizes.map((c) => `${c.label} serves ${c.serves}`).join(", ")} — made to order with{" "}
-              {shop.cakeLeadDays} days&rsquo; notice.
+          <div className="mx-auto flex max-w-[37rem] flex-col items-center pb-6 text-center lg:py-8">
+            <p className="eyebrow !text-lg text-bluebird lg:!text-xl">Our story</p>
+            <h2 className="display mt-10 text-5xl leading-[1.05] text-lakeside sm:text-[3.75rem]">
+              Inspired by Italy, made in Whistler
+            </h2>
+            <p className="mt-6 max-w-[31rem] text-base tracking-[0.02em] text-lakeside">
+              Lucia Gelato&rsquo;s story began in Italy, inspired by the simple pleasure of stopping for a
+              scoop of gelato along the way. A little pause after exploring, a chance to soak in somewhere
+              new, or a sweet treat after a day of adventure. The idea was simple: to bring a little bit of
+              that Italian feeling back to Whistler.
             </p>
-            <Link href="/order/cakes" className="btn mt-8 bg-snow text-lake-deep">
-              Build your cake
-            </Link>
-            <Bear name="zipline" className="absolute right-4 -bottom-4 hidden w-48 sm:block" />
-          </div>
-          <div className="flex flex-col justify-between rounded-blob bg-peach p-8 sm:p-12 lg:col-span-2">
-            <div>
-              <p className="eyebrow text-ink/70">Weddings &amp; events</p>
-              <h2 className="subhead mt-3 text-3xl text-ink">Bring the trailer to your big day</h2>
-              <p className="mt-4 leading-relaxed text-ink/80">
-                {cheapestPackage
-                  ? `Packages from $${cheapestPackage.basePrice} for ${cheapestPackage.baseGuests} guests, served from our gelato trailer or a simple table setup.`
-                  : "Gelato for weddings, parties and corporate events."}
-              </p>
-            </div>
-            <Link href="/events" className="btn btn-primary mt-8 self-start">
-              See packages
+            <Link href="/about" className="btn btn-primary mt-14">
+              Read more…
             </Link>
           </div>
-        </Container>
+        </div>
       </section>
 
-      {/* Personality */}
-      <section className="py-24" aria-label="What we're about">
-        <Container>
-          <p className="flex flex-wrap items-baseline justify-center gap-x-6 gap-y-1 text-center">
-            {personality.map((p) => (
-              <span key={p.word} className={`display text-5xl sm:text-6xl lg:text-7xl ${p.color}`}>
-                {p.word}
-              </span>
-            ))}
-          </p>
-        </Container>
-      </section>
+      <BackToTop />
     </>
   );
 }

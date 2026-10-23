@@ -16,7 +16,7 @@ export default function NotFound() {
             <Link href="/" className="btn btn-primary">
               Back home
             </Link>
-            <Link href="/find-us" className="btn btn-ghost">
+            <Link href="/find-us" className="btn btn-sky">
               Find gelato
             </Link>
           </div>

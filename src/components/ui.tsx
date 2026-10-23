@@ -30,10 +30,14 @@ export function PageHeading({
 }) {
   return (
     <div className="mx-auto max-w-3xl text-center">
-      <p className="eyebrow text-lake-deep">{eyebrow}</p>
-      <h1 className={`display mt-4 text-5xl sm:text-6xl lg:text-7xl ${toneClass[tone]}`}>{title}</h1>
+      <p className="eyebrow !text-lg text-lakeside lg:!text-xl">{eyebrow}</p>
+      <h1 className={`display mt-5 text-6xl sm:text-7xl lg:text-[5rem] lg:leading-[0.85] ${toneClass[tone]}`}>
+        {title}
+      </h1>
       {intro ? (
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-ink/85 sm:text-xl">{intro}</p>
+        <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed tracking-[0.01em] text-black/80">
+          {intro}
+        </p>
       ) : null}
       {children}
     </div>
@@ -57,11 +61,11 @@ export function SectionHeading({
 }) {
   return (
     <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
-      {eyebrow ? <p className="eyebrow text-lake-deep">{eyebrow}</p> : null}
-      <h2 id={id} className={`display mt-3 text-4xl sm:text-5xl ${toneClass[tone]}`}>
+      {eyebrow ? <p className="eyebrow !text-lg text-lakeside lg:!text-xl">{eyebrow}</p> : null}
+      <h2 id={id} className={`display mt-4 text-5xl sm:text-6xl ${toneClass[tone]}`}>
         {title}
       </h2>
-      {intro ? <p className="mt-4 text-lg leading-relaxed text-ink/85">{intro}</p> : null}
+      {intro ? <p className="mt-5 text-lg leading-relaxed text-black/80">{intro}</p> : null}
     </div>
   );
 }
@@ -82,32 +86,6 @@ export function DietIcons({ diet, size = 44 }: { diet: Diet[]; size?: number }) 
         </li>
       ))}
     </ul>
-  );
-}
-
-export function DietPills({ diet }: { diet: Diet[] }) {
-  return (
-    <ul className="flex flex-wrap gap-1.5">
-      {diet.map((d) => (
-        <li key={d} className="rounded-full bg-mist px-2.5 py-1 font-ui text-xs font-bold text-lake-deep">
-          {dietLabels[d]}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** The layered mountain from the cover of the brand guidelines. */
-export function Mountains({ className = "" }: { className?: string }) {
-  return (
-    <Image
-      src="/brand/mountains.svg"
-      alt=""
-      aria-hidden
-      width={1224}
-      height={452}
-      className={`pointer-events-none block w-full select-none ${className}`}
-    />
   );
 }
 

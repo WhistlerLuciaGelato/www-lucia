@@ -93,7 +93,7 @@ export default async function OurGelatoPage() {
             <Link href="/order/pints" className="btn btn-primary">
               Order pints
             </Link>
-            <Link href="/find-us#grocery" className="btn btn-ghost">
+            <Link href="/find-us#grocery" className="btn btn-sky">
               Find a store
             </Link>
           </div>

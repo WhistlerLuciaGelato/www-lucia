@@ -39,9 +39,10 @@ const dollars = (cents: number) => cents / 100;
 const keyed = <T extends object>(items: T[], prefix: string) =>
   items.map((item, i) => ({ _key: `${prefix}${i}`, ...item }));
 
-async function uploadPint(slug: string) {
+async function uploadPint(slug: string, render?: boolean) {
   if (dryRun) return { _type: "image", asset: { _type: "reference", _ref: `image-${slug}` } };
-  const file = await readFile(new URL(`../public/pints/${slug}.webp`, import.meta.url));
+  const path = render ? `../public/pints/render/${slug}.webp` : `../public/pints/${slug}.webp`;
+  const file = await readFile(new URL(path, import.meta.url));
   const asset = await client.assets.upload("image", file, { filename: `${slug}.webp` });
   return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
 }
@@ -128,7 +129,8 @@ for (const [i, pint] of pintFlavours.entries()) {
     bear: pint.bear,
     available: true,
     orderRank: (i + 1) * 10,
-    image: await uploadPint(pint.slug),
+    lid: pint.render ? (pint.diet.includes("dairy-free") ? "dairy-free" : "local") : "none",
+    image: await uploadPint(pint.slug, pint.render),
   });
 }
 

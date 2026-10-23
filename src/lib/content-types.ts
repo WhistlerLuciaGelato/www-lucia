@@ -42,6 +42,11 @@ export type PintFlavour = {
   activity: string;
   bear: Bear;
   image: string;
+  /**
+   * Show a lid behind the image. Used with transparent pint renders, as in the website
+   * design: "local" is the Made on the Mountain lid, "dairy-free" the Hello I'm dairy-free one.
+   */
+  lid?: "local" | "dairy-free";
   /** False = shown as sold out in the shop. */
   available: boolean;
 };

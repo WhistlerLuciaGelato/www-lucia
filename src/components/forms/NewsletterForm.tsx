@@ -27,7 +27,7 @@ export function NewsletterForm() {
         });
       }}
     >
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col items-start gap-5">
         <label htmlFor="newsletter-email" className="sr-only">
           Email address
         </label>
@@ -38,19 +38,15 @@ export function NewsletterForm() {
           required
           autoComplete="email"
           placeholder="yourname@email.com"
-          className="field !rounded-full !border-snow"
+          className="h-[2.6875rem] w-full rounded-[1.25rem] border border-lakeside bg-snow px-4 text-center font-body text-base text-lakeside placeholder:text-lakeside/80 focus:outline-none focus:ring-2 focus:ring-lakeside"
         />
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
-        <button
-          type="submit"
-          className="btn shrink-0 bg-snow whitespace-nowrap text-berry"
-          disabled={state.status === "submitting"}
-        >
+        <button type="submit" className="btn btn-primary !text-base" disabled={state.status === "submitting"}>
           {state.status === "submitting" ? "Joining…" : "Sign up"}
         </button>
       </div>
       {fieldError("email") || state.status === "error" ? (
-        <p role="alert" className="mt-2 font-ui text-sm font-bold text-[#4a1418]">
+        <p role="alert" className="mt-2 font-ui text-sm font-bold text-berry">
           {fieldError("email") ?? (state.status === "error" ? state.message : null)}
         </p>
       ) : null}

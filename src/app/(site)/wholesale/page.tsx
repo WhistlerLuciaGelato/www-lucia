@@ -29,7 +29,7 @@ export default async function WholesalePage() {
               <a href="#order" className="btn btn-primary">
                 Place an order
               </a>
-              <a href="#flavours" className="btn btn-ghost">
+              <a href="#flavours" className="btn btn-sky">
                 Browse {flavourCount} flavours
               </a>
             </div>

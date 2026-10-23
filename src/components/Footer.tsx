@@ -4,69 +4,54 @@ import { nav, site } from "@/data/site";
 import { getSiteSettings } from "@/lib/content";
 import { phoneHref } from "@/lib/format";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
-import { Container, Mountains } from "@/components/ui";
+
+// Footer link columns, in the order shown in the design.
+const columns = [
+  ["/find-us", "/our-gelato", "/wholesale"],
+  ["/order", "/events", "/about"],
+].map((hrefs) => hrefs.map((href) => nav.find((n) => n.href === href)!));
 
 export async function Footer() {
   const { contact } = await getSiteSettings();
   return (
-    <footer className="mt-24">
-      <Mountains className="-mb-px" />
-      <div className="bg-mist">
-        <Container className="grid gap-5 py-12 lg:grid-cols-12">
-          <div className="rounded-blob bg-lake-deep p-8 text-snow lg:col-span-4">
-            <Image
-              src="/brand/logo.svg"
-              alt="Whistler Lucia Gelato"
-              width={180}
-              height={76}
-              className="h-16 w-auto rounded-2xl bg-snow p-2"
-            />
-            <address className="mt-6 not-italic leading-relaxed">
-              <p className="font-bold">Our kitchen at Base II</p>
-              <p>{contact.kitchenStreet}</p>
-              <p>{contact.kitchenCity}</p>
-              <p className="mt-4">
-                <a
-                  href={`mailto:${contact.email}`}
-                  className="underline decoration-2 underline-offset-4 hover:decoration-snow/50"
-                >
-                  {contact.email}
-                </a>
-              </p>
-              <p>
-                <a
-                  href={phoneHref(contact.phone)}
-                  className="underline decoration-2 underline-offset-4 hover:decoration-snow/50"
-                >
-                  {contact.phone}
-                </a>
-              </p>
-              <p className="mt-4">
-                <a
-                  href={contact.instagramUrl}
-                  className="underline decoration-2 underline-offset-4 hover:decoration-snow/50"
-                >
-                  Instagram {contact.instagramHandle}
-                </a>
-              </p>
-            </address>
-          </div>
+    <footer className="mt-24 border-t border-bluebird bg-glacier text-sm tracking-[0.02em] text-black">
+      <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-8 lg:flex lg:justify-center lg:gap-16 lg:py-[4.375rem]">
+        <address className="not-italic leading-normal lg:w-[17.625rem]">
+          <p className="font-bold">Our kitchen at Base II</p>
+          <p>{contact.kitchenStreet}</p>
+          <p>{contact.kitchenCity}</p>
+          <p className="mt-[1.2em]">
+            <a href={`mailto:${contact.email}`} className="hover:underline">
+              {contact.email}
+            </a>
+          </p>
+          <p>
+            <a href={phoneHref(contact.phone)} className="hover:underline">
+              {contact.phone}
+            </a>
+          </p>
+          <p className="mt-[1.2em]">
+            <a href={contact.instagramUrl} className="hover:underline">
+              <span className="font-bold">Instagram</span>
+              <br />
+              {contact.instagramHandle}
+            </a>
+          </p>
+        </address>
 
-          <nav aria-label="Footer" className="rounded-blob bg-snow p-8 lg:col-span-4">
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-6">
-              {nav.map((item) => (
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 lg:w-[17.625rem]">
+          {columns.map((column, i) => (
+            <ul key={i} className="space-y-[1.2em]">
+              {column.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="subhead text-xl text-lakeside hover:text-lake-deep">
+                  <Link href={item.href} className="font-bold hover:underline">
                     {item.label}
                   </Link>
-                  {item.children ? (
-                    <ul className="mt-1.5 space-y-1">
+                  {item.children?.length ? (
+                    <ul>
                       {item.children.map((child) => (
                         <li key={child.href}>
-                          <Link
-                            href={child.href}
-                            className="font-ui text-sm text-ink/80 hover:text-lake-deep hover:underline"
-                          >
+                          <Link href={child.href} className="hover:underline">
                             {child.label}
                           </Link>
                         </li>
@@ -75,31 +60,36 @@ export async function Footer() {
                   ) : null}
                 </li>
               ))}
+              {i === 1 ? (
+                <li>
+                  <Link href="/contact" className="font-bold hover:underline">
+                    Contact us
+                  </Link>
+                </li>
+              ) : null}
             </ul>
-          </nav>
+          ))}
+        </nav>
 
-          <div className="relative overflow-hidden rounded-blob bg-strawberry p-8 lg:col-span-4">
-            <p className="subhead text-3xl text-[#4a1418]">
-              New flavours, trailer sightings &amp; Lucia&rsquo;s latest adventures
-            </p>
-            <p className="mt-3 font-ui text-[#3d1416]">A few emails a season. No spam, just gelato.</p>
-            <NewsletterForm />
-            <Image
-              src="/brand/made-on-the-mountain.svg"
-              alt="Made on the Mountain"
-              width={140}
-              height={140}
-              className="mt-6 ml-auto h-28 w-28 rounded-full bg-snow p-1.5"
-            />
-          </div>
-        </Container>
-        <Container className="flex flex-col items-center justify-between gap-2 pb-10 font-ui text-sm text-ink/70 sm:flex-row">
-          <p>
-            © {process.env.NEXT_PUBLIC_BUILD_YEAR} {site.name}. Locally crafted since 2007.
+        <div className="lg:w-64">
+          <p className="font-heading text-lg leading-[1.05] font-bold text-lakeside">
+            New flavours, trailer sightings &amp; Lucia&rsquo;s latest adventures.
           </p>
-          <p>Made on the Mountain in Whistler, BC.</p>
-        </Container>
+          <p className="mt-[1.2em] text-lakeside">A few emails a season. No spam, just gelato.</p>
+          <NewsletterForm />
+        </div>
+
+        <Image
+          src="/brand/made-on-the-mountain-badge.webp"
+          alt="Made on the Mountain"
+          width={228}
+          height={228}
+          className="h-40 w-40 sm:h-[14.25rem] sm:w-[14.25rem]"
+        />
       </div>
+      <p className="border-t border-bluebird/40 px-4 py-4 text-center text-xs text-black/70">
+        © {process.env.NEXT_PUBLIC_BUILD_YEAR} {site.name}. Locally crafted since 2007.
+      </p>
     </footer>
   );
 }

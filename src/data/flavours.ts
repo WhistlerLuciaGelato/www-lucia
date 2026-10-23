@@ -15,10 +15,12 @@ export type Bear =
   | "whitewater"
   | "zipline";
 
-type DefaultPint = Omit<PintFlavour, "image" | "available">;
+type DefaultPint = Omit<PintFlavour, "image" | "available"> & { render?: boolean };
 
 /**
- * The 2025 retail pint lineup (473 mL), matching the new packaging.
+ * The retail pint lineup (473 mL), in the order shown on the website. `render: true` flavours
+ * have transparent pint renders (public/pints/render) shown in front of a lid.
+ * The 2025 lineup matches the new packaging.
  * Dietary tags follow the icons printed on each label.
  */
 export const pintFlavours: DefaultPint[] = [
@@ -27,18 +29,56 @@ export const pintFlavours: DefaultPint[] = [
     name: "Salted Caramel",
     style: "Gelato",
     blurb:
-      "Started as our answer to a trend and became our #1 flavour. Smooth, sweet and salty — we honestly can't make it fast enough.",
+      "Featuring our homemade caramel sauce, carefully prepared in-house and finished with a touch of salt. The perfect balance of sweet, salty, and creamy.",
+    render: true,
     diet: ["gluten-free"],
     color: "#d9874a",
     activity: "Lucia hikes the Sea to Sky",
     bear: "hiker",
   },
   {
+    slug: "coconut-cookies-cream",
+    name: "Coconut Cookies & Cream",
+    style: "Dairy-free gelato",
+    blurb:
+      "Smooth and creamy coconut-based gelato loaded with crunchy cookie pieces. All the indulgence of a classic favourite, without the dairy!",
+    render: true,
+    diet: ["dairy-free", "vegan"],
+    color: "#5b74b5",
+    activity: "Lucia rips the backcountry",
+    bear: "snowmobile",
+  },
+  {
+    slug: "mango",
+    name: "Mango",
+    style: "Sorbet",
+    blurb:
+      "A Lucia bestseller for over 20 years! Our signature mango sorbetto has been a favourite since the very beginning. Sweet, tropical and bursting with real mango flavour.",
+    render: true,
+    diet: ["dairy-free", "vegan", "gluten-free"],
+    color: "#f07a2e",
+    activity: "Lucia paddleboards at sunset",
+    bear: "paddleboard",
+  },
+  {
+    slug: "lemon",
+    name: "Lemon",
+    style: "Sorbet",
+    blurb:
+      "Made with lemons freshly squeezed in-house and blended with a simple sugar syrup. Bright, refreshing and the perfect balance of sweet and tart.",
+    render: true,
+    diet: ["dairy-free", "vegan", "gluten-free"],
+    color: "#2f7aa0",
+    activity: "Lucia hits the big air jump",
+    bear: "ski-jump",
+  },
+  {
     slug: "chocolate-caramel-sea-salt",
     name: "Chocolate Caramel Sea Salt",
     style: "Gelato",
     blurb:
-      "How do you improve on our #1 flavour? Add deep, dangerous, dark chocolate. Sweet and salty never tasted so good.",
+      "Rich chocolate gelato swirled with our homemade caramel sauce and a hint of sea salt. A decadent combination of sweet and salty flavours.",
+    render: true,
     diet: ["gluten-free"],
     color: "#b05aa8",
     activity: "Lucia sends the bike park",
@@ -49,7 +89,8 @@ export const pintFlavours: DefaultPint[] = [
     name: "Pistachio",
     style: "Gelato",
     blurb:
-      "The perfect balance of sophisticated coolness and a little bit nutty. Dense, smooth and intense — the Italian way.",
+      "Made with premium Iranian pistachios, roasted and ground in-house to create our very own pistachio paste. Rich, nutty, and full of authentic pistachio flavour.",
+    render: true,
     diet: ["gluten-free"],
     color: "#7d8b2c",
     activity: "Lucia skins up for first tracks",
@@ -78,17 +119,6 @@ export const pintFlavours: DefaultPint[] = [
     bear: "whitewater",
   },
   {
-    slug: "coconut-cookies-cream",
-    name: "Coconut Cookies & Cream",
-    style: "Dairy-free gelato",
-    blurb:
-      "Our most-requested market flavour, made with coconut milk so everyone can dig in. Creamy, crunchy, completely dairy-free.",
-    diet: ["dairy-free", "vegan"],
-    color: "#5b74b5",
-    activity: "Lucia rips the backcountry",
-    bear: "snowmobile",
-  },
-  {
     slug: "choco-coco",
     name: "Choco Coco",
     style: "Dairy-free gelato",
@@ -98,28 +128,6 @@ export const pintFlavours: DefaultPint[] = [
     color: "#4f8f9c",
     activity: "Lucia lays down a powder turn",
     bear: "snowboard-pink",
-  },
-  {
-    slug: "mango",
-    name: "Mango",
-    style: "Sorbet",
-    blurb:
-      "Named for our daughter Lucy, who has loved all things mango since she could hold one. Bright, juicy, pure fruit.",
-    diet: ["dairy-free", "vegan", "gluten-free"],
-    color: "#f07a2e",
-    activity: "Lucia paddleboards at sunset",
-    bear: "paddleboard",
-  },
-  {
-    slug: "lemon",
-    name: "Lemon",
-    style: "Sorbet",
-    blurb:
-      "Goes out fast and strong, then fades away somewhere relaxing. A blast of fresh lemon that tastes like a bluebird day.",
-    diet: ["dairy-free", "vegan", "gluten-free"],
-    color: "#2f7aa0",
-    activity: "Lucia hits the big air jump",
-    bear: "ski-jump",
   },
   {
     slug: "wildberry",

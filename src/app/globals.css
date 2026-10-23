@@ -7,7 +7,7 @@
 @theme {
   /* Primary */
   --color-lakeside: #4e92a3;
-  --color-strawberry: #f58e90;
+  --color-strawberry: #ff8f8f;
   --color-snow: #fffef4;
   --color-bluebird: #78bdc7;
   --color-alpine: #bce4e7;
@@ -25,27 +25,33 @@
   --color-lime: #d9dd59;
   --color-light-green: #deeaae;
 
+  /* Tints used by the website design (Figma: Lucia Website). */
+  --color-mist: #e8f4f6;
+  --color-rose: #ffe2df;
+  --color-glacier: #d1f1f4;
+
   /*
-   * Accessible companions. The brand palette is intentionally soft, so body copy
-   * and small UI text use darker tints of Lakeside/Strawberry to meet WCAG AA on Snow.
+   * Text companions. Small UI text (form labels, hints, prices) uses darker tints of
+   * Lakeside/Strawberry so it stays readable on Snow.
    */
-  --color-ink: #1f3b42;
+  --color-ink: #212121;
   --color-lake-deep: #2f6e7e;
   --color-berry: #b8434b;
-  --color-mist: #e3f3f5;
 
   /*
    * Fonts: the brand's Adobe Fonts (Sauna, Oskar) from the Typekit kit, then free stand-ins
    * that only show if the kit fails to load. Family names must match the kit's CSS.
+   * Big headlines use Sauna's Swash cut, as in the website design.
    */
-  --font-display: "sauna-new", var(--font-sansita), ui-serif, Georgia, serif;
+  --font-display: "sauna-swash-new", "sauna-new", var(--font-sansita), ui-serif, Georgia, serif;
+  --font-heading: "sauna-new", var(--font-sansita), ui-serif, Georgia, serif;
   --font-body: "sauna-new", var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   --font-eyebrow: "oskar", var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
   --font-ui: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 
-  --radius-blob: 3rem;
-  --shadow-pop: 0 6px 0 0 rgb(31 59 66 / 0.12);
-  --shadow-soft: 0 10px 30px -12px rgb(31 59 66 / 0.25);
+  --radius-blob: 4.6875rem; /* 75px, the card radius in the design */
+  --shadow-pop: 0 6px 0 0 rgb(33 33 33 / 0.1);
+  --shadow-soft: 0 10px 30px -12px rgb(33 33 33 / 0.2);
 }
 
 @layer base {
@@ -73,83 +79,113 @@
 }
 
 @layer components {
-  /* Headlines: Sauna Pro Black Italic, with the soft lift shown throughout the guidelines. */
+  /* Headlines: Sauna Black Italic Swash. */
   .display {
     font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    line-height: 1;
-    letter-spacing: -0.01em;
-    text-shadow: 0 4px 10px rgb(31 59 66 / 0.12);
+    line-height: 0.88;
+    text-wrap: balance;
   }
 
-  /* Long headlines & subheadings: Sauna Pro Bold Italic. */
+  /* Card titles & subheadings: Sauna (Black/Bold) Italic. */
   .subhead {
-    font-family: var(--font-display);
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-weight: 900;
     font-style: italic;
-    line-height: 1.15;
+    line-height: 1;
   }
 
-  /* Eyebrow subheading: Oskar One Regular. */
+  /* Eyebrows, nav and labels: Oskar One Bold, uppercase. */
   .eyebrow {
     font-family: var(--font-eyebrow);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    font-size: 1rem;
     line-height: 1.2;
   }
 
+  /* Pill buttons from the design's button set: Oskar One Bold 20px, 43px tall. */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 9999px;
-    padding: 0.85rem 1.6rem;
+    min-height: 2.6875rem;
+    border-radius: 1.25rem;
+    padding: 0.55rem 1.25rem 0.5rem;
     font-family: var(--font-eyebrow);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    font-size: 1.125rem;
     line-height: 1;
-    box-shadow: var(--shadow-pop);
+    white-space: nowrap;
     transition:
       transform 150ms ease,
-      box-shadow 150ms ease,
+      filter 150ms ease,
       background-color 150ms ease;
   }
+  @media (min-width: 1024px) {
+    .btn {
+      font-size: 1.25rem;
+    }
+  }
   .btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+    filter: brightness(0.97);
   }
   .btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 0 rgb(31 59 66 / 0.12);
+    transform: translateY(1px);
   }
   .btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
     transform: none;
   }
+  /* Lakeside on Snow — "Read more", "Sign up". */
   .btn-primary {
-    background: var(--color-lake-deep);
-    color: #fff;
+    background: var(--color-lakeside);
+    color: var(--color-snow);
   }
-  .btn-primary:hover {
-    background: #275f6d;
-  }
+  /* Strawberry on Snow — "Order", "See all flavours". */
   .btn-berry {
     background: var(--color-strawberry);
-    color: #3d1416;
+    color: var(--color-snow);
   }
-  .btn-berry:hover {
-    background: #f37b7e;
+  /* Alpine with Lakeside text — "Find us", "See the map". */
+  .btn-sky {
+    background: var(--color-alpine);
+    color: var(--color-lakeside);
   }
+  /* Blush with Strawberry text — "Cart", "See vendors". */
+  .btn-blush {
+    background: var(--color-blush);
+    color: var(--color-strawberry);
+  }
+  /* Snow with Strawberry text — "Order pints for pickup". */
   .btn-ghost {
     background: var(--color-snow);
-    color: var(--color-lake-deep);
-    box-shadow: inset 0 0 0 2px var(--color-lakeside);
+    color: var(--color-strawberry);
+  }
+
+  /* Small pills on flavour cards: filled for the type, outlined for dietary tags. */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.25rem;
+    border: 2px solid currentColor;
+    padding: 0.3rem 0.75rem 0.25rem;
+    font-family: var(--font-eyebrow);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+    background: var(--color-snow);
   }
 
   .field {
@@ -215,7 +251,7 @@
   table-layout: fixed;
 }
 .lucia-calendar .rdp-month_caption {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-style: italic;
   font-weight: 700;
   font-size: 1.25rem;
@@ -246,4 +282,33 @@
 }
 .lucia-calendar .rdp-chevron {
   fill: var(--color-lake-deep);
+}
+
+/* Home page section tiles: endless sideways drift (two copies of the list, moved by half). */
+.tiles-track {
+  animation: tiles-drift 45s linear infinite;
+}
+.tiles-marquee:hover .tiles-track,
+.tiles-marquee:focus-within .tiles-track {
+  animation-play-state: paused;
+}
+@keyframes tiles-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tiles-marquee {
+    overflow-x: auto;
+  }
+  .tiles-track {
+    animation: none;
+    padding-inline: 1rem;
+  }
+  .tiles-track > [aria-hidden="true"] {
+    display: none;
+  }
 }

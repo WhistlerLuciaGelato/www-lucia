@@ -158,7 +158,7 @@ export default function AboutPage() {
             <Link href="/contact" className="btn btn-primary">
               Contact us
             </Link>
-            <Link href="/find-us" className="btn btn-ghost">
+            <Link href="/find-us" className="btn btn-sky">
               Find Lucia
             </Link>
           </div>

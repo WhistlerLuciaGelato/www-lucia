@@ -10,9 +10,9 @@ export function AddPintButton({ flavour, name }: { flavour: string; name: string
   const [added, setAdded] = useState(false);
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center justify-center gap-2">
       <div
-        className="inline-flex items-center rounded-full bg-mist p-1"
+        className="inline-flex items-center rounded-full bg-alpine/50 p-1"
         role="group"
         aria-label={`Quantity of ${name}`}
       >
@@ -40,7 +40,7 @@ export function AddPintButton({ flavour, name }: { flavour: string; name: string
       </div>
       <button
         type="button"
-        className="btn btn-primary !px-5 !py-3"
+        className="btn btn-berry !text-base"
         onClick={() => {
           cart.add({ kind: "pint", flavour, qty });
           setAdded(true);
@@ -50,7 +50,7 @@ export function AddPintButton({ flavour, name }: { flavour: string; name: string
       >
         Add to cart
       </button>
-      <p className="w-full font-ui text-sm font-bold text-lake-deep" aria-live="polite">
+      <p className="w-full text-center font-ui text-sm font-bold text-lake-deep" aria-live="polite">
         {added ? (
           <>
             Added!{" "}

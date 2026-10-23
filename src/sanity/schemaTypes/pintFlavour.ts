@@ -52,6 +52,23 @@ export const pintFlavour = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "lid",
+      title: "Lid behind the image",
+      description:
+        "For transparent pint renders (no background): shows the lid behind the pint, as on the home page. Leave on None for regular photos.",
+      type: "string",
+      options: {
+        list: [
+          { title: "None", value: "none" },
+          { title: "Made on the Mountain lid", value: "local" },
+          { title: "Hello I'm dairy-free lid", value: "dairy-free" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+      initialValue: "none",
+    }),
+    defineField({
       name: "color",
       title: "Accent colour",
       description: "Hex colour from the label, e.g. #f07a2e.",

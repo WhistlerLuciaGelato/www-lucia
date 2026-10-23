@@ -35,7 +35,7 @@ export default async function EventsPage() {
               <a href="#book" className="btn btn-berry">
                 Request a booking
               </a>
-              <a href="#packages" className="btn btn-ghost">
+              <a href="#packages" className="btn btn-sky">
                 See packages
               </a>
             </div>
