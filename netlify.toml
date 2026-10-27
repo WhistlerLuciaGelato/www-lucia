@@ -1,0 +1,12 @@
+# Netlify hosting. The Next.js runtime is detected automatically; don't pin @netlify/plugin-nextjs.
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Build assets are content-hashed, so browsers can keep them forever.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
