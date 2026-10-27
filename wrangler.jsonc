@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lucia-gelato",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "observability": { "enabled": true },
+  "services": [
+    // Lets the worker call itself to refresh pages in the background.
+    { "binding": "WORKER_SELF_REFERENCE", "service": "lucia-gelato" },
+  ],
+  // Everything below fits the Workers Free plan. Create the KV namespace and D1 database once with
+  //   npx wrangler kv namespace create lucia-gelato-cache
+  //   npx wrangler d1 create lucia-gelato-tags
+  // and paste the ids they print here (see README → Hosting on Cloudflare).
+  "kv_namespaces": [
+    // Rendered pages and cached Sanity content.
+    { "binding": "NEXT_INC_CACHE_KV", "id": "REPLACE_WITH_KV_NAMESPACE_ID" },
+  ],
+  "d1_databases": [
+    // When each cache tag was last refreshed, so a Studio publish shows up straight away.
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_name": "lucia-gelato-tags",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+    },
+  ],
+  "durable_objects": {
+    // Queues the hourly background refresh of cached content.
+    "bindings": [{ "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DOQueueHandler"] }],
+  // Resizes images for next/image (5,000 unique resizes a month on the free plan).
+  "images": { "binding": "IMAGES" },
+}
