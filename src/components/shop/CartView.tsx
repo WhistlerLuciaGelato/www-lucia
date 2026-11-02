@@ -10,7 +10,7 @@ import { contactSchema, type CheckoutResponse, type Contact } from "@/lib/checko
 import type { Catalogue } from "@/lib/content-types";
 import { money, prettyDate } from "@/lib/format";
 import { pickupProblem } from "@/lib/pickup";
-import { CAKE_MAX_QTY, PINT_MAX_PER_FLAVOUR } from "@/data/shop";
+import { CAKE_MAX_QTY, PINT_MAX_PER_FLAVOUR, SALES_TAX, salesTax } from "@/data/shop";
 import { PickupCalendar } from "@/components/shop/PickupCalendar";
 import { SquarePayment } from "@/components/shop/SquarePayment";
 import { Bear } from "@/components/ui";
@@ -309,6 +309,16 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                 <div className="flex justify-between text-sm">
                   <dt className="text-ink/70">Pickup</dt>
                   <dd className="text-ink/70">Free</dd>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <dt className="text-ink/70">
+                    {SALES_TAX.name} ({SALES_TAX.percentage}%)
+                  </dt>
+                  <dd className="text-ink/70">{money(salesTax(subtotal))}</dd>
+                </div>
+                <div className="flex justify-between border-t border-alpine pt-2">
+                  <dt className="font-bold text-ink">Total</dt>
+                  <dd className="font-extrabold text-ink">{money(subtotal + salesTax(subtotal))}</dd>
                 </div>
               </dl>
 

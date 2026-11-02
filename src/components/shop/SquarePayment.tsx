@@ -262,7 +262,7 @@ export function SquarePayment({
       <dl className="space-y-2 font-ui">
         {checkout.tax > 0 ? (
           <div className="flex justify-between text-sm">
-            <dt className="text-ink/70">Tax</dt>
+            <dt className="text-ink/70">GST</dt>
             <dd className="text-ink/70">{money(checkout.tax)}</dd>
           </div>
         ) : null}

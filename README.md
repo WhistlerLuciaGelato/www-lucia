@@ -32,7 +32,6 @@ Other scripts: `npm run build`, `npm run start`, `npm run lint`.
 | `SQUARE_APPLICATION_ID`          | Square app id. With the two below, turns on online checkout; without them, the cart offers a pre-filled "email my order" button. Sandbox ids (`sandbox-…`) use Square's sandbox. |
 | `SQUARE_ACCESS_TOKEN`            | Square access token for the same app and environment                                                                                                                             |
 | `SQUARE_LOCATION_ID`             | The Square location orders and payments are booked to (the kitchen)                                                                                                              |
-| `SQUARE_TAX_PERCENTAGE`          | Optional flat tax on every order, e.g. `5` (with `SQUARE_TAX_NAME`, e.g. `GST`)                                                                                                  |
 | `RESEND_API_KEY`                 | Delivers form submissions. Without it, forms fall back to a pre-filled email to the inbox.                                                                                       |
 | `FORMS_TO_EMAIL`                 | Where form submissions go (comma-separated; defaults to luciagelato@gmail.com)                                                                                                   |
 | `FORMS_FROM_EMAIL`               | Sender address — must be on a domain verified in Resend                                                                                                                          |
@@ -99,6 +98,7 @@ creates a separate standalone Studio, and this site already has one built in.
 - All reads go through `src/lib/content.ts`, cached with `use cache` and tagged so the webhook can refresh them.
 - The cart and checkout re-price every order from the live catalogue on the server, and refuse items that have
   been removed or marked sold out.
+- Every online order carries 5% GST (`SALES_TAX` in `src/data/shop.ts`), added by Square to the order.
 - Checkout (`src/app/api/checkout/*`, `src/components/shop/SquarePayment.tsx`): the server creates a Square
   order with a pickup fulfillment (so it shows in Square's order manager), then the cart pays it on the page
   with the Square Web Payments SDK. Gift cards are charged with partial authorization, so a card with less
@@ -152,8 +152,6 @@ up, the client can correct most of them in the Studio themselves:
 - [ ] High-resolution **brand assets** — the bear illustrations and pint renders were extracted from the PDF
       at roughly 270 px; the originals from the brand asset download would look sharper
 - [ ] **Pickup days and closed dates** — defaults to every day, closed Dec 25 and Jan 1
-- [ ] Square: production app credentials and the kitchen's location id, a tax decision (gelato pints are
-      generally zero-rated basic groceries — check with the accountant; see `SQUARE_TAX_PERCENTAGE`), Resend
-      domain verification, Sanity CORS + seed (see above)
+- [ ] Square: production app credentials and the kitchen's location id, Resend domain verification, Sanity CORS + seed (see above)
 - [ ] **Adobe Fonts:** add Sauna Black Italic to the web project, add the live domain, and move the kit to the
       client's Adobe account (then set `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID`)

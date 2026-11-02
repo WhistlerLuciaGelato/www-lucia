@@ -2,16 +2,10 @@ import { NextResponse } from "next/server";
 import { priceCart } from "@/lib/cart";
 import { checkoutSchema, type CheckoutResponse } from "@/lib/checkout";
 import { getCatalogue } from "@/lib/content";
+import { SALES_TAX } from "@/data/shop";
 import { e164Phone, prettyDate, todayInWhistler, whistlerDateTime } from "@/lib/format";
 import { pickupProblem } from "@/lib/pickup";
 import { createOrder, getSquareConfig } from "@/lib/square";
-
-/** Optional flat tax on every order, e.g. SQUARE_TAX_PERCENTAGE=5 and SQUARE_TAX_NAME=GST. */
-function orderTaxes() {
-  const percentage = process.env.SQUARE_TAX_PERCENTAGE?.trim();
-  if (!percentage || !(Number(percentage) > 0)) return undefined;
-  return [{ uid: "tax", name: process.env.SQUARE_TAX_NAME?.trim() || "Tax", percentage, scope: "ORDER" }];
-}
 
 /**
  * Step 1 of checkout: re-price the cart from the live catalogue, check the pickup date and
@@ -73,7 +67,7 @@ export async function POST(request: Request) {
         note: line.detail,
         base_price_money: { amount: line.unitPrice, currency: "CAD" },
       })),
-      taxes: orderTaxes(),
+      taxes: [{ uid: "gst", name: SALES_TAX.name, percentage: String(SALES_TAX.percentage), scope: "ORDER" }],
       fulfillments: [
         {
           type: "PICKUP",

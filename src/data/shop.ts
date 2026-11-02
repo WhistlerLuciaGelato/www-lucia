@@ -8,6 +8,17 @@ import type { Shop } from "@/lib/content-types";
  * courier ride, and cakes need to go straight into a freezer.
  */
 
+/** GST on every online order (pints and cakes). Square adds it to the order; the cart shows it up front. */
+export const SALES_TAX = { name: "GST", percentage: 5 };
+
+/**
+ * GST in cents on a subtotal in cents, for the cart preview. Square's figure on the payment step is
+ * the one charged; with whole-dollar prices 5% is always whole cents, so the two match.
+ */
+export function salesTax(subtotal: number): number {
+  return Math.round((subtotal * SALES_TAX.percentage) / 100);
+}
+
 // Hard limits per cart line (not editable content).
 export const PINT_MAX_PER_FLAVOUR = 24;
 export const CAKE_MAX_QTY = 4;

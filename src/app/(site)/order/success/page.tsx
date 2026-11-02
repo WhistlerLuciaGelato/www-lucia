@@ -51,7 +51,7 @@ async function OrderSummary({
       </ul>
       {order.total_tax_money?.amount ? (
         <p className="mt-4 flex justify-between font-ui text-sm text-ink/70">
-          <span>Tax</span>
+          <span>GST</span>
           <span>{money(order.total_tax_money.amount)}</span>
         </p>
       ) : null}
