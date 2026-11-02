@@ -31,6 +31,8 @@
   --color-glacier: #d1f1f4;
   --color-petal: #ffeee9;
   --color-seafoam: #e3f4ef;
+  --color-pistachio: #f3fad5; /* scoop partner cards */
+  --color-coral: #f48991; /* footer newsletter */
 
   /*
    * Text companions. Small UI text (form labels, hints, prices) uses darker tints of

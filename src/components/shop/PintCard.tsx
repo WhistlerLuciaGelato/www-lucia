@@ -11,18 +11,41 @@ const dietTagColor: Record<Diet, string> = {
   "gluten-free": "text-heatwave",
 };
 
-/** Flavour card from the website design. Pass `price` (CAD cents) to show add-to-cart controls. */
-export function PintCard({ flavour, price }: { flavour: PintFlavour; price?: number }) {
+/** The newer design's filled pills (home page). */
+const dietTagFill: Record<Diet, string> = {
+  "dairy-free": "border-lakeside !bg-lakeside",
+  vegan: "border-grass !bg-grass",
+  "gluten-free": "border-heatwave !bg-heatwave",
+};
+
+/**
+ * Flavour card from the website design. Pass `price` (CAD cents) to show add-to-cart controls.
+ * `framed` gives the newer home-page look: an outlined card (mint for dairy-free) with filled tags.
+ */
+export function PintCard({
+  flavour,
+  price,
+  framed = false,
+}: {
+  flavour: PintFlavour;
+  price?: number;
+  framed?: boolean;
+}) {
   const shop = price !== undefined;
   const dairyFree = flavour.diet.includes("dairy-free");
   const isSorbet = flavour.style === "Sorbet";
+  const cardColor = framed
+    ? dairyFree
+      ? "border border-bluebird bg-seafoam"
+      : "border border-strawberry bg-snow"
+    : dairyFree
+      ? "bg-mist"
+      : "bg-snow";
 
   return (
     <article
       id={flavour.slug}
-      className={`flex w-full max-w-[21.875rem] scroll-mt-32 flex-col items-center gap-2.5 rounded-blob px-6 py-[3.125rem] text-center ${
-        dairyFree ? "bg-mist" : "bg-snow"
-      }`}
+      className={`flex w-full max-w-[21.875rem] scroll-mt-32 flex-col items-center gap-2.5 rounded-blob px-6 py-[3.125rem] text-center ${cardColor}`}
     >
       <div className="relative h-[15.5rem] w-[14.25rem] shrink-0 overflow-hidden">
         {flavour.image && flavour.lid ? (
@@ -79,7 +102,7 @@ export function PintCard({ flavour, price }: { flavour: PintFlavour; price?: num
           {isSorbet ? "Sorbet" : "Gelato"}
         </li>
         {flavour.diet.map((d) => (
-          <li key={d} className={`tag ${dietTagColor[d]}`}>
+          <li key={d} className={`tag ${framed ? `!text-snow ${dietTagFill[d]}` : dietTagColor[d]}`}>
             {dietLabels[d]}
           </li>
         ))}

@@ -14,7 +14,7 @@ const columns = [
 export async function Footer() {
   const { contact } = await getSiteSettings();
   return (
-    <footer className="mt-24 border-t border-bluebird bg-glacier text-sm tracking-[0.02em] text-black">
+    <footer className="mt-24 bg-petal text-sm tracking-[0.02em] text-black">
       <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-8 lg:flex lg:justify-center lg:gap-16 lg:py-[4.375rem]">
         <address className="not-italic leading-normal lg:w-[17.625rem]">
           <p className="font-bold">Our kitchen at Base II</p>
@@ -72,10 +72,10 @@ export async function Footer() {
         </nav>
 
         <div className="lg:w-64">
-          <p className="font-heading text-lg leading-[1.05] font-bold text-lakeside">
+          <p className="font-heading text-lg leading-[1.05] font-bold text-coral">
             New flavours, trailer sightings &amp; Lucia&rsquo;s latest adventures.
           </p>
-          <p className="mt-[1.2em] text-lakeside">A few emails a season. No spam, just gelato.</p>
+          <p className="mt-[1.2em] text-coral">A few emails a season. No spam, just gelato.</p>
           <NewsletterForm />
         </div>
 
@@ -87,7 +87,7 @@ export async function Footer() {
           className="h-40 w-40 sm:h-[14.25rem] sm:w-[14.25rem]"
         />
       </div>
-      <p className="border-t border-bluebird/40 px-4 py-4 text-center text-xs text-black/70">
+      <p className="border-t border-alpenglow/60 px-4 py-4 text-center text-xs text-black/70">
         © {process.env.NEXT_PUBLIC_BUILD_YEAR} {site.name}. Locally crafted since 2007.
       </p>
     </footer>

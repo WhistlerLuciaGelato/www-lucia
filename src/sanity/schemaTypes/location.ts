@@ -61,6 +61,14 @@ export const location = defineType({
       initialValue: false,
     }),
     defineField({
+      name: "scheduleName",
+      title: "Name in the hours table",
+      description: "Optional. Leave empty to use the name above.",
+      type: "string",
+      group: "hours",
+      placeholder: "Gelato trailer · Lost Lake Park",
+    }),
+    defineField({
       name: "scheduleSeason",
       title: "Season dates",
       type: "string",
