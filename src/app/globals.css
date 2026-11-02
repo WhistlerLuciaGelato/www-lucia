@@ -29,6 +29,8 @@
   --color-mist: #e8f4f6;
   --color-rose: #ffe2df;
   --color-glacier: #d1f1f4;
+  --color-petal: #ffeee9;
+  --color-seafoam: #e3f4ef;
 
   /*
    * Text companions. Small UI text (form labels, hints, prices) uses darker tints of
@@ -296,4 +298,38 @@
 .tiles-marquee[data-dragging] {
   cursor: grabbing;
   user-select: none;
+}
+
+/* Find us map pins (PinkMap). MapLibre positions the button with a transform, so the
+   selected pin grows by scaling the graphic inside it. */
+.lucia-pin {
+  display: block;
+  width: 2.25rem;
+  height: 2.8rem;
+  cursor: pointer;
+}
+.lucia-pin svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.15));
+}
+.lucia-pin:hover svg,
+.lucia-pin[data-active] svg {
+  transform: scale(1.35);
+}
+.lucia-pin[data-active] {
+  z-index: 1;
+}
+.lucia-pin:focus-visible {
+  outline: 3px solid var(--color-lake-deep);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lucia-pin svg {
+    transition: none;
+  }
 }

@@ -62,11 +62,16 @@ export function Header() {
               <li key={item.href} className="group relative">
                 <Link
                   href={item.href}
-                  className={`eyebrow block rounded-full px-3 py-2 !text-lg text-lakeside transition hover:text-lake-deep xl:!text-xl ${
-                    isActive(item.href) ? "underline decoration-2 underline-offset-8" : ""
-                  }`}
+                  aria-current={isActive(item.href) ? "page" : undefined}
+                  className="eyebrow relative block rounded-full px-3 py-2 !text-lg text-lakeside transition hover:text-lake-deep xl:!text-xl"
                 >
                   {item.label}
+                  {isActive(item.href) ? (
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-3 -bottom-1 h-[5px] bg-[url(/brand/nav-squiggle.svg)] bg-[length:100%_100%] bg-no-repeat"
+                    />
+                  ) : null}
                 </Link>
                 {item.children ? (
                   <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">

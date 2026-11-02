@@ -77,12 +77,20 @@ export const location = defineType({
     }),
     defineField({
       name: "area",
-      title: "Area / short detail",
+      title: "Subtitle",
       type: "string",
       group: "details",
-      placeholder: "Gelato trailer · Whistler Village",
+      placeholder: "Gelato Trailer – Rotating RMOW Lakes",
     }),
-    defineField({ name: "description", title: "Description", type: "text", rows: 2, group: "details" }),
+    defineField({
+      name: "description",
+      title: "Description",
+      description:
+        "Shown when someone opens this spot on the map. Wrap words in **double asterisks** to make them bold; Instagram handles like @whistlerluciagelato are bolded automatically.",
+      type: "text",
+      rows: 4,
+      group: "details",
+    }),
     defineField({
       name: "lat",
       title: "Map pin — latitude",
