@@ -6,7 +6,7 @@ let client: Stripe | null = null;
 export function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
-  // fetch works on both Node and Cloudflare Workers (Stripe's default client needs node:http).
+  // Use fetch rather than Stripe's default node:http client so checkout runs on any server runtime.
   client ??= new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
   return client;
 }
