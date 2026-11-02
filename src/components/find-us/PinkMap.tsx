@@ -59,13 +59,16 @@ function pinkify(style: StyleSpecification): StyleSpecification {
   return { ...style, layers };
 }
 
-/** The design's location pin (Figma: Location_pin_icon). */
+/**
+ * The design's map pin (Figma "Lucia Website" › XX Working Zone › Find us › Frame 55): pale
+ * pins for every spot, the selected spot's pin in the card pink.
+ */
 function pinElement(name: string) {
   const el = document.createElement("button");
   el.type = "button";
   el.className = "lucia-pin";
   el.setAttribute("aria-label", `Show ${name}`);
-  el.innerHTML = `<svg viewBox="0 0 159.003 199.998" aria-hidden="true"><path fill="${MARKER}" d="M79.5013 151.68C35.5939 151.68 2.23313e-07 162.497 2.23313e-07 175.839C2.23313e-07 189.182 35.5939 199.998 79.5013 199.998C123.409 199.998 159.003 189.182 159.003 175.839C159.003 162.496 123.409 151.68 79.5013 151.68ZM119.265 182.752C108.686 185.967 94.5649 187.738 79.5013 187.738C64.4382 187.738 50.3167 185.967 39.7372 182.752C28.8842 179.454 25.0329 175.583 25.0329 173.271C25.0329 170.958 28.8842 167.088 39.7372 163.79C50.3167 160.575 64.4382 158.805 79.5013 158.805H79.5073C94.5676 158.805 108.688 160.575 119.267 163.79C130.119 167.088 133.969 170.958 133.969 173.271C133.969 175.583 130.118 179.454 119.265 182.752Z"/><path fill="${MARKER}" d="M79.7491 0.000213623C45.531 0.000213623 17.79 27.6806 17.79 61.8282C17.79 67.6962 18.6275 73.3654 20.1588 78.744C21.1004 82.0553 22.1317 85.3446 23.758 88.3173C36.464 111.53 79.7491 178.156 79.7491 178.156C79.7491 178.156 123.036 111.528 135.742 88.3159C137.367 85.3433 138.397 82.0547 139.341 78.744C140.87 73.3654 141.708 67.6962 141.708 61.8282C141.708 27.6806 113.969 0.000213623 79.7491 0.000213623ZM79.7491 89.0519C71.1083 89.0519 63.3979 85.0186 58.3955 78.744C54.689 74.0948 52.4667 68.2168 52.4667 61.8282C52.4667 46.8157 64.705 34.6039 79.7491 34.6039C94.7933 34.6039 107.03 46.8157 107.03 61.8282C107.03 68.2168 104.808 74.0948 101.103 78.744C96.1 85.0186 88.3898 89.0519 79.7491 89.0519Z"/></svg>`;
+  el.innerHTML = `<img src="/find-us/pin.svg" alt="" width="32" height="46" /><img src="/find-us/pin-active.svg" alt="" width="32" height="46" data-on />`;
   return el;
 }
 
@@ -86,11 +89,13 @@ export function PinkMap({
   const map = useRef<MapLibreMap | null>(null);
   const pins = useRef(new Map<string, { marker: Marker; el: HTMLButtonElement }>());
   const onSelectRef = useRef(onSelect);
+  const activeIdRef = useRef(activeId);
   const firstFly = useRef(true);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
+    activeIdRef.current = activeId;
   });
 
   useEffect(() => {
@@ -125,6 +130,8 @@ export function PinkMap({
         for (const s of spots) {
           const el = pinElement(s.name);
           el.addEventListener("click", () => onSelectRef.current(s.id));
+          // The map loads after the first render, so mark the already-selected spot here.
+          el.toggleAttribute("data-active", s.id === activeIdRef.current);
           const marker = new maplibre.Marker({ element: el, anchor: "bottom" })
             .setLngLat([s.lng, s.lat])
             .addTo(m);

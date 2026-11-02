@@ -42,7 +42,7 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
           alt=""
           width={54}
           height={25}
-          className="absolute top-[10.75rem] -left-[3.3rem] hidden h-[1.5625rem] w-[3.375rem] -rotate-90 lg:block"
+          className="absolute top-1/2 -left-[3.3rem] hidden h-[1.5625rem] w-[3.375rem] -translate-y-1/2 -rotate-90 lg:block"
         />
       ) : null}
       <button
