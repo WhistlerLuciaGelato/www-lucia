@@ -36,8 +36,24 @@ export function isIsoDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T12:00:00Z`));
 }
 
-/** "(604) 967-3886" → "tel:+16049673886" (assumes a North American number without a country code). */
-export function phoneHref(phone: string): string {
+/** "(604) 967-3886" → "+16049673886" (assumes a North American number without a country code). */
+export function e164Phone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
-  return `tel:+${digits.length === 10 ? `1${digits}` : digits}`;
+  return `+${digits.length === 10 ? `1${digits}` : digits}`;
+}
+
+/** "(604) 967-3886" → "tel:+16049673886" */
+export function phoneHref(phone: string): string {
+  return `tel:${e164Phone(phone)}`;
+}
+
+/** An RFC 3339 timestamp for a wall-clock time in Whistler on a date, e.g. "2026-11-10T12:00:00-08:00". */
+export function whistlerDateTime(isoDate: string, hour: number): string {
+  const probe = new Date(`${isoDate}T${String(hour).padStart(2, "0")}:00:00Z`);
+  const zone =
+    new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, timeZoneName: "longOffset" })
+      .formatToParts(probe)
+      .find((p) => p.type === "timeZoneName")?.value ?? "GMT-08:00";
+  const offset = zone === "GMT" ? "+00:00" : zone.replace("GMT", "");
+  return `${isoDate}T${String(hour).padStart(2, "0")}:00:00${offset}`;
 }

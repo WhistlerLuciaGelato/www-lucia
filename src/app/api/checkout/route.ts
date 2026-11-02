@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { cartSchema, priceCart } from "@/lib/cart";
+import { priceCart } from "@/lib/cart";
+import { checkoutSchema, type CheckoutResponse } from "@/lib/checkout";
 import { getCatalogue } from "@/lib/content";
-import { isIsoDate, prettyDate, todayInWhistler } from "@/lib/format";
+import { e164Phone, prettyDate, todayInWhistler, whistlerDateTime } from "@/lib/format";
 import { pickupProblem } from "@/lib/pickup";
-import { getStripe } from "@/lib/stripe";
-import { site } from "@/data/site";
+import { createOrder, getSquareConfig } from "@/lib/square";
 
-const checkoutSchema = z.object({
-  items: cartSchema,
-  pickupDate: z.string().refine(isIsoDate, "Choose a pickup date"),
-  notes: z.string().trim().max(500).optional(),
-});
+/** Optional flat tax on every order, e.g. SQUARE_TAX_PERCENTAGE=5 and SQUARE_TAX_NAME=GST. */
+function orderTaxes() {
+  const percentage = process.env.SQUARE_TAX_PERCENTAGE?.trim();
+  if (!percentage || !(Number(percentage) > 0)) return undefined;
+  return [{ uid: "tax", name: process.env.SQUARE_TAX_NAME?.trim() || "Tax", percentage, scope: "ORDER" }];
+}
 
+/**
+ * Step 1 of checkout: re-price the cart from the live catalogue, check the pickup date and
+ * create the Square order (a pickup for the kitchen). The browser then pays it with
+ * /api/checkout/pay using the Web Payments SDK, which is how gift cards are redeemed.
+ */
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -23,10 +28,14 @@ export async function POST(request: Request) {
 
   const parsed = checkoutSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Your cart looks out of date — please refresh." }, { status: 422 });
+    const contactIssue = parsed.error.issues.find((i) => i.path[0] === "contact");
+    return NextResponse.json(
+      { error: contactIssue?.message ?? "Your cart looks out of date — please refresh." },
+      { status: 422 },
+    );
   }
 
-  const { items, pickupDate, notes } = parsed.data;
+  const { items, pickupDate, notes, contact, idempotencyKey } = parsed.data;
   const catalogue = await getCatalogue();
   const { shop } = catalogue;
   const { lines, unavailable, leadDays } = priceCart(items, catalogue);
@@ -45,55 +54,66 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: problem }, { status: 422 });
   }
 
-  const stripe = getStripe();
-  if (!stripe) {
+  const square = getSquareConfig();
+  if (!square) {
     return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
 
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ? site.url : new URL(request.url).origin;
+  const pickupNote = [`Pickup ${prettyDate(pickupDate)}, ${shop.pickupWindow}.`, notes]
+    .filter(Boolean)
+    .join(" ");
 
-  let session;
+  let order;
   try {
-    session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      currency: "cad",
+    order = await createOrder(square, idempotencyKey, {
+      source: { name: "Lucia Gelato website" },
       line_items: lines.map((line) => ({
-        quantity: line.qty,
-        price_data: {
-          currency: "cad",
-          unit_amount: line.unitPrice,
-          product_data: { name: line.name, description: line.detail },
-        },
+        name: line.name,
+        quantity: String(line.qty),
+        note: line.detail,
+        base_price_money: { amount: line.unitPrice, currency: "CAD" },
       })),
-      phone_number_collection: { enabled: true },
-      automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === "true" },
-      custom_text: {
-        submit: {
-          message: `Pickup on ${prettyDate(pickupDate)}, ${shop.pickupWindow}, at ${shop.pickupWhere}.`,
+      taxes: orderTaxes(),
+      fulfillments: [
+        {
+          type: "PICKUP",
+          state: "PROPOSED",
+          pickup_details: {
+            recipient: {
+              display_name: contact.name,
+              email_address: contact.email,
+              phone_number: e164Phone(contact.phone),
+            },
+            schedule_type: "SCHEDULED",
+            // The kitchen's pickup window is free text; the order shows its start as noon and the
+            // full window in the note.
+            pickup_at: whistlerDateTime(pickupDate, 12),
+            note: pickupNote.slice(0, 500),
+          },
         },
-      },
+      ],
       metadata: {
         pickup_date: pickupDate,
-        notes: notes ?? "",
-        // Compact copy of the order for the kitchen, visible in the Stripe dashboard.
-        order: lines
-          .map((l) => `${l.qty}× ${l.name} (${l.detail})`)
-          .join(" | ")
-          .slice(0, 500),
+        ...(notes ? { notes: notes.slice(0, 255) } : {}),
       },
-      payment_intent_data: {
-        description: `Lucia Gelato pickup ${pickupDate}`,
-      },
-      success_url: `${origin}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cart`,
     });
   } catch (err) {
-    console.error("Stripe checkout error", err);
+    console.error("Square order error", err);
     return NextResponse.json(
       { error: "We couldn't start checkout. Please try again in a moment." },
       { status: 502 },
     );
   }
 
-  return NextResponse.json({ url: session.url });
+  const response: CheckoutResponse = {
+    orderId: order.id,
+    total: order.total_money?.amount ?? 0,
+    tax: order.total_tax_money?.amount ?? 0,
+    square: {
+      applicationId: square.applicationId,
+      locationId: square.locationId,
+      environment: square.environment,
+    },
+  };
+  return NextResponse.json(response);
 }

@@ -5,7 +5,7 @@ import { ClearCart } from "@/components/shop/ClearCart";
 import { Bear, Container } from "@/components/ui";
 import { getShop, getSiteSettings } from "@/lib/content";
 import { money, phoneHref, prettyDate } from "@/lib/format";
-import { getStripe } from "@/lib/stripe";
+import { describeCard, getSquareConfig, isPaid, retrieveOrder } from "@/lib/square";
 
 export const metadata: Metadata = {
   title: "Thank you!",
@@ -16,51 +16,67 @@ async function OrderSummary({
   searchParams,
   pickupWindow,
 }: {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ order?: string }>;
   pickupWindow: string;
 }) {
-  const { session_id: sessionId } = await searchParams;
-  const stripe = getStripe();
-  if (!sessionId || !stripe || !sessionId.startsWith("cs_")) return null;
+  const { order: orderId } = await searchParams;
+  const square = getSquareConfig();
+  if (!orderId || !square || !/^[\w-]{1,192}$/.test(orderId)) return null;
 
-  const session = await stripe.checkout.sessions
-    .retrieve(sessionId, { expand: ["line_items"] })
-    .catch(() => null);
-  if (!session || session.payment_status !== "paid") return null;
-  {
-    const pickupDate = session.metadata?.pickup_date;
-    return (
-      <div className="mx-auto mt-10 max-w-lg rounded-blob bg-white p-7 text-left shadow-soft ring-1 ring-alpine/60">
-        {pickupDate ? (
-          <p className="font-ui">
-            <span className="block text-sm text-ink/70">Pickup</span>
-            <span className="text-lg font-extrabold text-ink">
-              {prettyDate(pickupDate)}, {pickupWindow}
+  const order = await retrieveOrder(square, orderId).catch(() => null);
+  if (!order || order.location_id !== square.locationId || !isPaid(order)) return null;
+
+  const pickupDate = order.metadata?.pickup_date;
+  const email = order.fulfillments?.[0]?.pickup_details?.recipient?.email_address;
+  return (
+    <div className="mx-auto mt-10 max-w-lg rounded-blob bg-white p-7 text-left shadow-soft ring-1 ring-alpine/60">
+      {pickupDate ? (
+        <p className="font-ui">
+          <span className="block text-sm text-ink/70">Pickup</span>
+          <span className="text-lg font-extrabold text-ink">
+            {prettyDate(pickupDate)}, {pickupWindow}
+          </span>
+        </p>
+      ) : null}
+      <ul className="mt-5 divide-y divide-alpine border-y border-alpine font-ui">
+        {order.line_items?.map((li, i) => (
+          <li key={li.uid ?? i} className="flex justify-between gap-3 py-3">
+            <span>
+              {li.quantity} × {li.name}
+              {li.note ? <span className="block text-sm text-ink/70">{li.note}</span> : null}
             </span>
-          </p>
-        ) : null}
-        <ul className="mt-5 divide-y divide-alpine border-y border-alpine font-ui">
-          {session.line_items?.data.map((li) => (
-            <li key={li.id} className="flex justify-between gap-3 py-3">
-              <span>
-                {li.quantity} × {li.description}
-              </span>
-              <span className="font-bold">{money(li.amount_total)}</span>
+            <span className="font-bold">{money(li.total_money?.amount ?? 0)}</span>
+          </li>
+        ))}
+      </ul>
+      {order.total_tax_money?.amount ? (
+        <p className="mt-4 flex justify-between font-ui text-sm text-ink/70">
+          <span>Tax</span>
+          <span>{money(order.total_tax_money.amount)}</span>
+        </p>
+      ) : null}
+      <p className="mt-4 flex justify-between font-ui text-lg font-extrabold">
+        <span>Total paid</span>
+        <span>{money(order.total_money?.amount ?? 0)}</span>
+      </p>
+      {(order.tenders?.length ?? 0) > 1 ||
+      order.tenders?.some((t) => t.card_details?.card?.card_brand === "SQUARE_GIFT_CARD") ? (
+        <ul className="mt-2 space-y-1 font-ui text-sm text-ink/70">
+          {order.tenders?.map((t, i) => (
+            <li key={t.id ?? i} className="flex justify-between">
+              <span>{describeCard(t.card_details)}</span>
+              <span>{money(t.amount_money?.amount ?? 0)}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-4 flex justify-between font-ui text-lg font-extrabold">
-          <span>Total paid</span>
-          <span>{money(session.amount_total ?? 0)}</span>
+      ) : null}
+      {email ? (
+        <p className="mt-3 font-ui text-sm text-ink/70">
+          We&rsquo;ll be in touch at {email} if anything changes.
         </p>
-        {session.customer_details?.email ? (
-          <p className="mt-3 font-ui text-sm text-ink/70">
-            A receipt is on its way to {session.customer_details.email}.
-          </p>
-        ) : null}
-      </div>
-    );
-  }
+      ) : null}
+    </div>
+  );
 }
 
 export default async function SuccessPage({ searchParams }: PageProps<"/order/success">) {
@@ -76,7 +92,7 @@ export default async function SuccessPage({ searchParams }: PageProps<"/order/su
         </p>
         <Suspense fallback={null}>
           <OrderSummary
-            searchParams={searchParams as Promise<{ session_id?: string }>}
+            searchParams={searchParams as Promise<{ order?: string }>}
             pickupWindow={shop.pickupWindow}
           />
         </Suspense>

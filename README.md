@@ -4,7 +4,7 @@ Marketing and e-commerce site for [Whistler Lucia Gelato](https://luciagelato.co
 brand guidelines (v2.0) and the proposed site map.
 
 - **Next.js 16** (App Router, Cache Components) + **React 19** + **Tailwind CSS 4**
-- **Stripe Checkout** for pint and gelato-cake orders (pickup only)
+- **Square** for pint and gelato-cake orders (pickup only): card and Square gift card payments
 - **Sanity** content editor at `/studio`, so the client can update flavours, prices, hours and more
 - **Resend** for contact, event booking, wholesale order and newsletter forms
 - Every page is statically prerendered; only `/api/*` and the order confirmation run on the server
@@ -21,19 +21,21 @@ Other scripts: `npm run build`, `npm run start`, `npm run lint`.
 
 ### Environment variables
 
-| Variable                         | Purpose                                                                                     |
-| -------------------------------- | ------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`           | Canonical URL (metadata, sitemap, Stripe redirect URLs)                                     |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID`  | Overrides the Sanity project (default `kkqmc2m3`)                                           |
-| `NEXT_PUBLIC_SANITY_DATASET`     | Overrides the Sanity dataset (default `production`)                                         |
-| `SANITY_REVALIDATE_SECRET`       | Secret for the publish webhook, so edits go live within seconds                             |
-| `SANITY_API_WRITE_TOKEN`         | Only for the one-time `npm run seed`; don't add it to the deployed site                     |
-| `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID` | Overrides the Adobe Fonts kit (default `rkt6eeo`, with Sauna and Oskar).                    |
-| `STRIPE_SECRET_KEY`              | Turns on online checkout. Without it, the cart offers a pre-filled "email my order" button. |
-| `STRIPE_AUTOMATIC_TAX`           | `true` once Stripe Tax is set up on the account                                             |
-| `RESEND_API_KEY`                 | Delivers form submissions. Without it, forms fall back to a pre-filled email to the inbox.  |
-| `FORMS_TO_EMAIL`                 | Where form submissions go (comma-separated; defaults to luciagelato@gmail.com)              |
-| `FORMS_FROM_EMAIL`               | Sender address — must be on a domain verified in Resend                                     |
+| Variable                         | Purpose                                                                                                                                                                          |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`           | Canonical URL (metadata, sitemap)                                                                                                                                                |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID`  | Overrides the Sanity project (default `kkqmc2m3`)                                                                                                                                |
+| `NEXT_PUBLIC_SANITY_DATASET`     | Overrides the Sanity dataset (default `production`)                                                                                                                              |
+| `SANITY_REVALIDATE_SECRET`       | Secret for the publish webhook, so edits go live within seconds                                                                                                                  |
+| `SANITY_API_WRITE_TOKEN`         | Only for the one-time `npm run seed`; don't add it to the deployed site                                                                                                          |
+| `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID` | Overrides the Adobe Fonts kit (default `rkt6eeo`, with Sauna and Oskar).                                                                                                         |
+| `SQUARE_APPLICATION_ID`          | Square app id. With the two below, turns on online checkout; without them, the cart offers a pre-filled "email my order" button. Sandbox ids (`sandbox-…`) use Square's sandbox. |
+| `SQUARE_ACCESS_TOKEN`            | Square access token for the same app and environment                                                                                                                             |
+| `SQUARE_LOCATION_ID`             | The Square location orders and payments are booked to (the kitchen)                                                                                                              |
+| `SQUARE_TAX_PERCENTAGE`          | Optional flat tax on every order, e.g. `5` (with `SQUARE_TAX_NAME`, e.g. `GST`)                                                                                                  |
+| `RESEND_API_KEY`                 | Delivers form submissions. Without it, forms fall back to a pre-filled email to the inbox.                                                                                       |
+| `FORMS_TO_EMAIL`                 | Where form submissions go (comma-separated; defaults to luciagelato@gmail.com)                                                                                                   |
+| `FORMS_FROM_EMAIL`               | Sender address — must be on a domain verified in Resend                                                                                                                          |
 
 Nothing breaks when a key is missing: the site degrades to email so no order or enquiry is lost.
 
@@ -44,7 +46,7 @@ Nothing breaks when a key is missing: the site degrades to email so no order or 
 | `/`                                        | Home                                                                                                   |
 | `/find-us`                                 | Seasonal locations map · schedule & hours (with weather disclaimer) · grocery stores · scoop locations |
 | `/order` · `/order/pints` · `/order/cakes` | Order hub, pint shop, gelato-cake builder                                                              |
-| `/cart` → Stripe → `/order/success`        | Pickup date selection and checkout                                                                     |
+| `/cart` → `/order/success`                 | Pickup details, then payment by card / Square gift card (Square)                                       |
 | `/our-gelato`                              | Flavours in store, link to the wholesale flavours list                                                 |
 | `/events`                                  | Packages & pricing · FAQ · booking request form (with live estimate)                                   |
 | `/wholesale`                               | Wholesale info & delivery schedule · searchable flavours list · order form                             |
@@ -96,7 +98,14 @@ creates a separate standalone Studio, and this site already has one built in.
 - Schema: `src/sanity/schemaTypes/`, Studio layout: `src/sanity/structure.ts`, config: `sanity.config.ts`.
 - All reads go through `src/lib/content.ts`, cached with `use cache` and tagged so the webhook can refresh them.
 - The cart and checkout re-price every order from the live catalogue on the server, and refuse items that have
-  been removed or marked sold out. Cake options and wholesale formats are identified by their Sanity array
+  been removed or marked sold out.
+- Checkout (`src/app/api/checkout/*`, `src/components/shop/SquarePayment.tsx`): the server creates a Square
+  order with a pickup fulfillment (so it shows in Square's order manager), then the cart pays it on the page
+  with the Square Web Payments SDK. Gift cards are charged with partial authorization, so a card with less
+  than the total covers its balance and the rest goes on another gift card or a card; all payments are
+  held (delayed capture) and captured together with PayOrder once they cover the total. A hold that's
+  never completed (buyer leaves) is released automatically after an hour, or right away on "Remove" /
+  leaving the page. Cake options and wholesale formats are identified by their Sanity array
   keys, which the seed script sets to the same ids the site used before.
 
 ## Pickup calendar
@@ -143,7 +152,8 @@ up, the client can correct most of them in the Studio themselves:
 - [ ] High-resolution **brand assets** — the bear illustrations and pint renders were extracted from the PDF
       at roughly 270 px; the originals from the brand asset download would look sharper
 - [ ] **Pickup days and closed dates** — defaults to every day, closed Dec 25 and Jan 1
-- [ ] Stripe account, Stripe Tax decision (gelato pints are generally zero-rated basic groceries — check with
-      the accountant), Resend domain verification, Sanity CORS + seed (see above)
+- [ ] Square: production app credentials and the kitchen's location id, a tax decision (gelato pints are
+      generally zero-rated basic groceries — check with the accountant; see `SQUARE_TAX_PERCENTAGE`), Resend
+      domain verification, Sanity CORS + seed (see above)
 - [ ] **Adobe Fonts:** add Sauna Black Italic to the web project, add the live domain, and move the kit to the
       client's Adobe account (then set `NEXT_PUBLIC_ADOBE_FONTS_KIT_ID`)
