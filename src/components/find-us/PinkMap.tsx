@@ -157,8 +157,22 @@ export function PinkMap({
       firstFly.current = false;
       return;
     }
-    if (spot && map.current)
-      map.current.flyTo({ center: [spot.lng, spot.lat], zoom: 14.5, essential: false });
+    const m = map.current;
+    if (!m) return;
+    if (spot) {
+      m.flyTo({ center: [spot.lng, spot.lat], zoom: 14.5, essential: false });
+    } else if (spots.length) {
+      // No spot picked ("See all on map"): zoom back out to show every pin.
+      const lngs = spots.map((s) => s.lng);
+      const lats = spots.map((s) => s.lat);
+      m.fitBounds(
+        [
+          [Math.min(...lngs), Math.min(...lats)],
+          [Math.max(...lngs), Math.max(...lats)],
+        ],
+        { padding: 70, maxZoom: 14 },
+      );
+    }
   }, [activeId, spots]);
 
   return (

@@ -93,7 +93,7 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
               href="#schedule"
               className="btn btn-berry !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg"
             >
-              Schedule
+              Hours
             </a>
           </div>
         </div>
@@ -102,17 +102,96 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
   );
 }
 
+/** Straight-line distance in km, good enough to pick the closest spot. */
+function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const rad = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * rad;
+  const dLng = (b.lng - a.lng) * rad;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
+const mapButton = "btn !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg";
+
 /**
  * The seasonal spots from the design: a pink map with a pin per spot, next to a list of
- * cards. Picking a card (or a pin) opens that card and flies the map to it.
+ * cards. Picking a card (or a pin) opens that card and flies the map to it. Under the map:
+ * nearest-spot, show-all and schedule buttons, and a note to check Instagram.
  */
-export function SeasonalSpots({ spots }: { spots: Location[] }) {
-  const [activeId, setActiveId] = useState(spots[0]?.id);
+export function SeasonalSpots({ spots, instagramUrl }: { spots: Location[]; instagramUrl: string }) {
+  const [activeId, setActiveId] = useState<string | undefined>(spots[0]?.id);
+  const [locating, setLocating] = useState(false);
+  const [geoError, setGeoError] = useState("");
+
+  function findNearest() {
+    if (!("geolocation" in navigator)) {
+      setGeoError("Your browser can’t share your location.");
+      return;
+    }
+    setLocating(true);
+    setGeoError("");
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLocating(false);
+        const here = { lat: coords.latitude, lng: coords.longitude };
+        const open = spots.filter((s) => !s.seasonClosed);
+        const nearest = (open.length ? open : spots).reduce((best, s) =>
+          distanceKm(here, s) < distanceKm(here, best) ? s : best,
+        );
+        setActiveId(nearest.id);
+      },
+      () => {
+        setLocating(false);
+        setGeoError("We couldn’t get your location. Pick a spot from the list instead.");
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_31.4375rem] lg:gap-14">
       <div className="lg:sticky lg:top-36 lg:self-start">
         <PinkMap spots={spots} activeId={activeId} onSelect={setActiveId} />
+        <div className="mt-[0.9375rem] flex flex-wrap gap-2.5">
+          <button
+            type="button"
+            onClick={findNearest}
+            disabled={locating}
+            className={`${mapButton} bg-strawberry text-snow`}
+          >
+            {locating ? "Finding you…" : "Find scoop nearest me"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveId(undefined)}
+            className={`${mapButton} bg-lakeside text-snow`}
+          >
+            See all on map
+          </button>
+          <a href="#schedule" className={`${mapButton} gap-2.5 bg-seafoam text-bluebird`}>
+            <Image src="/find-us/clock.svg" alt="" width={26} height={26} className="size-6" />
+            Schedule &amp; hours
+          </a>
+        </div>
+        {geoError ? (
+          <p role="status" className="mt-2 font-ui text-sm font-bold text-berry">
+            {geoError}
+          </p>
+        ) : null}
+        <div className="mt-10 flex flex-col items-center gap-2.5 rounded-[1.25rem] bg-white p-5 text-center lg:mt-[6.25rem]">
+          <p className="eyebrow rounded-[1.25rem] border-2 border-heatwave px-5 py-2 !text-xl text-heatwave">
+            Take note!
+          </p>
+          <p className="max-w-[35.5rem] text-xl leading-none text-heatwave italic">
+            Please note that locations, hours, and operating dates vary throughout the season. We try our
+            best to keep this page up to date, but please check our latest updates on{" "}
+            <a href={instagramUrl} className="font-bold underline-offset-2 hover:underline">
+              Instagram
+            </a>{" "}
+            before heading out to find us!
+          </p>
+        </div>
       </div>
       <ul className="space-y-5" aria-label="Seasonal scoop shops">
         {spots.map((spot) => (

@@ -1,7 +1,7 @@
 import type { Location } from "@/lib/content-types";
 
-// Copy and locations from the "Find us" website design. Pins are from OpenStreetMap.
-// Hours are left empty until Lucia confirms them; they can be added in the Studio.
+// Copy, locations and hours from the "Find us" website design. Pins are from OpenStreetMap.
+// Spots with no hours show "Hours TBC" until Lucia confirms them in the Studio.
 export const seasonalSpots: Location[] = [
   {
     id: "roundhouse",
@@ -38,8 +38,9 @@ export const seasonalSpots: Location[] = [
       "Find us by the lake! Swim, scoop, repeat.\nFollow @whistlerluciagelato for this week’s spot.",
     lat: 50.12666,
     lng: -122.93519,
-    scheduleSeason: "Summer",
-    hours: [],
+    scheduleName: "Gelato trailer · Lost Lake Park",
+    scheduleSeason: "Late Jun – Sep",
+    hours: [{ days: "Daily", time: "12 – 7pm" }],
     seasonClosed: false,
   },
   {
@@ -51,8 +52,9 @@ export const seasonalSpots: Location[] = [
       "Find us by the lake! Swim, scoop, repeat.\nFollow @whistlerluciagelato for this week’s spot.",
     lat: 50.12053,
     lng: -122.98436,
-    scheduleSeason: "Summer",
-    hours: [],
+    scheduleName: "Gelato trailer · Rainbow Park",
+    scheduleSeason: "Late Jun – Sep",
+    hours: [{ days: "Daily", time: "12 – 7pm" }],
     seasonClosed: false,
   },
   {
@@ -64,29 +66,29 @@ export const seasonalSpots: Location[] = [
       "Find us at select summer events hosted by the **Resort Municipality of Whistler (RMOW), including the Whistler Summer Concert Series and Free Movies at Olympic Plaza!** Whether you’re enjoying live music under the mountains or a movie night under the stars, grab a scoop of Lucia Gelato to make your summer evening even sweeter. Be sure to check our schedule for the specific event dates we’ll be attending!\n\nFollow @whistlerluciagelato for this week’s spot.",
     lat: 50.11871,
     lng: -122.9545,
-    scheduleSeason: "Summer",
-    hours: [],
+    scheduleName: "Gelato trailer · Whistler Olympic Plaza",
+    scheduleSeason: "Late Jun – Sep",
+    hours: [{ days: "Special events", time: "dates & hours TBC" }],
     seasonClosed: false,
   },
 ];
 
 export const groceryStores: { town: string; stores: string[] }[] = [
   {
-    town: "Whistler",
+    town: "Whistler area",
     stores: [
       "Creekside Market",
-      "Fresh Street Market",
-      "Nester's Market",
+      "Green Lake Station",
+      "Fresh St. Market",
+      "Nesters Market Whistler",
       "The Grocery Store",
       "Upper Village Market",
+      "Whistler RV Park",
+      "Scandinave Spa",
     ],
   },
-  { town: "Squamish", stores: ["Nester's Market", "Stong's Market"] },
+  { town: "Squamish", stores: ["Nesters Market Squamish", "Stong's Market", "Farmers on Duty"] },
   { town: "Pemberton", stores: ["Pemberton Valley Supermarket"] },
-  {
-    town: "Along the Sea to Sky",
-    stores: ["Green Lake Station", "Whistler RV Park", "Farmers on Duty"],
-  },
 ];
 
 export const scoopShops: { name: string; address: string; town: string }[] = [
@@ -102,35 +104,49 @@ export const onTheMenu: { group: string; places: string[] }[] = [
       "All Seasons Grill",
       "Brew Creek Lodge",
       "Caramba",
-      "Christine's",
+      "Christine's (Blackcomb)",
       "Dubh Linn Gate",
       "GLC",
-      "Lorette",
+      "Lorette Brasserie",
       "Nagomi Sushi",
       "Nicklaus North Golf Course",
-      "Pizza Antico",
+      "Pizzeria Antico",
+      "Stonesedge Kitchen",
       "Portobello",
       "Quattro",
       "Ravens Room",
-      "Red Door",
-      "Rendezvous",
+      "Red Door Bistro",
+      "Rendezvous (Blackcomb)",
       "Rimrock",
-      "Roundhouse",
+      "Roundhouse Lodge (Whistler)",
       "Sachi Sushi",
-      "Steeps",
+      "Steeps Grill (Whistler)",
       "Tapley's",
+      "Pasta Lupino",
     ],
   },
   {
     group: "Cafés",
-    places: ["Camp", "Delish Cafe", "Forecast", "Scandinave Spa", "Squamish Adventure Centre"],
+    places: [
+      "Camp Lifestyle & Coffee Co.",
+      "Delish Cafe",
+      "Forecast Coffee",
+      "Scandinave Spa",
+      "Squamish Adventure Centre",
+    ],
   },
   {
     group: "Catering",
     places: ["Collective Kitchen", "Harvest Catering", "Whistler Blackcomb Catering"],
   },
   {
-    group: "Hotels",
-    places: ["Delta Village Suites", "Fairmont", "Four Seasons", "Hilton", "The Westin"],
+    group: "Hotel",
+    places: [
+      "Delta Whistler Village Suites",
+      "Fairmont Chateau Whistler",
+      "Four Seasons Resort Whistler",
+      "Hilton Whistler Resort & Spa",
+      "The Westin Resort & Spa, Whistler",
+    ],
   },
 ];

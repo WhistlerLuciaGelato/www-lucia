@@ -226,7 +226,7 @@ export async function getCatalogue(): Promise<Catalogue> {
 
 const locationsQuery = defineQuery(
   `*[_type == "location" && active != false] | order(orderRank asc, name asc) {
-    "id": _id, name, area, season, description, lat, lng, scheduleSeason,
+    "id": _id, name, area, season, description, lat, lng, scheduleSeason, scheduleName,
     "hours": hours[]{ days, time }, closedOn, closureNote, seasonClosed
   }`,
 );
@@ -244,6 +244,7 @@ export async function getLocations(): Promise<Location[]> {
     area: d.area ?? "",
     description: d.description ?? "",
     scheduleSeason: d.scheduleSeason ?? "",
+    scheduleName: d.scheduleName || undefined,
     hours: (d.hours ?? [])
       .filter((h) => h?.days || h?.time)
       .map((h) => ({ days: h.days ?? "", time: h.time ?? "" })),

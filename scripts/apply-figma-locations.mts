@@ -1,14 +1,15 @@
 /**
- * One-off: brings the Sanity seasonal locations in line with the website design (Figma "Find us").
- * Sets the name, subtitle, description, season and map pin of each spot, adds Rainbow Park,
- * clears the old (wrong) opening hours and puts the spots in the design's order. Closure
- * settings and anything else edited in the Studio are left alone.
+ * One-off: brings the Sanity "Find us" content in line with the website design (Figma "Find us").
+ * For each seasonal spot it sets the name, subtitle, description, season, map pin, season dates
+ * and hours, adds Rainbow Park and puts the spots in the design's order. Closure settings are
+ * left alone. It also replaces the grocery stores, scoop partners and "Also on the menu at"
+ * lists with the design's.
  *
  *   SANITY_API_WRITE_TOKEN=... npm run apply-figma-locations
  *   npm run apply-figma-locations -- --dry-run
  */
 import { createClient } from "@sanity/client";
-import { seasonalSpots } from "../src/data/locations.ts";
+import { groceryStores, onTheMenu, scoopShops, seasonalSpots } from "../src/data/locations.ts";
 
 const dryRun = process.argv.includes("--dry-run");
 const token = process.env.SANITY_API_WRITE_TOKEN;
@@ -35,7 +36,8 @@ for (const [i, spot] of seasonalSpots.entries()) {
     lat: spot.lat,
     lng: spot.lng,
     scheduleSeason: spot.scheduleSeason,
-    hours: [],
+    scheduleName: spot.scheduleName ?? "",
+    hours: spot.hours.map((h, j) => ({ _key: `hours${j}`, ...h })),
     active: true,
     orderRank: (i + 1) * 10,
   };
@@ -50,4 +52,20 @@ for (const [i, spot] of seasonalSpots.entries()) {
     .patch(id, (p) => p.set(fields))
     .commit();
   console.log(`Updated ${id}`);
+}
+
+const stockists = {
+  groceryStores: groceryStores.map((g, i) => ({ _key: `town${i}`, ...g })),
+  scoopShops: scoopShops.map((s, i) => ({ _key: `scoop${i}`, ...s })),
+  onTheMenu: onTheMenu.map((g, i) => ({ _key: `menu${i}`, ...g })),
+};
+if (dryRun) {
+  console.log("stockists", JSON.stringify(stockists, null, 2));
+} else {
+  await client
+    .transaction()
+    .createIfNotExists({ _id: "stockists", _type: "stockists" })
+    .patch("stockists", (p) => p.set(stockists))
+    .commit();
+  console.log("Updated stockists");
 }

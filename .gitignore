@@ -44,5 +44,8 @@ next-env.d.ts
 # netlify
 .netlify
 
+# local secrets file left over from the Cloudflare setup; never commit
+.dev.vars
+
 # copied from node_modules by scripts/copy-maplibre-worker.mjs
 /public/vendor/

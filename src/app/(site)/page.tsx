@@ -5,6 +5,40 @@ import { PintCard } from "@/components/shop/PintCard";
 import { BackToTop } from "@/components/BackToTop";
 import { OurStory } from "@/components/OurStory";
 import { SectionTiles } from "@/components/SectionTiles";
+import { Wave } from "@/components/Wave";
+
+/** The flavour section's colour, for its wave edges. */
+const PETAL = "#ffeee9";
+
+const wheres = [
+  {
+    title: "Craving a scoop?",
+    copy: "Discover our seasonal locations and local scoop partners.",
+    href: "/find-us#map",
+    cta: "See the map",
+    icon: { src: "/find-us/icon-cone.svg", w: 27, h: 64, className: "h-[4.77rem]" },
+    text: "text-lakeside",
+    button: "btn-sky",
+  },
+  {
+    title: "Fancy a pint?",
+    copy: "Get pints at grocery stores around the Sea to Sky.",
+    href: "/find-us#grocery",
+    cta: "See stores",
+    icon: { src: "/find-us/icon-basket-pink.svg", w: 70, h: 72, className: "h-[4.5rem]" },
+    text: "text-strawberry",
+    button: "btn-blush",
+  },
+  {
+    title: "Where else?",
+    copy: "Find Lucia at restaurants, hotels, and other vendors.",
+    href: "/find-us#scoops",
+    cta: "Other vendors",
+    icon: { src: "/find-us/icon-cutlery.svg", w: 51, h: 65, className: "h-[4.05rem]" },
+    text: "text-heatwave",
+    button: "bg-peach text-heatwave",
+  },
+];
 
 export default async function Home() {
   const pintFlavours = await getPintFlavours();
@@ -56,59 +90,65 @@ export default async function Home() {
       <SectionTiles />
 
       {/* Flavours */}
-      <section className="bg-rose px-4 pt-16 pb-20 sm:px-8 lg:pt-[3.875rem] lg:pb-[4.5rem]">
+      <section className="relative bg-petal px-4 pt-16 pb-20 sm:px-8 lg:pt-[3.875rem] lg:pb-[5.5rem]">
+        <Wave color={PETAL} className="absolute inset-x-0 -top-3.5" />
         <h2 className="display mx-auto max-w-[37.5rem] text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
           Find your flavour
         </h2>
         <div className="mx-auto mt-12 grid max-w-[71rem] justify-items-center gap-x-[3.2rem] gap-y-10 sm:grid-cols-2 lg:mt-[4.25rem] lg:grid-cols-3 lg:items-start lg:gap-y-[4.25rem]">
           {featured.map((f) => (
-            <PintCard key={f.slug} flavour={f} />
+            <PintCard key={f.slug} flavour={f} framed />
           ))}
         </div>
-        <div className="mt-14 flex flex-wrap justify-center gap-4 lg:mt-[6.5rem] lg:gap-[1.875rem]">
-          <Link href="/our-gelato" className="btn btn-berry">
-            See all flavours
-          </Link>
-          <Link href="/order/pints" className="btn btn-ghost">
+        <div className="mt-14 flex flex-wrap justify-center gap-4 lg:mt-[4.5rem] lg:gap-[1.875rem]">
+          <Link href="/order/pints" className="btn btn-berry">
             Order pints for pickup
           </Link>
+          <Link href="/order/cakes" className="btn bg-alpenglow text-snow">
+            Make it a cake
+          </Link>
+          <Link href="/wholesale#flavours" className="btn bg-bluebird text-snow">
+            Wholesale flavours
+          </Link>
         </div>
+        <Wave color={PETAL} className="absolute inset-x-0 -bottom-3.5 rotate-180" />
       </section>
 
       {/* Where's Lucia? */}
-      <section className="px-4 py-20 sm:px-8 lg:pt-[6.25rem] lg:pb-[7.5rem]">
-        <div className="mx-auto grid max-w-[70.5rem] items-center gap-12 lg:grid-cols-2">
-          <div>
-            <p className="eyebrow !text-lg text-lakeside lg:!text-xl">Where&rsquo;s Lucia?</p>
-            <h2 className="display mt-6 max-w-[37.5rem] text-6xl text-strawberry sm:text-7xl lg:mt-10 lg:text-[5rem] lg:leading-[0.85]">
-              Find your next scoop or pint
+      <section className="px-4 py-20 sm:px-8 lg:pt-[6.75rem] lg:pb-[9.5rem]">
+        <div className="mx-auto grid max-w-[76.5rem] items-center gap-12 lg:grid-cols-[1fr_29.5rem] lg:gap-10">
+          <div className="text-center">
+            <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
+              Where&rsquo;s Lucia?
             </h2>
-            <div className="mt-12 max-w-[20rem] space-y-11 lg:mt-16">
-              <div>
-                <p className="text-base tracking-[0.02em] text-lakeside">
-                  Craving a scoop? Discover our seasonal locations and local scoop partners.
-                </p>
-                <Link href="/find-us#map" className="btn btn-sky mt-3.5">
-                  See the map
-                </Link>
-              </div>
-              <div>
-                <p className="text-base tracking-[0.02em] text-strawberry">
-                  Explore our grocery stockists &amp; restaurant vendors throughout the Sea to Sky.
-                </p>
-                <Link href="/find-us#grocery" className="btn btn-blush mt-3.5">
-                  See vendors
-                </Link>
-              </div>
-            </div>
+            <ul className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-4 lg:mt-[3.75rem]">
+              {wheres.map((w) => (
+                <li key={w.href} className={`flex flex-col items-center ${w.text}`}>
+                  <span className="grid h-[5.625rem] place-items-end">
+                    <Image
+                      src={w.icon.src}
+                      alt=""
+                      width={w.icon.w}
+                      height={w.icon.h}
+                      className={`w-auto ${w.icon.className}`}
+                    />
+                  </span>
+                  <p className="mt-2 text-lg font-bold tracking-[0.02em]">{w.title}</p>
+                  <p className="mt-1 max-w-[15rem] text-lg tracking-[0.02em]">{w.copy}</p>
+                  <Link href={w.href} className={`btn mt-4 ${w.button}`}>
+                    {w.cta}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
           <Image
             src="/home/trailer-crew.webp"
             alt="The Lucia crew waving from the gelato trailer"
             width={1100}
             height={1100}
-            sizes="(min-width: 1024px) 549px, 90vw"
-            className="mx-auto aspect-square w-full max-w-[34.3125rem] lg:mr-0"
+            sizes="(min-width: 1024px) 472px, 90vw"
+            className="mx-auto aspect-square w-full max-w-[29.5rem] rounded-full object-cover lg:mr-0"
           />
         </div>
       </section>

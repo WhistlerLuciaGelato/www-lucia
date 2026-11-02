@@ -85,6 +85,8 @@ export type Location = {
   lat: number;
   lng: number;
   scheduleSeason: string;
+  /** Name in the Schedule & hours table, when it differs from the card's, e.g. "Gelato trailer · Lost Lake Park". */
+  scheduleName?: string;
   /** One line per set of days, e.g. { days: "Fri–Sun", time: "11am–8pm" }. */
   hours: { days: string; time: string }[];
   /** YYYY-MM-DD: shows "Closed today" on that date only. */
