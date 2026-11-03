@@ -119,7 +119,9 @@ export default async function Home() {
         <div className="mx-auto grid max-w-[76.5rem] items-center gap-12 lg:grid-cols-[1fr_29.5rem] lg:gap-10">
           <div className="text-center">
             <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
-              Where&rsquo;s Lucia?
+              Where&rsquo;s
+              <br />
+              Lucia?
             </h2>
             <ul className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-4 lg:mt-[3.75rem]">
               {wheres.map((w) => (

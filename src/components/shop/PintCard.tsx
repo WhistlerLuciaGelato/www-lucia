@@ -21,15 +21,20 @@ const dietTagFill: Record<Diet, string> = {
 /**
  * Flavour card from the website design. Pass `price` (CAD cents) to show add-to-cart controls.
  * `framed` gives the newer home-page look: an outlined card (mint for dairy-free) with filled tags.
+ * `showSize` adds the "473mL" line and `action` goes under the tags (Our gelato's add-to-cart pill).
  */
 export function PintCard({
   flavour,
   price,
   framed = false,
+  showSize = false,
+  action,
 }: {
   flavour: PintFlavour;
   price?: number;
   framed?: boolean;
+  showSize?: boolean;
+  action?: React.ReactNode;
 }) {
   const shop = price !== undefined;
   const dairyFree = flavour.diet.includes("dairy-free");
@@ -90,6 +95,7 @@ export function PintCard({
       <h3 className="subhead max-w-[15.75rem] text-2xl leading-[0.9] text-balance text-ink">
         {flavour.name}
       </h3>
+      {showSize ? <p className="eyebrow leading-[0.9] text-ink">473mL</p> : null}
       <p className="max-w-[18.25rem] text-base leading-[1.2] text-black/80">{flavour.blurb}</p>
 
       <ul
@@ -107,6 +113,8 @@ export function PintCard({
           </li>
         ))}
       </ul>
+
+      {action}
 
       {shop ? (
         <div className="mt-4 flex w-full flex-col items-center gap-3 border-t border-black/10 pt-5">
