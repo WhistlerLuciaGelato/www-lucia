@@ -24,8 +24,8 @@ export const PINT_MAX_PER_FLAVOUR = 24;
 export const CAKE_MAX_QTY = 4;
 
 export const defaultShop: Shop = {
-  // TODO(client): confirm retail pint price (wholesale is $6.95).
-  pintPrice: 1200,
+  // Retail pint price, confirmed by Lucia (Nov 2026). The live value is the Studio's.
+  pintPrice: 700,
   // TODO(client): confirm how much notice the kitchen needs for pint orders.
   pintLeadDays: 2,
   cakeLeadDays: 4,

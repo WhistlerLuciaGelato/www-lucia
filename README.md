@@ -136,7 +136,7 @@ closed dates, all set in the Studio. The checkout API enforces the same rules (`
 These are placeholders or assumptions, marked `TODO(client)` in the code where relevant. Once Sanity is set
 up, the client can correct most of them in the Studio themselves:
 
-- [ ] **Retail pint price** — set to $12.00 (`src/data/shop.ts`)
+- [x] **Retail pint price** — $7.00, confirmed (edit it in the Studio: Online shop › Pint price)
 - [ ] **Pint lead time** (2 days) and **pickup window** (12–5pm) at the Base II kitchen
 - [ ] **Seasonal hours** for each location (`src/data/locations.ts`) and exact map pins
 - [ ] **Dietary tags** on each pint — taken from the label icons; Coconut Cookies & Cream is marked dairy-free
