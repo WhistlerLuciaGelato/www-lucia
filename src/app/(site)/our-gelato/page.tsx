@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { Wave } from "@/components/Wave";
 import { PintPicker } from "@/components/shop/PintPicker";
-import { getPintFlavours } from "@/lib/content";
+import { getPintFlavours, getShop } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Our gelato",
@@ -30,7 +30,7 @@ const shortcuts = [
  * note, gelato vs. dairy-free vs. sorbet, and the Lucia difference.
  */
 export default async function OurGelatoPage() {
-  const pintFlavours = await getPintFlavours();
+  const [pintFlavours, shop] = await Promise.all([getPintFlavours(), getShop()]);
 
   return (
     <>
@@ -77,7 +77,7 @@ export default async function OurGelatoPage() {
           for pickup
         </h2>
         <div className="mt-10 lg:mt-[3.3125rem]">
-          <PintPicker flavours={pintFlavours} />
+          <PintPicker flavours={pintFlavours} price={shop.pintPrice} />
         </div>
         <Wave color={PETAL} className="absolute inset-x-0 -bottom-3.5 rotate-180" />
       </section>

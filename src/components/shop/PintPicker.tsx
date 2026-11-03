@@ -63,7 +63,7 @@ const FIRST = 6;
  * "Order pints for pickup" on Our gelato: filter pills, then the flavour cards with a one-tap
  * add-to-cart, six at a time ("Show more" reveals the rest).
  */
-export function PintPicker({ flavours }: { flavours: PintFlavour[] }) {
+export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price: number }) {
   const [active, setActive] = useState("all");
   const [expanded, setExpanded] = useState(false);
   const filter = filters.find((f) => f.id === active) ?? filters[0];
@@ -99,6 +99,7 @@ export function PintPicker({ flavours }: { flavours: PintFlavour[] }) {
             flavour={f}
             framed
             showSize
+            listPrice={price}
             action={
               f.available ? (
                 <AddToCartPill flavour={f.slug} name={f.name} />
