@@ -88,6 +88,10 @@ export type OrderLineItem = {
   quantity: string;
   note?: string;
   base_price_money?: Money;
+  /** Price × quantity before tax and discounts. */
+  gross_sales_money?: Money;
+  total_tax_money?: Money;
+  /** After tax and discounts, so it includes the line's share of GST. */
   total_money?: Money;
 };
 

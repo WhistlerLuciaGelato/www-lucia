@@ -45,7 +45,13 @@ async function OrderSummary({
               {li.quantity} × {li.name}
               {li.note ? <span className="block text-sm text-ink/70">{li.note}</span> : null}
             </span>
-            <span className="font-bold">{money(li.total_money?.amount ?? 0)}</span>
+            {/* Pre-tax, so the lines plus the GST row below add up to the total. */}
+            <span className="font-bold">
+              {money(
+                li.gross_sales_money?.amount ??
+                  (li.total_money?.amount ?? 0) - (li.total_tax_money?.amount ?? 0),
+              )}
+            </span>
           </li>
         ))}
       </ul>
