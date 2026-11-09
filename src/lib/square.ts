@@ -131,7 +131,25 @@ export type Payment = {
   location_id?: string;
   source_type?: string;
   card_details?: { card?: { card_brand?: string; last_4?: string } };
+  /** Square's hosted receipt page; only set once the payment is COMPLETED. */
+  receipt_url?: string;
 };
+
+/**
+ * Square's receipt page for each payment on a paid order (skips any it can't fetch).
+ * Square adds receipt URLs a few seconds after PayOrder, so this retries for up to `waitMs`
+ * until every payment has one.
+ */
+export async function receiptUrls(config: SquareConfig, order: Order, waitMs = 0): Promise<string[]> {
+  const ids = (order.tenders ?? []).map((t) => t.id).filter((id): id is string => Boolean(id));
+  const deadline = Date.now() + waitMs;
+  for (;;) {
+    const payments = await Promise.all(ids.map((id) => getPayment(config, id).catch(() => null)));
+    const urls = payments.map((p) => p?.receipt_url).filter((url): url is string => Boolean(url));
+    if (urls.length === ids.length || Date.now() >= deadline) return urls;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+}
 
 export async function createOrder(
   config: SquareConfig,

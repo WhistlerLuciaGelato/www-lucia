@@ -4,8 +4,9 @@ import { Suspense } from "react";
 import { ClearCart } from "@/components/shop/ClearCart";
 import { Bear, Container } from "@/components/ui";
 import { getShop, getSiteSettings } from "@/lib/content";
+import { emailConfigured } from "@/lib/email";
 import { money, phoneHref, prettyDate } from "@/lib/format";
-import { describeCard, getSquareConfig, isPaid, retrieveOrder } from "@/lib/square";
+import { describeCard, getSquareConfig, isPaid, receiptUrls, retrieveOrder } from "@/lib/square";
 
 export const metadata: Metadata = {
   title: "Thank you!",
@@ -28,6 +29,8 @@ async function OrderSummary({
 
   const pickupDate = order.metadata?.pickup_date;
   const email = order.fulfillments?.[0]?.pickup_details?.recipient?.email_address;
+  // Streams in behind Suspense, so a short wait for the receipt doesn't hold up the page.
+  const receipts = await receiptUrls(square, order, 5_000);
   return (
     <div className="mx-auto mt-10 max-w-lg rounded-blob bg-white p-7 text-left shadow-soft ring-1 ring-alpine/60">
       {pickupDate ? (
@@ -76,9 +79,31 @@ async function OrderSummary({
           ))}
         </ul>
       ) : null}
+      {receipts.length > 0 ? (
+        <p className="mt-4 flex flex-wrap gap-x-4 font-ui text-sm">
+          {receipts.map((url, i) => (
+            <a
+              key={url}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-lake-deep underline underline-offset-2"
+            >
+              View your receipt{receipts.length > 1 ? ` ${i + 1}` : ""}
+            </a>
+          ))}
+        </p>
+      ) : null}
       {email ? (
         <p className="mt-3 font-ui text-sm text-ink/70">
-          We&rsquo;ll be in touch at {email} if anything changes.
+          {emailConfigured() ? (
+            <>
+              We&rsquo;ve emailed a confirmation to {email}, and we&rsquo;ll be in touch there if anything
+              changes.
+            </>
+          ) : (
+            <>We&rsquo;ll be in touch at {email} if anything changes.</>
+          )}
         </p>
       ) : null}
     </div>

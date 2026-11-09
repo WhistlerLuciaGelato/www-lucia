@@ -10,13 +10,21 @@ export function emailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY);
 }
 
+/** Lucia's inbox for website notifications (FORMS_TO_EMAIL, comma-separated, or the given fallback). */
+export function inboxAddresses(fallback: string): string[] {
+  return (process.env.FORMS_TO_EMAIL || fallback)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 /**
- * Sends a notification to the Lucia inbox through Resend's HTTP API.
- * Returns false when email isn't configured so callers can tell the visitor to email directly.
+ * Sends a plain-text email through Resend's HTTP API.
+ * Returns false when email isn't configured or Resend refuses it, so callers can fall back.
  */
-export async function sendToInbox(message: EmailMessage, inbox: string): Promise<boolean> {
+export async function sendEmail(to: string[], message: EmailMessage): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return false;
+  if (!apiKey || to.length === 0) return false;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -26,7 +34,7 @@ export async function sendToInbox(message: EmailMessage, inbox: string): Promise
     },
     body: JSON.stringify({
       from: process.env.FORMS_FROM_EMAIL ?? "Lucia Gelato website <onboarding@resend.dev>",
-      to: (process.env.FORMS_TO_EMAIL || inbox).split(",").map((s) => s.trim()),
+      to,
       reply_to: message.replyTo,
       subject: message.subject,
       text: message.text,
@@ -38,4 +46,9 @@ export async function sendToInbox(message: EmailMessage, inbox: string): Promise
     return false;
   }
   return true;
+}
+
+/** Sends a notification to the Lucia inbox. */
+export function sendToInbox(message: EmailMessage, inbox: string): Promise<boolean> {
+  return sendEmail(inboxAddresses(inbox), message);
 }

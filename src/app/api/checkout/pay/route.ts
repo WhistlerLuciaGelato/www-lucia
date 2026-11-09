@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { paySchema, type PayResponse } from "@/lib/checkout";
 import { prettyDate } from "@/lib/format";
+import { sendOrderEmails } from "@/lib/order-email";
 import {
   cancelPayment,
   createPayment,
@@ -130,6 +131,10 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
+
+  // Only this request flips the order to paid (a retry hits the isPaid early return above),
+  // so each order is emailed once. Sent after the response so checkout isn't held up.
+  after(() => sendOrderEmails(square, orderId));
 
   const paid: PayResponse = { status: "paid", orderId };
   return NextResponse.json(paid);
