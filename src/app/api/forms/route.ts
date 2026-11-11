@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { formSchema, wholesaleLineIssues, type FormPayload } from "@/lib/forms";
+import { OTHER_FORMAT, formSchema, wholesaleLineIssues, type FormPayload } from "@/lib/forms";
 import { sendToInbox } from "@/lib/email";
 import { getEvents, getSiteSettings, getWholesale } from "@/lib/content";
 import type { EventsContent, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
@@ -52,7 +52,8 @@ function render(payload: FormPayload, events: EventsContent, wholesale: Wholesal
       const lines = payload.lines.map((l) => {
         const format = formatOf(l.format);
         const total = format ? ` (${money(format.price * l.qty)})` : "";
-        return `- ${l.qty} × ${format?.label ?? l.format} — ${l.flavour}${total}`;
+        const label = format?.label ?? (l.format === OTHER_FORMAT.id ? "Other size (see notes)" : l.format);
+        return `- ${l.qty} × ${label} — ${l.flavour}${total}`;
       });
       const subtotal = payload.lines.reduce((sum, l) => sum + (formatOf(l.format)?.price ?? 0) * l.qty, 0);
       return {
@@ -70,7 +71,7 @@ function render(payload: FormPayload, events: EventsContent, wholesale: Wholesal
           "Order:",
           ...lines,
           "",
-          `Estimated subtotal: ${money(subtotal)} (before delivery fees & tax)`,
+          `Estimated subtotal: ${money(subtotal)} (list prices, before delivery fees & tax; not shown to the customer)`,
           "",
           payload.message || "",
         ].join("\n"),

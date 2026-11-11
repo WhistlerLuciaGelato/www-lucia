@@ -8,12 +8,7 @@ export const eventPackages: EventPackage[] = [
     basePrice: 500,
     baseGuests: 50,
     perGuest: 7,
-    features: [
-      "5 gelato flavours",
-      "Simple table setup",
-      "Gelato & sorbet options",
-      "Up to 1.5 hours of service",
-    ],
+    features: ["5 flavours", "Simple table setup", "Gelato & sorbet options", "Up to 1.5 hours of service"],
     accent: "lakeside",
   },
   {
@@ -89,6 +84,26 @@ export const eventFaq: { q: string; a: string }[] = [
   {
     q: "How do deposits work?",
     a: "A minimum $500 deposit secures your date. Taxes and gratuity are not included in package prices.",
+  },
+  {
+    q: "What's included?",
+    // TODO(client): confirm against the copy doc.
+    a: "Every package includes our team, your choice of flavours (gelato, sorbet and dairy-free), and everything needed to serve them. See each package above for the setup and length of service.",
+  },
+  {
+    q: "How much space is required for the gelato trailer?",
+    // TODO(client): add the trailer's footprint from the copy doc.
+    a: "The trailer needs a flat, level spot it can be towed into, with room around it for a line of guests. Send us your venue details and we'll confirm it fits.",
+  },
+  {
+    q: "What are the electricity requirements for the trailer?",
+    // TODO(client): add the trailer's power needs from the copy doc.
+    a: "Let us know what power is available at your venue when you book, and we'll confirm what the trailer needs before your event.",
+  },
+  {
+    q: "What is your cancellation and refund policy?",
+    // TODO(client): add the cancellation and refund terms from the copy doc.
+    a: "Plans change, so please let us know as soon as you can. We'll confirm our cancellation and refund terms with your booking.",
   },
   {
     q: "Can we pick our flavours?",

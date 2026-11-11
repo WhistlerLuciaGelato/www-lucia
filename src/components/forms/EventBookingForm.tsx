@@ -153,6 +153,9 @@ export function EventBookingForm({
           <p className="text-xs text-ink/60">
             Before taxes &amp; gratuity. Final quote confirmed by our team.
           </p>
+          <p className="mt-2 text-sm font-bold text-ink/80">
+            Subject to availability. Our team will be in touch to confirm your event booking.
+          </p>
         </div>
         <button type="submit" className="btn btn-berry" disabled={state.status === "submitting"}>
           {state.status === "submitting" ? "Sending…" : "Send booking request"}

@@ -6,30 +6,53 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cart, useCart, useToday } from "@/lib/cart-store";
 import { itemKey, priceCart } from "@/lib/cart";
-import { contactSchema, type CheckoutResponse, type Contact } from "@/lib/checkout";
+import {
+  contactSchema,
+  fulfillmentSchema,
+  type CheckoutResponse,
+  type Contact,
+  type Fulfillment,
+} from "@/lib/checkout";
 import type { Catalogue } from "@/lib/content-types";
 import { money, prettyDate } from "@/lib/format";
 import { pickupProblem } from "@/lib/pickup";
-import { CAKE_MAX_QTY, PINT_MAX_PER_FLAVOUR, SALES_TAX, salesTax } from "@/data/shop";
+import {
+  CAKE_MAX_QTY,
+  DELIVERY_ZONES,
+  PINT_MAX_PER_FLAVOUR,
+  SALES_TAX,
+  deliveryFee,
+  salesTax,
+} from "@/data/shop";
 import { PickupCalendar } from "@/components/shop/PickupCalendar";
 import { SquarePayment } from "@/components/shop/SquarePayment";
 import { Bear } from "@/components/ui";
 
-function emailOrderLink(to: string, summary: string, pickupDate: string, notes: string, contact: Contact) {
+type Address = { street: string; city: string; postalCode: string };
+
+function emailOrderLink(
+  to: string,
+  summary: string,
+  pickupDate: string,
+  notes: string,
+  contact: Contact,
+  delivery: string | null,
+) {
   const body = [
     "Hi Lucia team,",
     "",
-    "I'd like to place this order for pickup:",
+    `I'd like to place this order for ${delivery ? "delivery" : "pickup"}:`,
     "",
     summary,
     "",
-    `Pickup date: ${pickupDate ? prettyDate(pickupDate) : "(please suggest)"}`,
+    `${delivery ? "Delivery" : "Pickup"} date: ${pickupDate ? prettyDate(pickupDate) : "(please suggest)"}`,
+    delivery ? `Deliver to: ${delivery}` : "",
     notes ? `Notes: ${notes}` : "",
     "",
     `Name: ${contact.name}`,
     `Phone: ${contact.phone}`,
   ].join("\n");
-  return `mailto:${to}?subject=${encodeURIComponent("Pickup order")}&body=${encodeURIComponent(body)}`;
+  return `mailto:${to}?subject=${encodeURIComponent(delivery ? "Delivery order" : "Pickup order")}&body=${encodeURIComponent(body)}`;
 }
 
 export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; contactEmail: string }) {
@@ -42,6 +65,9 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
   const [pickupDate, setPickupDate] = useState("");
   const [notes, setNotes] = useState("");
   const [contact, setContact] = useState<Contact>({ name: "", email: "", phone: "" });
+  /** "pickup" or a delivery zone id. */
+  const [method, setMethod] = useState("pickup");
+  const [address, setAddress] = useState<Address>({ street: "", city: "", postalCode: "" });
   const [showContactErrors, setShowContactErrors] = useState(false);
   // Set once the Square order exists; the panel then shows the payment step and the cart is locked.
   const [checkoutOrder, setCheckoutOrder] = useState<CheckoutResponse | null>(null);
@@ -59,6 +85,21 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
       contactErrors[field] ??= issue.message;
     }
   }
+  const zone = DELIVERY_ZONES.find((z) => z.id === method);
+  const fee = zone ? (deliveryFee(zone.id, subtotal) ?? 0) : 0;
+  const fulfillment: Fulfillment = zone
+    ? { method: "delivery", zone: zone.id, ...address }
+    : { method: "pickup" };
+  const fulfillmentCheck = fulfillmentSchema.safeParse(fulfillment);
+  const addressErrors: Partial<Record<keyof Address, string>> = {};
+  if (!fulfillmentCheck.success) {
+    for (const issue of fulfillmentCheck.error.issues) {
+      const field = issue.path[0] as keyof Address;
+      addressErrors[field] ??= issue.message;
+    }
+  }
+  const tax = salesTax(subtotal + fee);
+  const deliverTo = zone ? `${address.street}, ${address.city} ${address.postalCode} (${zone.label})` : null;
   const locked = checkoutOrder !== null;
 
   if (items.length === 0) {
@@ -82,7 +123,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
   }
 
   async function checkout() {
-    if (!contactCheck.success) {
+    if (!contactCheck.success || !fulfillmentCheck.success) {
       setShowContactErrors(true);
       return;
     }
@@ -93,6 +134,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items,
+          fulfillment: fulfillmentCheck.data,
           pickupDate,
           notes: notes.trim() || undefined,
           contact: contactCheck.data,
@@ -210,13 +252,15 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
         )}
       </section>
 
-      <section aria-label="Pickup & payment" className="lg:col-span-2">
+      <section aria-label="Pickup or delivery, and payment" className="lg:col-span-2">
         <div className="rounded-blob bg-mist p-6 sm:p-8 lg:sticky lg:top-28">
           {checkoutOrder ? (
             <>
               <h2 className="subhead text-2xl text-lakeside">Payment</h2>
               <p className="mt-2 text-sm text-ink/80">
-                Pickup {prettyDate(pickupDate)}, {shop.pickupWindow} · {shop.pickupWhere}
+                {zone
+                  ? `Delivery ${prettyDate(pickupDate)} · ${deliverTo}`
+                  : `Pickup ${prettyDate(pickupDate)}, ${shop.pickupWindow} · ${shop.pickupWhere}`}
               </p>
               <p className="mt-1 text-sm text-ink/80">
                 For {contact.name} · {contact.email}
@@ -232,14 +276,94 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
             </>
           ) : (
             <>
-              <h2 className="subhead text-2xl text-lakeside">Pickup details</h2>
-              <p className="mt-2 text-sm text-ink/80">
-                {shop.pickupWhere} · {shop.pickupWindow}
-              </p>
+              <h2 className="subhead text-2xl text-lakeside">Pickup or delivery</h2>
+              <fieldset className="mt-4">
+                <legend className="sr-only">How would you like to get your order?</legend>
+                <div className="grid gap-2">
+                  {[
+                    {
+                      id: "pickup",
+                      title: "Pickup",
+                      detail: `${shop.pickupWhere} · ${shop.pickupWindow}`,
+                      price: "Free",
+                    },
+                    ...DELIVERY_ZONES.map((z) => ({
+                      id: z.id,
+                      title: `Delivery to ${z.label}`,
+                      detail: `${money(z.fee)}, free on orders of ${money(z.freeOver)} or more`,
+                      price: subtotal >= z.freeOver ? "Free" : money(z.fee),
+                    })),
+                  ].map((o) => (
+                    <label
+                      key={o.id}
+                      className={`flex cursor-pointer items-start gap-3 rounded-2xl bg-white p-3.5 ring-2 transition ${
+                        method === o.id ? "ring-lakeside" : "ring-transparent hover:ring-alpine"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="fulfillment"
+                        value={o.id}
+                        checked={method === o.id}
+                        onChange={() => setMethod(o.id)}
+                        className="mt-1 h-4 w-4 accent-[#2f6e7e]"
+                      />
+                      <span className="flex-1 font-ui">
+                        <span className="block font-extrabold text-ink">{o.title}</span>
+                        <span className="block text-sm text-ink/70">{o.detail}</span>
+                      </span>
+                      <span className="font-ui font-extrabold text-ink">{o.price}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+
+              {zone
+                ? (
+                    [
+                      { key: "street", label: "Delivery address", autoComplete: "street-address" },
+                      { key: "city", label: "Town", autoComplete: "address-level2" },
+                      { key: "postalCode", label: "Postal code", autoComplete: "postal-code" },
+                    ] as const
+                  ).map((f) => {
+                    const err = showContactErrors ? addressErrors[f.key] : undefined;
+                    return (
+                      <div key={f.key}>
+                        <label htmlFor={`address-${f.key}`} className="label mt-5">
+                          {f.label}
+                        </label>
+                        <input
+                          id={`address-${f.key}`}
+                          type="text"
+                          autoComplete={f.autoComplete}
+                          required
+                          className="field"
+                          value={address[f.key]}
+                          aria-invalid={err ? true : undefined}
+                          aria-describedby={err ? `address-${f.key}-error` : undefined}
+                          onChange={(e) => setAddress((a) => ({ ...a, [f.key]: e.target.value }))}
+                        />
+                        {err ? (
+                          <p
+                            id={`address-${f.key}-error`}
+                            className="mt-1 font-ui text-sm font-bold text-berry"
+                          >
+                            {err}
+                          </p>
+                        ) : null}
+                      </div>
+                    );
+                  })
+                : null}
 
               <p className="label mt-5" id="pickup-label">
-                Pickup date
+                {zone ? "Delivery date" : "Pickup date"}
               </p>
+              {zone ? (
+                <p className="-mt-1 mb-2 font-ui text-sm text-ink/70">
+                  We&rsquo;ll be in touch to arrange a delivery time on the day.
+                </p>
+              ) : null}
               <div role="group" aria-labelledby="pickup-label">
                 <PickupCalendar
                   shop={shop}
@@ -247,6 +371,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                   today={today}
                   value={dateProblem ? "" : pickupDate}
                   onChange={setPickupDate}
+                  delivery={Boolean(zone)}
                 />
               </div>
               {dateProblem ? (
@@ -257,7 +382,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
 
               {(
                 [
-                  { key: "name", label: "Name for pickup", type: "text", autoComplete: "name" },
+                  { key: "name", label: "Your name", type: "text", autoComplete: "name" },
                   { key: "email", label: "Email", type: "email", autoComplete: "email" },
                   { key: "phone", label: "Phone", type: "tel", autoComplete: "tel" },
                 ] as const
@@ -298,7 +423,11 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                 className="field"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Allergies, pickup time, anything we should know"
+                placeholder={
+                  zone
+                    ? "Allergies, buzzer code, anything we should know"
+                    : "Allergies, pickup time, anything we should know"
+                }
               />
 
               <dl className="mt-6 space-y-2 border-t border-alpine pt-5 font-ui">
@@ -307,18 +436,18 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                   <dd className="font-extrabold text-ink">{money(subtotal)}</dd>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <dt className="text-ink/70">Pickup</dt>
-                  <dd className="text-ink/70">Free</dd>
+                  <dt className="text-ink/70">{zone ? `Delivery (${zone.label})` : "Pickup"}</dt>
+                  <dd className="text-ink/70">{fee ? money(fee) : "Free"}</dd>
                 </div>
                 <div className="flex justify-between text-sm">
                   <dt className="text-ink/70">
                     {SALES_TAX.name} ({SALES_TAX.percentage}%)
                   </dt>
-                  <dd className="text-ink/70">{money(salesTax(subtotal))}</dd>
+                  <dd className="text-ink/70">{money(tax)}</dd>
                 </div>
                 <div className="flex justify-between border-t border-alpine pt-2">
                   <dt className="font-bold text-ink">Total</dt>
-                  <dd className="font-extrabold text-ink">{money(subtotal + salesTax(subtotal))}</dd>
+                  <dd className="font-extrabold text-ink">{money(subtotal + fee + tax)}</dd>
                 </div>
               </dl>
 
@@ -352,7 +481,14 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                       Send us your order by email and we&rsquo;ll confirm pickup and payment.
                     </p>
                     <a
-                      href={emailOrderLink(contactEmail, summary, pickupDate, notes.trim(), contact)}
+                      href={emailOrderLink(
+                        contactEmail,
+                        summary,
+                        pickupDate,
+                        notes.trim(),
+                        contact,
+                        deliverTo,
+                      )}
                       className="btn btn-primary mt-3 w-full"
                     >
                       Email my order

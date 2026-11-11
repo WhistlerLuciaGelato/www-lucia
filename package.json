@@ -10,7 +10,8 @@
     "seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/seed-sanity.mts",
     "apply-figma-flavours": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-figma-flavours.mts",
     "apply-figma-locations": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-figma-locations.mts",
-    "postinstall": "node scripts/copy-maplibre-worker.mjs"
+    "postinstall": "node scripts/copy-maplibre-worker.mjs",
+    "apply-lucia-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-lucia-edits.mts"
   },
   "dependencies": {
     "@sanity/client": "8.9.0",

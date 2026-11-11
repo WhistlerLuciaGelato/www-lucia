@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { EventBookingForm } from "@/components/forms/EventBookingForm";
+import { ImageCarousel } from "@/components/ImageCarousel";
 import { Bear, CheckList, Container, PageHeading, SectionHeading } from "@/components/ui";
 import { getEvents } from "@/lib/content";
 
@@ -92,24 +92,42 @@ export default async function EventsPage() {
 
       <section className="py-12">
         <Container>
-          <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[
-              ["/photos/kids-cones.webp", "Kids enjoying gelato cones outdoors", 1600, 900],
-              ["/photos/skiers-cones.webp", "Friends sharing gelato", 1200, 1833],
-              ["/photos/gelato-tray.webp", "Gelato in the display case", 1407, 716],
-            ].map(([src, alt, w, h], i) => (
-              <li key={src as string} className={i === 0 ? "col-span-2" : ""}>
-                <Image
-                  src={src as string}
-                  alt={alt as string}
-                  width={w as number}
-                  height={h as number}
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="aspect-[4/3] h-full w-full rounded-[2.5rem] object-cover"
-                />
-              </li>
-            ))}
-          </ul>
+          <ImageCarousel
+            label="Lucia at events"
+            images={[
+              {
+                src: "/find-us/hero-trailer.webp",
+                alt: "The Lucia gelato trailer",
+                width: 1500,
+                height: 2251,
+              },
+              {
+                src: "/photos/kids-cones.webp",
+                alt: "Kids enjoying gelato cones outdoors",
+                width: 1600,
+                height: 900,
+              },
+              {
+                src: "/home/trailer-crew.webp",
+                alt: "The Lucia crew waving from the gelato trailer",
+                width: 1100,
+                height: 1100,
+              },
+              { src: "/photos/skiers-cones.webp", alt: "Friends sharing gelato", width: 1200, height: 1833 },
+              {
+                src: "/photos/gelato-tray.webp",
+                alt: "Gelato in the display case",
+                width: 1407,
+                height: 716,
+              },
+              {
+                src: "/our-gelato/scooping-gelato.webp",
+                alt: "Scooping mango sorbetto",
+                width: 1800,
+                height: 2700,
+              },
+            ]}
+          />
         </Container>
       </section>
 
@@ -145,7 +163,7 @@ export default async function EventsPage() {
               eyebrow="Booking request"
               title="Let's plan your event"
               tone="strawberry"
-              intro="Tell us a little about your day and we'll get back to you with availability and a quote."
+              intro="Tell us a little about your day and we'll get back to you with availability and a quote. All bookings are subject to availability."
             />
             <div className="mt-10">
               <EventBookingForm packages={eventPackages} travelFees={events.travelFees} />

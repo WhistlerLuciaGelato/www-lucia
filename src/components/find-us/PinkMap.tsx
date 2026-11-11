@@ -8,15 +8,32 @@ import type { Location } from "@/lib/content-types";
 /** Free OpenStreetMap vector tiles, no API key. Recoloured to the design's pinks on load. */
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-const PINK = {
-  land: "#ffcfc8", // the design's mid pink (map placeholder)
-  park: "#ffc5bd",
-  water: "#fff3f0",
-  road: "#ffe8e4",
-  casing: "#ffb9b0",
-  label: "#d96b75",
-  halo: "#ffcfc8",
+const PALETTES = {
+  /** The original all-pink look from the design. */
+  pink: {
+    land: "#ffcfc8", // the design's mid pink (map placeholder)
+    park: "#ffc5bd",
+    water: "#fff3f0",
+    road: "#ffe8e4",
+    casing: "#ffb9b0",
+    label: "#d96b75",
+    halo: "#ffcfc8",
+  },
+  /** Off-white land (Snow) with pink roads, parks and water: the look being explored now. */
+  offWhite: {
+    land: "#fffef4",
+    park: "#fff6f1",
+    water: "#ffe2df",
+    road: "#ffd9d3",
+    casing: "#ffc5bd",
+    label: "#d96b75",
+    halo: "#fffef4",
+  },
 };
+
+/** Switch to PALETTES.pink to go back to the all-pink map. */
+const PINK = PALETTES.offWhite;
+
 /** The darkest pink in the location cards (borders, titles). */
 const MARKER = "#ff8f8f";
 
@@ -176,7 +193,7 @@ export function PinkMap({
   }, [activeId, spots]);
 
   return (
-    <div className="relative h-[22rem] overflow-hidden rounded-[1.25rem] border-2 border-[#f48991] bg-[#ffcfc8] sm:h-[28rem] lg:h-[40.625rem]">
+    <div className="relative h-[22rem] overflow-hidden rounded-[1.25rem] border-2 border-[#f48991] bg-snow sm:h-[28rem] lg:h-[40.625rem]">
       <div ref={container} className="h-full w-full" />
       {failed ? (
         <p className="absolute inset-0 grid place-items-center p-8 text-center font-ui font-semibold text-berry">

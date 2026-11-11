@@ -6,7 +6,15 @@ import { Bear, Container } from "@/components/ui";
 import { getShop, getSiteSettings } from "@/lib/content";
 import { emailConfigured } from "@/lib/email";
 import { money, phoneHref, prettyDate } from "@/lib/format";
-import { describeCard, getSquareConfig, isPaid, receiptUrls, retrieveOrder } from "@/lib/square";
+import {
+  describeCard,
+  getSquareConfig,
+  isDelivery,
+  isPaid,
+  orderRecipient,
+  receiptUrls,
+  retrieveOrder,
+} from "@/lib/square";
 
 export const metadata: Metadata = {
   title: "Thank you!",
@@ -28,17 +36,23 @@ async function OrderSummary({
   if (!order || order.location_id !== square.locationId || !isPaid(order)) return null;
 
   const pickupDate = order.metadata?.pickup_date;
-  const email = order.fulfillments?.[0]?.pickup_details?.recipient?.email_address;
+  const email = orderRecipient(order)?.email_address;
+  const delivery = isDelivery(order);
   // Streams in behind Suspense, so a short wait for the receipt doesn't hold up the page.
   const receipts = await receiptUrls(square, order, 5_000);
   return (
     <div className="mx-auto mt-10 max-w-lg rounded-blob bg-white p-7 text-left shadow-soft ring-1 ring-alpine/60">
       {pickupDate ? (
         <p className="font-ui">
-          <span className="block text-sm text-ink/70">Pickup</span>
+          <span className="block text-sm text-ink/70">{delivery ? "Delivery" : "Pickup"}</span>
           <span className="text-lg font-extrabold text-ink">
-            {prettyDate(pickupDate)}, {pickupWindow}
+            {delivery ? prettyDate(pickupDate) : `${prettyDate(pickupDate)}, ${pickupWindow}`}
           </span>
+          {delivery && order.metadata?.delivery_address ? (
+            <span className="block text-sm text-ink/70">
+              To {order.metadata.delivery_address}. We&rsquo;ll be in touch to arrange a time.
+            </span>
+          ) : null}
         </p>
       ) : null}
       <ul className="mt-5 divide-y divide-alpine border-y border-alpine font-ui">
@@ -58,6 +72,12 @@ async function OrderSummary({
           </li>
         ))}
       </ul>
+      {order.service_charges?.map((c, i) => (
+        <p key={i} className="mt-4 flex justify-between font-ui text-sm text-ink/70">
+          <span>{c.name ?? "Delivery"}</span>
+          <span>{money(c.amount_money?.amount ?? 0)}</span>
+        </p>
+      ))}
       {order.total_tax_money?.amount ? (
         <p className="mt-4 flex justify-between font-ui text-sm text-ink/70">
           <span>GST</span>
@@ -118,9 +138,7 @@ export default async function SuccessPage({ searchParams }: PageProps<"/order/su
         <ClearCart />
         <Bear name="ski-jump" className="mx-auto w-40" />
         <h1 className="display mt-6 text-5xl text-strawberry sm:text-6xl">Thank you!</h1>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-ink/85">
-          Your order is in and Lucia is on it. We&rsquo;ll have everything ready at {shop.pickupWhere}.
-        </p>
+        <p className="mx-auto mt-5 max-w-xl text-lg text-ink/85">Your order is in and Lucia is on it.</p>
         <Suspense fallback={null}>
           <OrderSummary
             searchParams={searchParams as Promise<{ order?: string }>}

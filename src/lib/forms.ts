@@ -42,6 +42,11 @@ export const wholesaleLineSchema = z.object({
   qty: z.coerce.number().int().min(1).max(999),
 });
 
+/** "Other size" in the wholesale form: the customer describes the size in the notes. */
+export const OTHER_FORMAT = { id: "other", label: "Other size (tell us in the notes)" } as const;
+/** "Other / custom flavour" in the wholesale form, available in every size. */
+export const OTHER_FLAVOUR = "Other / custom flavour (tell us in the notes)";
+
 /** Checks each line against the current formats and flavour lists. Returns zod-style issues. */
 export function wholesaleLineIssues(
   lines: z.infer<typeof wholesaleLineSchema>[],
@@ -50,6 +55,7 @@ export function wholesaleLineIssues(
 ) {
   const issues: { path: (string | number)[]; message: string }[] = [];
   lines.forEach((line, i) => {
+    if (line.format === OTHER_FORMAT.id) return; // Any flavour and quantity; the notes say what's wanted.
     const format = formats.find((f) => f.id === line.format);
     if (!format) {
       issues.push({ path: ["lines", i, "format"], message: "This format is no longer available" });
@@ -61,7 +67,7 @@ export function wholesaleLineIssues(
         message: `${format.label} are ordered in multiples of ${format.multiple}`,
       });
     }
-    if (!flavoursFor(format).includes(line.flavour)) {
+    if (line.flavour !== OTHER_FLAVOUR && !flavoursFor(format).includes(line.flavour)) {
       issues.push({ path: ["lines", i, "flavour"], message: "Pick a flavour from the list" });
     }
   });

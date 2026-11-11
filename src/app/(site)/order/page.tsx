@@ -4,10 +4,12 @@ import Link from "next/link";
 import { Bear, CheckList, Container, PageHeading } from "@/components/ui";
 import { getPintFlavours, getShop } from "@/lib/content";
 import { money } from "@/lib/format";
+import { DELIVERY_ZONES } from "@/data/shop";
 
 export const metadata: Metadata = {
   title: "Order",
-  description: "Order Lucia Gelato pints and made-to-order gelato cakes for pickup in Whistler.",
+  description:
+    "Order Lucia Gelato pints and made-to-order gelato cakes for pickup or delivery in the Sea to Sky.",
 };
 
 export default async function OrderPage() {
@@ -23,7 +25,7 @@ export default async function OrderPage() {
             eyebrow="Order online"
             title="Take Lucia home"
             tone="strawberry"
-            intro="Order ahead and pick up from our kitchen at Base II. Pay online, skip the wait."
+            intro="Order ahead, then pick up from our kitchen at Base II or have us deliver around Whistler, Squamish and Pemberton. Pay online, skip the wait."
           />
         </Container>
       </section>
@@ -90,15 +92,21 @@ export default async function OrderPage() {
       <section className="py-16">
         <Container>
           <div className="mx-auto max-w-3xl rounded-blob bg-mist p-8 text-center sm:p-10">
-            <h2 className="subhead text-3xl text-lakeside">How pickup works</h2>
+            <h2 className="subhead text-3xl text-lakeside">How it works</h2>
             <ol className="mt-6 grid gap-6 text-left sm:grid-cols-3">
               {[
-                ["1", "Order & pay online", "Choose your gelato and a pickup date at checkout."],
+                [
+                  "1",
+                  "Order & pay online",
+                  "Choose your gelato, then pickup or delivery and a date at checkout.",
+                ],
                 ["2", "We make it", "Every cake is made fresh; pints are packed from our freezer."],
                 [
                   "3",
-                  "Pick it up",
-                  `${shop.pickupWhere}, ${shop.pickupWindow}. Bring a cooler bag on warm days!`,
+                  "Pick it up or we deliver",
+                  `Pickup at ${shop.pickupWhere}, ${shop.pickupWindow}, free. Delivery: ${DELIVERY_ZONES.map(
+                    (z) => `${z.label} ${money(z.fee)} (free from ${money(z.freeOver)})`,
+                  ).join(", ")}.`,
                 ],
               ].map(([n, title, body]) => (
                 <li key={n}>

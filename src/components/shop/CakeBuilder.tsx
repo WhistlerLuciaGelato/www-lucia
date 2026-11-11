@@ -151,18 +151,19 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
           </p>
         </Step>
 
-        <Step n={4} title="Add a message">
+        <Step n={4} title="Anything we should know?">
           <label htmlFor="cake-message" className="label">
-            Message on the cake{" "}
-            <span className="font-normal text-ink/50">(optional, up to 60 characters)</span>
+            Let us know any allergies or dietary restrictions, or other things we should know{" "}
+            <span className="font-normal text-ink/50">(optional)</span>
           </label>
-          <input
+          <textarea
             id="cake-message"
             className="field"
-            maxLength={60}
+            rows={3}
+            maxLength={300}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Happy birthday, Lucy!"
+            placeholder="e.g. nut allergy, it's a surprise for Lucy's birthday"
           />
           <p className="mt-4 font-ui text-sm text-ink/70">
             You&rsquo;ll pick your pickup date at checkout — at least {cakeLeadDays} days from today.
@@ -189,8 +190,8 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
             </div>
             {message.trim() ? (
               <div>
-                <dt className="text-sm text-alpine">Message</dt>
-                <dd className="font-bold">&ldquo;{message.trim()}&rdquo;</dd>
+                <dt className="text-sm text-alpine">Notes</dt>
+                <dd className="font-bold break-words">{message.trim()}</dd>
               </div>
             ) : null}
           </dl>

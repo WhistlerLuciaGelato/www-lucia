@@ -20,6 +20,7 @@ export function PickupCalendar({
   today,
   value,
   onChange,
+  delivery = false,
 }: {
   shop: Shop;
   leadDays: number;
@@ -27,6 +28,8 @@ export function PickupCalendar({
   today: string | null;
   value: string;
   onChange: (isoDate: string) => void;
+  /** Word the footer for a delivery rather than a pickup. */
+  delivery?: boolean;
 }) {
   if (!today) {
     return <div className="h-[22rem] animate-pulse rounded-3xl bg-white/70" aria-hidden />;
@@ -58,11 +61,17 @@ export function PickupCalendar({
         footer={
           <p className="mt-2 px-1 font-ui text-sm text-ink/75" aria-live="polite">
             {value ? (
-              <>
-                Pickup <strong className="text-ink">{prettyDate(value)}</strong>, {shop.pickupWindow}
-              </>
+              delivery ? (
+                <>
+                  Delivery <strong className="text-ink">{prettyDate(value)}</strong>
+                </>
+              ) : (
+                <>
+                  Pickup <strong className="text-ink">{prettyDate(value)}</strong>, {shop.pickupWindow}
+                </>
+              )
             ) : (
-              "Choose a pickup day. Greyed-out days aren't available."
+              `Choose a ${delivery ? "delivery" : "pickup"} day. Greyed-out days aren't available.`
             )}
           </p>
         }

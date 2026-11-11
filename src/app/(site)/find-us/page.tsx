@@ -197,15 +197,41 @@ export default async function FindUsPage() {
                 </a>{" "}
                 to confirm we&rsquo;re open before heading out!
               </p>
-              <a
-                href={contact.instagramUrl}
-                className="mt-4 grid h-[22.9375rem] place-items-center rounded-[1.25rem] border-2 border-heatwave bg-white p-8 text-center font-ui font-bold text-heatwave transition-colors hover:bg-cream"
-              >
-                <span>
-                  This week&rsquo;s schedule is posted on Instagram
-                  <span className="mt-1 block text-lg">{contact.instagramHandle}</span>
-                </span>
-              </a>
+              {/* Weekly calendar: greyed out with a note on top until the live schedule is ready. */}
+              <div className="relative mt-4 h-[22.9375rem] overflow-hidden rounded-[1.25rem] border-2 border-ink/15 bg-white">
+                <div
+                  aria-hidden
+                  className="grid h-full grid-cols-7 grid-rows-[auto_1fr] opacity-40 grayscale"
+                >
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+                    <span
+                      key={d}
+                      className="eyebrow border-b border-ink/15 bg-ink/10 py-2 text-center !text-sm text-ink/70"
+                    >
+                      {d}
+                    </span>
+                  ))}
+                  {Array.from({ length: 7 }, (_, i) => (
+                    <span
+                      key={i}
+                      className="flex flex-col gap-2 border-r border-ink/10 p-1.5 last:border-r-0"
+                    >
+                      {i % 3 !== 2 ? <span className="h-10 rounded-md bg-ink/15" /> : null}
+                      {i % 2 === 0 ? <span className="h-6 rounded-md bg-ink/10" /> : null}
+                    </span>
+                  ))}
+                </div>
+                <div className="absolute inset-0 grid place-items-center bg-white/40 p-6">
+                  <a
+                    href={contact.instagramUrl}
+                    className="max-w-[18rem] rounded-[1.25rem] bg-snow p-6 text-center font-ui font-bold text-heatwave shadow-soft ring-2 ring-heatwave transition hover:-translate-y-0.5"
+                  >
+                    Our weekly calendar is coming soon. For now, this week&rsquo;s schedule is posted on
+                    Instagram
+                    <span className="mt-1 block text-lg">{contact.instagramHandle}</span>
+                  </a>
+                </div>
+              </div>
               {codes.length ? (
                 <ul className="mt-5 eyebrow !text-xl leading-normal">
                   {codes.map((l) => (
@@ -225,10 +251,16 @@ export default async function FindUsPage() {
                   <caption className="sr-only">Seasonal opening hours</caption>
                   <thead className="bg-bluebird text-snow">
                     <tr>
-                      <th scope="col" className="eyebrow py-3.5 pl-[1.5625rem] !text-[1.0625rem] sm:w-[19.5rem]">
+                      <th
+                        scope="col"
+                        className="eyebrow py-3.5 pl-[1.5625rem] !text-[1.0625rem] sm:w-[19.5rem]"
+                      >
                         Location
                       </th>
-                      <th scope="col" className="eyebrow hidden py-3.5 !text-[1.0625rem] sm:table-cell sm:w-[10.5rem]">
+                      <th
+                        scope="col"
+                        className="eyebrow hidden py-3.5 !text-[1.0625rem] sm:table-cell sm:w-[10.5rem]"
+                      >
                         Season
                       </th>
                       <th scope="col" className="eyebrow py-3.5 pr-[1.5625rem] !text-[1.0625rem]">
@@ -287,9 +319,9 @@ export default async function FindUsPage() {
               Take home a pint!
             </h2>
             <p className="mt-6 text-xl text-heatwave">
-              Craving Lucia Gelato from the comfort of your own home? Find our take-home tubs at local
-              grocery stores and retailers throughout Whistler, Squamish and Pemberton. Stock up on your
-              favourite flavours or discover something new!
+              Craving Lucia Gelato from the comfort of your own home? Find our take-home tubs at local grocery
+              stores and retailers throughout Whistler, Squamish and Pemberton. Stock up on your favourite
+              flavours or discover something new!
             </p>
             <p className="mt-1.5 text-xl font-bold text-heatwave italic">
               Flavours and availability vary by location.

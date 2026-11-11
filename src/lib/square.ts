@@ -113,15 +113,36 @@ export type Order = {
   net_amount_due_money?: Money;
   tenders?: OrderTender[];
   metadata?: Record<string, string>;
+  service_charges?: { name?: string; amount_money?: Money; total_money?: Money }[];
   fulfillments?: {
     type: string;
     pickup_details?: {
-      recipient?: { display_name?: string; email_address?: string; phone_number?: string };
+      recipient?: Recipient;
       pickup_at?: string;
+      note?: string;
+    };
+    delivery_details?: {
+      recipient?: Recipient & {
+        address?: { address_line_1?: string; locality?: string; postal_code?: string };
+      };
+      deliver_at?: string;
       note?: string;
     };
   }[];
 };
+
+type Recipient = { display_name?: string; email_address?: string; phone_number?: string };
+
+/** Who the order is for, whether it's a pickup or a delivery. */
+export function orderRecipient(order: Order): Recipient | undefined {
+  const f = order.fulfillments?.[0];
+  return f?.pickup_details?.recipient ?? f?.delivery_details?.recipient;
+}
+
+/** True when the order is delivered rather than picked up. */
+export function isDelivery(order: Order): boolean {
+  return order.fulfillments?.[0]?.type === "DELIVERY";
+}
 
 export type Payment = {
   id: string;

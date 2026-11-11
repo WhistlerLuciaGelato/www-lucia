@@ -17,7 +17,8 @@ export const cakeItemSchema = z.object({
   size: z.string().min(1).max(64),
   base: z.string().min(1).max(64),
   combo: z.string().min(1).max(64),
-  message: z.string().trim().max(60).optional(),
+  /** Allergies, dietary restrictions or anything else the kitchen should know (was a cake message). */
+  message: z.string().trim().max(300).optional(),
   qty: z.number().int().min(1).max(CAKE_MAX_QTY),
 });
 
@@ -67,7 +68,7 @@ export function priceItem(item: CartItem, { shop, pints }: Catalogue): PricedLin
   const combo = shop.cakeCombos.find((c) => c.id === item.combo);
   if (!size || !base || !combo) return null;
   const parts = [combo.flavours, `${base.label} base`, `serves ${size.serves}`];
-  if (item.message) parts.push(`“${item.message}”`);
+  if (item.message) parts.push(`Note: ${item.message}`);
   return {
     key: itemKey(item),
     name: `${size.label} gelato cake`,

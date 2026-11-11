@@ -2,10 +2,11 @@
 
 import { useRef, useState } from "react";
 import type { WholesaleContent, WholesaleFormat } from "@/lib/content-types";
-import { money } from "@/lib/format";
 import { useToday } from "@/lib/cart-store";
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
+import { OTHER_FLAVOUR, OTHER_FORMAT } from "@/lib/forms";
+import { orderCutoff } from "@/data/wholesale";
 
 type Line = { id: number; format: string; flavour: string; qty: number };
 
@@ -26,11 +27,6 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
 
   const update = (id: number, patch: Partial<Line>) =>
     setLines((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
-
-  const subtotal = lines.reduce((sum, l) => {
-    const f = wholesaleFormats.find((x) => x.id === l.format);
-    return sum + (f ? f.price * (l.qty || 0) : 0);
-  }, 0);
 
   if (state.status === "success") {
     return (
@@ -114,8 +110,12 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
         <legend className="label">Your order</legend>
         <ul className="space-y-3">
           {lines.map((line, index) => {
-            const format = wholesaleFormats.find((f) => f.id === line.format) ?? wholesaleFormats[0];
-            const groups = groupsFor(format);
+            const other = line.format === OTHER_FORMAT.id;
+            const format = other
+              ? { ...wholesaleFormats[0], multiple: 1, note: undefined }
+              : (wholesaleFormats.find((f) => f.id === line.format) ?? wholesaleFormats[0]);
+            // "Other size" can be any flavour; otherwise only those made in that size.
+            const groups = other ? flavourGroups : groupsFor(format);
             const qtyError = fieldError(`lines.${index}.qty`);
             const flavourError = fieldError(`lines.${index}.flavour`);
             const badMultiple = line.qty > 0 && line.qty % format.multiple !== 0;
@@ -134,15 +134,16 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
                     value={line.format}
                     onChange={(e) => {
                       const nextFormat = e.target.value;
-                      const f = wholesaleFormats.find((x) => x.id === nextFormat) ?? wholesaleFormats[0];
-                      update(line.id, { format: nextFormat, flavour: "", qty: f.multiple });
+                      const f = wholesaleFormats.find((x) => x.id === nextFormat);
+                      update(line.id, { format: nextFormat, flavour: "", qty: f?.multiple ?? 1 });
                     }}
                   >
                     {wholesaleFormats.map((f) => (
                       <option key={f.id} value={f.id}>
-                        {f.label} — {money(f.price)}
+                        {f.label}
                       </option>
                     ))}
+                    <option value={OTHER_FORMAT.id}>{OTHER_FORMAT.label}</option>
                   </select>
                 </div>
                 <div className="sm:col-span-4">
@@ -166,12 +167,15 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
                         ))}
                       </optgroup>
                     ))}
+                    <optgroup label="Other">
+                      <option value={OTHER_FLAVOUR}>{OTHER_FLAVOUR}</option>
+                    </optgroup>
                   </select>
                   {flavourError ? (
                     <p className="mt-1 font-ui text-sm font-semibold text-berry">{flavourError}</p>
                   ) : null}
                 </div>
-                <div className="sm:col-span-2">
+                <div className="sm:col-span-3">
                   <label className="sr-only" htmlFor={`qty-${line.id}`}>
                     Quantity
                   </label>
@@ -187,8 +191,7 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
                     aria-invalid={qtyError || badMultiple ? true : undefined}
                   />
                 </div>
-                <div className="flex items-center justify-between gap-2 sm:col-span-2 sm:justify-end sm:pt-2.5">
-                  <span className="font-ui font-bold text-ink">{money(format.price * (line.qty || 0))}</span>
+                <div className="flex items-center justify-end gap-2 sm:col-span-1 sm:pt-2.5">
                   {lines.length > 1 ? (
                     <button
                       type="button"
@@ -205,6 +208,12 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
                     className={`font-ui text-sm sm:col-span-12 ${qtyError || badMultiple ? "font-semibold text-berry" : "text-ink/60"}`}
                   >
                     {qtyError ?? format.note}
+                  </p>
+                ) : null}
+                {other || line.flavour === OTHER_FLAVOUR ? (
+                  <p className="font-ui text-sm font-semibold text-lake-deep sm:col-span-12">
+                    Please make a note below with your desired {other ? "size" : "flavour"} and we&rsquo;ll
+                    get back to you.
                   </p>
                 ) : null}
               </li>
@@ -229,12 +238,9 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
 
       <div className="flex flex-col gap-4 rounded-3xl bg-mist p-5 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="font-ui">
-          <p className="text-sm text-ink/70">Estimated subtotal</p>
-          <p className="text-2xl font-extrabold text-ink" aria-live="polite">
-            {money(subtotal)}
-          </p>
-          <p className="text-xs text-ink/60">
-            Before delivery fees &amp; tax. We&rsquo;ll confirm the final total.
+          <p className="font-extrabold text-ink">{orderCutoff}</p>
+          <p className="text-sm text-ink/70">
+            We&rsquo;ll confirm your order, total and delivery day by email.
           </p>
         </div>
         <button type="submit" className="btn btn-primary" disabled={state.status === "submitting"}>

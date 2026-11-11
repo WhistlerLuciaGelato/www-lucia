@@ -1,9 +1,14 @@
 import type { FlavourGroup, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
 
 // Default wholesale content, used until the Sanity Studio has its own. Prices in CAD cents.
+// Prices aren't shown on the website (Lucia quotes them); they only appear in the order email.
+
+/** When wholesale orders close for that week's deliveries. */
+export const orderCutoff = "Order by Sunday evening for delivery that week.";
 
 export const wholesaleFormats: WholesaleFormat[] = [
   { id: "tub-5l", kind: "tub", label: "5 L tub — gelato or sorbet", price: 5500, multiple: 1 },
+  { id: "tub-10l", kind: "tub", label: "10 L tub — gelato or sorbet", price: 11000, multiple: 1 },
   { id: "tub-5l-alcohol", kind: "alcohol-tub", label: "5 L tub — alcohol-based", price: 7000, multiple: 1 },
   {
     id: "pint",
@@ -42,6 +47,22 @@ export const deliverySchedule: WholesaleContent["deliverySchedule"] = [
 ];
 
 export const wholesaleFlavours: FlavourGroup[] = [
+  {
+    // TODO(client): confirm the bestseller list. These are a placeholder guess from the pint lineup.
+    id: "bestsellers",
+    availableIn: ["tub", "pint", "snack"],
+    label: "Bestsellers",
+    flavours: [
+      "Mango",
+      "Salted Caramel",
+      "Pistachio",
+      "Chocolate Caramel Sea Salt",
+      "Vanilla Bean",
+      "Fresh Mint Chip",
+      "Lemon",
+      "Vegan Coconut Cookies 'n' Cream",
+    ],
+  },
   {
     id: "gelato",
     availableIn: ["tub", "pint", "snack"],
@@ -103,7 +124,7 @@ export const wholesaleFlavours: FlavourGroup[] = [
     id: "sorbetto",
     availableIn: ["tub", "pint", "snack"],
     label: "Sorbetto",
-    note: "Dairy-free",
+    note: "Dairy-free & vegan",
     flavours: [
       "Apple Cider",
       "Banana",

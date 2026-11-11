@@ -45,11 +45,11 @@
   /*
    * Fonts: the brand's Adobe Fonts (Sauna, Oskar) from the Typekit kit, then free stand-ins
    * that only show if the kit fails to load. Family names must match the kit's CSS.
-   * Big headlines use Sauna's Swash cut, as in the website design.
+   * Big headlines use Sauna's Swash cut, as in the website design. Body copy is Nunito.
    */
   --font-display: "sauna-swash-new", "sauna-new", var(--font-sansita), ui-serif, Georgia, serif;
   --font-heading: "sauna-new", var(--font-sansita), ui-serif, Georgia, serif;
-  --font-body: "sauna-new", var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   --font-eyebrow: "oskar", var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
   --font-ui: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 
@@ -136,17 +136,57 @@
       font-size: 1.25rem;
     }
   }
+  /* Buttons lift and cast a soft drop when hovered, then press down when clicked. */
+  .btn {
+    box-shadow: 0 0 0 0 rgb(33 33 33 / 0);
+    transition:
+      transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 180ms ease,
+      filter 150ms ease,
+      background-color 150ms ease;
+  }
   .btn:hover {
-    transform: translateY(-1px);
-    filter: brightness(0.97);
+    transform: translateY(-3px) rotate(-1deg);
+    box-shadow: 0 5px 0 0 rgb(33 33 33 / 0.12);
+    filter: brightness(1.03) saturate(1.05);
   }
   .btn:active {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.97);
+    box-shadow: 0 0 0 0 rgb(33 33 33 / 0.12);
+    transition-duration: 60ms;
   }
   .btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
+    filter: none;
+  }
+
+  /* Coloured pills from the Our gelato hero (jump links, header sub-menus). */
+  .pill-link {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 1.5rem;
+    padding: 0.375rem 1.125rem;
+    font-family: var(--font-eyebrow);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    color: var(--color-snow);
+    white-space: nowrap;
+    transition:
+      transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 180ms ease;
+  }
+  .pill-link:hover {
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: 0 4px 0 0 rgb(33 33 33 / 0.12);
+  }
+  .pill-link:active {
+    transform: translateY(1px) scale(0.97);
+    box-shadow: none;
   }
   /* Lakeside on Snow — "Read more", "Sign up". */
   .btn-primary {

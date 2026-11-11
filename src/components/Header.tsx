@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { nav } from "@/data/site";
 import { useCart } from "@/lib/cart-store";
 import { Logo } from "@/components/Logo";
+import { WavyRule } from "@/components/Wave";
+
+/** Sub-menu pill colours, in order (the Our gelato hero's jump-link colours). */
+const pillColors = ["bg-strawberry", "bg-alpenglow", "bg-lakeside", "bg-bluebird", "bg-heatwave"];
 
 // "Order" lives in the pill button, so the text nav shows the other sections (as in the design).
 const textNav = nav.filter((item) => item.href !== "/order");
@@ -50,7 +54,7 @@ export function Header() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 bg-snow">
+    <header className="sticky top-0 z-40 bg-snow pb-1">
       <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-[6.25rem] lg:py-5">
         <Link href="/" className="shrink-0" aria-label="Whistler Lucia Gelato — home">
           <Logo className="w-36 sm:w-44 xl:w-[15.625rem]" />
@@ -74,13 +78,13 @@ export function Header() {
                   ) : null}
                 </Link>
                 {item.children ? (
-                  <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                    <ul className="min-w-56 rounded-3xl bg-snow p-2 shadow-soft ring-1 ring-alpine">
-                      {item.children.map((child) => (
+                  <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-3 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                    <ul className="flex flex-col items-center gap-[0.625rem]">
+                      {item.children.map((child, i) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
-                            className="block rounded-2xl px-4 py-2.5 font-body text-ink transition hover:bg-mist hover:text-lake-deep"
+                            className={`pill-link !text-base shadow-soft ${pillColors[i % pillColors.length]}`}
                           >
                             {child.label}
                           </Link>
@@ -121,6 +125,7 @@ export function Header() {
           </button>
         </div>
       </div>
+      <WavyRule color="#78bdc7" className="absolute inset-x-0 -bottom-1.5" />
 
       {open ? (
         <div
@@ -140,12 +145,12 @@ export function Header() {
                   </Link>
                   {item.children ? (
                     <ul className="mt-3 flex flex-wrap gap-2">
-                      {item.children.map((child) => (
+                      {item.children.map((child, i) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
                             onClick={() => setOpen(false)}
-                            className="eyebrow inline-block rounded-full bg-mist px-3 py-1.5 !text-sm text-lakeside"
+                            className={`pill-link !text-sm ${pillColors[i % pillColors.length]}`}
                           >
                             {child.label}
                           </Link>

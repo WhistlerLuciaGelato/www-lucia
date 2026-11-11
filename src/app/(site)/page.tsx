@@ -5,6 +5,7 @@ import { PintCard } from "@/components/shop/PintCard";
 import { BackToTop } from "@/components/BackToTop";
 import { OurStory } from "@/components/OurStory";
 import { SectionTiles } from "@/components/SectionTiles";
+import { Blob } from "@/components/Blob";
 import { Wave } from "@/components/Wave";
 
 /** The flavour section's colour, for its wave edges. */
@@ -90,14 +91,27 @@ export default async function Home() {
       <SectionTiles />
 
       {/* Flavours */}
-      <section className="relative bg-petal px-4 pt-16 pb-20 sm:px-8 lg:pt-[3.875rem] lg:pb-[5.5rem]">
-        <Wave color={PETAL} className="absolute inset-x-0 -top-3.5" />
+      <section className="relative isolate bg-petal px-4 pt-16 pb-20 sm:px-8 lg:pt-[3.875rem] lg:pb-[5.5rem]">
+        <Wave color={PETAL} variant="organic" className="absolute inset-x-0 -top-3.5" />
+        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+          <Blob shape="splash" color="#fcd5d1" className="top-24 -left-24 w-[26rem] rotate-12" />
+          <Blob shape="pebble" color="#bce4e7" className="top-[38%] -right-28 w-[24rem] opacity-70" />
+          <Blob shape="bean" color="#ffe1c2" className="bottom-10 left-[18%] w-[20rem] -rotate-6" />
+        </div>
         <h2 className="display mx-auto max-w-[37.5rem] text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
           Find your flavour
         </h2>
         <div className="mx-auto mt-12 grid max-w-[71rem] justify-items-center gap-x-[3.2rem] gap-y-10 sm:grid-cols-2 lg:mt-[4.25rem] lg:grid-cols-3 lg:items-start lg:gap-y-[4.25rem]">
           {featured.map((f) => (
-            <PintCard key={f.slug} flavour={f} framed />
+            <PintCard
+              key={f.slug}
+              flavour={f}
+              framed
+              large
+              sticker
+              hoverBlurb
+              href={`/order/pints#${f.slug}`}
+            />
           ))}
         </div>
         <div className="mt-14 flex flex-wrap justify-center gap-4 lg:mt-[4.5rem] lg:gap-[1.875rem]">
@@ -111,11 +125,17 @@ export default async function Home() {
             Wholesale flavours
           </Link>
         </div>
-        <Wave color={PETAL} className="absolute inset-x-0 -bottom-3.5 rotate-180" />
+        <Wave color={PETAL} variant="organic" className="absolute inset-x-0 -bottom-3.5 rotate-180" />
       </section>
 
       {/* Where's Lucia? */}
-      <section className="px-4 py-20 sm:px-8 lg:pt-[6.75rem] lg:pb-[9.5rem]">
+      <section className="relative isolate overflow-hidden px-4 py-20 sm:px-8 lg:pt-[6.75rem] lg:pb-[9.5rem]">
+        <Blob
+          shape="puddle"
+          color="#bce4e7"
+          className="top-1/2 right-0 w-[34rem] -translate-y-1/2 translate-x-1/4 opacity-60"
+        />
+        <Blob shape="bean" color="#ffeee9" className="top-10 -left-20 w-[18rem]" />
         <div className="mx-auto grid max-w-[76.5rem] items-center gap-12 lg:grid-cols-[1fr_29.5rem] lg:gap-10">
           <div className="text-center">
             <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">

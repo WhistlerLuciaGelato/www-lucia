@@ -13,9 +13,26 @@ export const contactSchema = z.object({
     .refine((v) => v.replace(/\D/g, "").length >= 10, "Enter a phone number we can call"),
 });
 
+/** Pickup at the kitchen, or delivery by the Lucia team to an address in one of the delivery zones. */
+export const fulfillmentSchema = z.discriminatedUnion("method", [
+  z.object({ method: z.literal("pickup") }),
+  z.object({
+    method: z.literal("delivery"),
+    zone: z.string().min(1).max(64),
+    street: z.string().trim().min(1, "Enter the delivery address").max(200),
+    city: z.string().trim().min(1, "Enter the town").max(100),
+    postalCode: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/, "Enter a valid postal code"),
+  }),
+]);
+
 export const checkoutSchema = z.object({
   items: cartSchema,
-  pickupDate: z.string().refine(isIsoDate, "Choose a pickup date"),
+  fulfillment: fulfillmentSchema.default({ method: "pickup" }),
+  /** The pickup or delivery date. */
+  pickupDate: z.string().refine(isIsoDate, "Choose a date"),
   notes: z.string().trim().max(500).optional(),
   contact: contactSchema,
   idempotencyKey: z.uuid(),
@@ -36,6 +53,7 @@ export const releaseSchema = z.object({
 });
 
 export type Contact = z.infer<typeof contactSchema>;
+export type Fulfillment = z.infer<typeof fulfillmentSchema>;
 
 /** A payment applied to the order, as the browser shows it. */
 export type HeldPayment = { id: string; label: string; amount: number };
