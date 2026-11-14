@@ -3,6 +3,14 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 const stringList = (name: string, title: string) =>
   defineField({ name, title, type: "array", of: [defineArrayMember({ type: "string" })] });
 
+const websiteField = defineField({
+  name: "url",
+  title: "Website",
+  description: "Optional. The name links here, opening in a new tab.",
+  type: "url",
+  validation: (r) => r.uri({ scheme: ["http", "https"] }),
+});
+
 export const stockists = defineType({
   name: "stockists",
   title: "Stockists",
@@ -34,6 +42,7 @@ export const stockists = defineType({
             defineField({ name: "name", title: "Name", type: "string" }),
             defineField({ name: "address", title: "Address", type: "string" }),
             defineField({ name: "town", title: "Town", type: "string" }),
+            websiteField,
           ],
           preview: { select: { title: "name", subtitle: "town" } },
         }),
@@ -49,7 +58,33 @@ export const stockists = defineType({
           type: "object",
           fields: [
             defineField({ name: "group", title: "Group", type: "string" }),
-            stringList("places", "Places"),
+            defineField({
+              name: "venues",
+              title: "Places",
+              type: "array",
+              of: [
+                defineArrayMember({
+                  type: "object",
+                  name: "venue",
+                  fields: [
+                    defineField({
+                      name: "name",
+                      title: "Name",
+                      type: "string",
+                      validation: (r) => r.required(),
+                    }),
+                    websiteField,
+                  ],
+                  preview: { select: { title: "name", subtitle: "url" } },
+                }),
+              ],
+            }),
+            defineField({
+              ...stringList("places", "Places (old list)"),
+              description:
+                "Names from before places could have a website. Only shown on the site while the list above is empty.",
+              hidden: ({ value }) => !(value as unknown[] | undefined)?.length,
+            }),
           ],
           preview: { select: { title: "group" } },
         }),

@@ -24,6 +24,14 @@ export const pintFlavour = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "stock",
+      title: "Pints in stock",
+      description:
+        "How many pints of this flavour can still be ordered online. Goes down by itself as orders are paid; at 0 the flavour shows as sold out. Leave empty for no limit.",
+      type: "number",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
       name: "style",
       title: "Type",
       type: "string",
@@ -43,6 +51,19 @@ export const pintFlavour = defineType({
       type: "array",
       of: [defineArrayMember({ type: "string" })],
       options: { list: dietOptions, layout: "grid" },
+    }),
+    defineField({
+      name: "ingredients",
+      title: "Ingredients",
+      description: "Shown when a customer opens the flavour card, e.g. \"Whole Milk, Sugars (sugar, dextrose), Cream, …\".",
+      type: "text",
+      rows: 4,
+    }),
+    defineField({
+      name: "contains",
+      title: "Contains (allergens)",
+      description: "E.g. \"Milk\" or \"Milk, Tree nuts\".",
+      type: "string",
     }),
     defineField({
       name: "image",
@@ -67,6 +88,13 @@ export const pintFlavour = defineType({
         direction: "horizontal",
       },
       initialValue: "none",
+    }),
+    defineField({
+      name: "roundLabel",
+      title: "Round lid label",
+      description:
+        "The round label sticker shown over the pint's top-left corner. A square image with a transparent background works best.",
+      type: "image",
     }),
     defineField({
       name: "color",
@@ -97,10 +125,15 @@ export const pintFlavour = defineType({
   ],
   orderings: [{ title: "Sort order", name: "rank", by: [{ field: "orderRank", direction: "asc" }] }],
   preview: {
-    select: { title: "name", subtitle: "style", media: "image", available: "available" },
-    prepare: ({ title, subtitle, media, available }) => ({
+    select: { title: "name", subtitle: "style", media: "image", available: "available", stock: "stock" },
+    prepare: ({ title, subtitle, media, available, stock }) => ({
       title,
-      subtitle: available === false ? `${subtitle} · SOLD OUT` : subtitle,
+      subtitle:
+        available === false || stock === 0
+          ? `${subtitle} · SOLD OUT`
+          : typeof stock === "number"
+            ? `${subtitle} · ${stock} in stock`
+            : subtitle,
       media,
     }),
   },

@@ -20,10 +20,10 @@ import type {
   WholesaleKind,
 } from "@/lib/content-types";
 import { site } from "@/data/site";
-import { pintFlavours as defaultPints } from "@/data/flavours";
+import { pintFlavours as defaultPints, roundLabels } from "@/data/flavours";
 import { defaultShop } from "@/data/shop";
 import { groceryStores, onTheMenu, scoopShops, seasonalSpots } from "@/data/locations";
-import { eventFaq, eventPackages, eventTerms, travelFees } from "@/data/events";
+import { eventFaq, eventGallery, eventPackages, eventTerms, travelFees } from "@/data/events";
 import { deliverySchedule, wholesaleFlavours, wholesaleFormats } from "@/data/wholesale";
 
 /**
@@ -121,11 +121,16 @@ type PintDoc = {
   available?: boolean;
   image?: { asset?: { _ref: string } };
   lid?: "local" | "dairy-free" | "none";
+  roundLabel?: { asset?: { _ref: string } };
+  ingredients?: string;
+  contains?: string;
+  stock?: number | null;
 };
 
 const pintsQuery = defineQuery(
   `*[_type == "pintFlavour" && defined(slug.current)] | order(orderRank asc, name asc) {
-    name, "slug": slug.current, style, blurb, diet, color, activity, bear, available, image, lid
+    name, "slug": slug.current, style, blurb, diet, color, activity, bear, available, image, lid,
+    roundLabel, ingredients, contains, stock
   }`,
 );
 
@@ -141,6 +146,7 @@ export async function getPintFlavours(): Promise<PintFlavour[]> {
       ...p,
       image: render ? `/pints/render/${p.slug}.webp` : `/pints/${p.slug}.webp`,
       lid: render ? (p.diet.includes("dairy-free") ? "dairy-free" : "local") : undefined,
+      label: roundLabels.has(p.slug) ? `/pints/label/${p.slug}.webp` : undefined,
       available: true,
     }));
   }
@@ -153,7 +159,7 @@ export async function getPintFlavours(): Promise<PintFlavour[]> {
     color: d.color || "#4e92a3",
     activity: d.activity ?? "",
     bear: d.bear ?? "bike",
-    available: d.available !== false,
+    available: d.available !== false && d.stock !== 0,
     // Transparent renders (shown with a lid) keep their transparency; other photos sit on Snow.
     image: d.image?.asset
       ? d.lid === "local" || d.lid === "dairy-free"
@@ -161,6 +167,16 @@ export async function getPintFlavours(): Promise<PintFlavour[]> {
         : urlFor(d.image).width(720).height(720).fit("fill").bg("fffef4").url()
       : "",
     lid: d.lid === "local" || d.lid === "dairy-free" ? d.lid : undefined,
+    // The Studio's round label, else the one from the Figma product cards for that flavour.
+    label: d.roundLabel?.asset
+      ? urlFor(d.roundLabel).width(240).url()
+      : roundLabels.has(d.slug)
+        ? `/pints/label/${d.slug}.webp`
+        : undefined,
+    // Until the Studio has them, use the ingredient lists kept in the code (src/data/flavours.ts).
+    ingredients: d.ingredients?.trim() || defaultPints.find((p) => p.slug === d.slug)?.ingredients,
+    contains: d.contains?.trim() || defaultPints.find((p) => p.slug === d.slug)?.contains,
+    stock: typeof d.stock === "number" ? Math.max(0, Math.floor(d.stock)) : undefined,
   }));
 }
 
@@ -216,7 +232,14 @@ export async function getCatalogue(): Promise<Catalogue> {
   const [shop, pints] = await Promise.all([getShop(), getPintFlavours()]);
   return {
     shop,
-    pints: pints.map(({ slug, name, style, image, available }) => ({ slug, name, style, image, available })),
+    pints: pints.map(({ slug, name, style, image, available, stock }) => ({
+      slug,
+      name,
+      style,
+      image,
+      available,
+      stock,
+    })),
   };
 }
 
@@ -227,15 +250,30 @@ export async function getCatalogue(): Promise<Catalogue> {
 const locationsQuery = defineQuery(
   `*[_type == "location" && active != false] | order(orderRank asc, name asc) {
     "id": _id, name, area, season, description, lat, lng, scheduleSeason, scheduleName,
-    "hours": hours[]{ days, time }, closedOn, closureNote, seasonClosed
+    "hours": hours[]{ days, time }, closedOn, closureNote, seasonClosed,
+    calendarCode, calendarLabel, calendarColor, "openDates": openDates[]{ from, to, days }
   }`,
 );
+
+type LocationDoc = Omit<Location, "calendarColor" | "openDates"> & {
+  calendarColor?: Location["calendarColor"];
+  openDates?: { from?: string; to?: string; days?: Location["openDates"][number]["days"] }[];
+};
+
+const calendarColors: Location["calendarColor"][] = [
+  "heatwave",
+  "lakeside",
+  "grass",
+  "alpenglow",
+  "sunflower",
+  "strawberry",
+];
 
 export async function getLocations(): Promise<Location[]> {
   "use cache";
   cacheTag(CONTENT_TAG);
 
-  const docs = await fetchDoc<Location[]>(locationsQuery);
+  const docs = await fetchDoc<LocationDoc[]>(locationsQuery);
 
   setLifetime(docs === undefined);
   if (!docs?.length) return seasonalSpots;
@@ -251,8 +289,26 @@ export async function getLocations(): Promise<Location[]> {
     closedOn: d.closedOn || undefined,
     closureNote: d.closureNote || undefined,
     seasonClosed: Boolean(d.seasonClosed),
+    calendarCode: d.calendarCode?.trim() || undefined,
+    calendarLabel: d.calendarLabel?.trim() || undefined,
+    calendarColor: d.calendarColor && calendarColors.includes(d.calendarColor) ? d.calendarColor : "lakeside",
+    openDates: (d.openDates ?? [])
+      .filter((o): o is typeof o & { from: string } => Boolean(o?.from))
+      .map((o) => ({ from: o.from, to: o.to || undefined, days: o.days ?? [] })),
   }));
 }
+
+type VenueDoc = { name?: string; url?: string };
+
+type StockistsDoc = {
+  groceryStores?: { town: string; stores?: string[] }[];
+  scoopShops?: { name: string; address?: string; town?: string; url?: string }[];
+  /** `places` is the old list of names; `venues` adds a website to each. */
+  onTheMenu?: { group: string; venues?: VenueDoc[]; places?: (string | VenueDoc)[] }[];
+};
+
+const toVenue = (v: string | VenueDoc) =>
+  typeof v === "string" ? { name: v } : { name: v?.name ?? "", url: v?.url || undefined };
 
 const stockistsQuery = defineQuery(`*[_id == "stockists"][0]`);
 
@@ -260,13 +316,23 @@ export async function getStockists(): Promise<Stockists> {
   "use cache";
   cacheTag(CONTENT_TAG);
 
-  const d = await fetchDoc<Partial<Stockists>>(stockistsQuery);
+  const d = await fetchDoc<StockistsDoc>(stockistsQuery);
 
   setLifetime(d === undefined);
   return {
     groceryStores: d?.groceryStores?.map((g) => ({ town: g.town, stores: g.stores ?? [] })) ?? groceryStores,
-    scoopShops: d?.scoopShops ?? scoopShops,
-    onTheMenu: d?.onTheMenu?.map((g) => ({ group: g.group, places: g.places ?? [] })) ?? onTheMenu,
+    scoopShops:
+      d?.scoopShops?.map((s) => ({
+        name: s.name,
+        address: s.address ?? "",
+        town: s.town ?? "",
+        url: s.url || undefined,
+      })) ?? scoopShops,
+    onTheMenu:
+      d?.onTheMenu?.map((g) => ({
+        group: g.group,
+        places: (g.venues?.length ? g.venues : (g.places ?? [])).map(toVenue).filter((v) => v.name),
+      })) ?? onTheMenu,
   };
 }
 
@@ -279,9 +345,28 @@ type EventsDoc = {
   travelFees?: { area: string; fee: number }[];
   terms?: string[];
   faq?: { question: string; answer: string }[];
+  gallery?: {
+    _key: string;
+    alt?: string;
+    asset?: { _ref: string };
+    crop?: { top: number; bottom: number; left: number; right: number };
+    dimensions?: { width: number; height: number };
+  }[];
 };
 
-const eventsQuery = defineQuery(`*[_id == "eventsPage"][0]`);
+const eventsQuery = defineQuery(
+  `*[_id == "eventsPage"][0]{..., gallery[]{..., "dimensions": asset->metadata.dimensions}}`,
+);
+
+/** Size of a gallery photo after its Studio crop. */
+function croppedSize(img: NonNullable<EventsDoc["gallery"]>[number]) {
+  const { width = 1600, height = 1200 } = img.dimensions ?? {};
+  const c = img.crop;
+  return {
+    width: Math.round(width * (1 - (c ? c.left + c.right : 0))),
+    height: Math.round(height * (1 - (c ? c.top + c.bottom : 0))),
+  };
+}
 
 export async function getEvents(): Promise<EventsContent> {
   "use cache";
@@ -302,6 +387,16 @@ export async function getEvents(): Promise<EventsContent> {
     travelFees: d?.travelFees?.length ? d.travelFees : travelFees,
     terms: d?.terms ?? eventTerms,
     faq: d?.faq?.length ? d.faq.map((f) => ({ q: f.question, a: f.answer })) : eventFaq,
+    gallery: d?.gallery?.some((img) => img.asset)
+      ? d.gallery
+          .filter((img) => img.asset)
+          .slice(0, 20)
+          .map((img) => ({
+            src: urlFor(img).width(2400).fit("max").url(),
+            alt: img.alt ?? "",
+            ...croppedSize(img),
+          }))
+      : eventGallery,
   };
 }
 
@@ -314,7 +409,7 @@ type WholesaleDoc = {
     _key: string;
     label: string;
     kind: WholesaleKind;
-    price: number;
+    price?: number;
     multiple?: number;
     note?: string;
   }[];
@@ -343,7 +438,7 @@ export async function getWholesale(): Promise<WholesaleContent> {
           id: f._key,
           kind: f.kind,
           label: f.label,
-          price: cents(f.price),
+          price: cents(f.price ?? 0),
           multiple: f.multiple ?? 1,
           note: f.note || undefined,
         }))

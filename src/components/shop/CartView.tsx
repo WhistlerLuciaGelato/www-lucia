@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cart, useCart, useToday } from "@/lib/cart-store";
-import { itemKey, priceCart } from "@/lib/cart";
+import { itemKey, pintLimit, priceCart } from "@/lib/cart";
 import {
   contactSchema,
   fulfillmentSchema,
@@ -14,14 +14,16 @@ import {
   type Fulfillment,
 } from "@/lib/checkout";
 import type { Catalogue } from "@/lib/content-types";
-import { money, prettyDate } from "@/lib/format";
-import { pickupProblem } from "@/lib/pickup";
+import { addDays, money, prettyDate } from "@/lib/format";
+import { firstDeliveryDate, pickupProblem } from "@/lib/pickup";
 import {
   CAKE_MAX_QTY,
+  DELIVERY_SCHEDULE,
   DELIVERY_ZONES,
   PINT_MAX_PER_FLAVOUR,
   SALES_TAX,
   deliveryFee,
+  deliveryZoneProblem,
   salesTax,
 } from "@/data/shop";
 import { PickupCalendar } from "@/components/shop/PickupCalendar";
@@ -75,8 +77,12 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
     { state: "idle" } | { state: "loading" } | { state: "error"; message: string } | { state: "unavailable" }
   >({ state: "idle" });
 
-  // If the cart changes so the chosen date no longer works (e.g. a cake was added), ask again.
-  const dateProblem = pickupDate && today ? pickupProblem(pickupDate, shop, leadDays, today) : null;
+  const zone = DELIVERY_ZONES.find((z) => z.id === method);
+  // If the cart or method changes so the chosen date no longer works (e.g. a cake was added, or
+  // delivery was picked), ask again.
+  const dateProblem =
+    pickupDate && today ? pickupProblem(pickupDate, shop, leadDays, today, Boolean(zone)) : null;
+  const zoneProblem = zone ? deliveryZoneProblem(zone, subtotal) : null;
   const contactCheck = contactSchema.safeParse(contact);
   const contactErrors: Partial<Record<keyof Contact, string>> = {};
   if (!contactCheck.success) {
@@ -85,7 +91,6 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
       contactErrors[field] ??= issue.message;
     }
   }
-  const zone = DELIVERY_ZONES.find((z) => z.id === method);
   const fee = zone ? (deliveryFee(zone.id, subtotal) ?? 0) : 0;
   const fulfillment: Fulfillment = zone
     ? { method: "delivery", zone: zone.id, ...address }
@@ -111,7 +116,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
           Lucia&rsquo;s out exploring. Pick a pint or build a cake to get started.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/order/pints" className="btn btn-primary">
+          <Link href="/our-gelato#order-pints" className="btn btn-primary">
             Shop pints
           </Link>
           <Link href="/order/cakes" className="btn btn-berry">
@@ -172,7 +177,8 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
             const line = lines.find((l) => l.key === itemKey(item));
             if (!line) return null;
             const src = line.image;
-            const max = item.kind === "pint" ? PINT_MAX_PER_FLAVOUR : CAKE_MAX_QTY;
+            const pint = item.kind === "pint" ? catalogue.pints.find((p) => p.slug === item.flavour) : undefined;
+            const max = item.kind === "pint" ? (pint ? pintLimit(pint) : PINT_MAX_PER_FLAVOUR) : CAKE_MAX_QTY;
             return (
               <li key={line.key} className="flex gap-4 p-5 sm:p-6">
                 <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-snow sm:h-24 sm:w-24">
@@ -214,7 +220,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                       <button
                         type="button"
                         onClick={() => cart.remove(line.key)}
-                        className="font-ui text-sm font-bold text-berry underline underline-offset-2"
+                        className="font-ui text-sm font-bold text-lake-deep underline underline-offset-2"
                       >
                         Remove
                       </button>
@@ -229,7 +235,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
           <div role="alert" className="mt-4 rounded-3xl bg-butter p-4 font-ui text-sm text-ink">
             <p className="font-bold">
               {unavailable.length === 1 ? "One item is" : `${unavailable.length} items are`} no longer
-              available and won&rsquo;t be included.
+              available (or not in that quantity) and won&rsquo;t be included.
             </p>
             <button
               type="button"
@@ -242,7 +248,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
         ) : null}
         {locked ? null : (
           <div className="mt-4 flex flex-wrap gap-4 font-ui text-sm font-bold">
-            <Link href="/order/pints" className="text-lake-deep underline underline-offset-2">
+            <Link href="/our-gelato#order-pints" className="text-lake-deep underline underline-offset-2">
               + Add pints
             </Link>
             <Link href="/order/cakes" className="text-lake-deep underline underline-offset-2">
@@ -277,6 +283,14 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
           ) : (
             <>
               <h2 className="subhead text-2xl text-lakeside">Pickup or delivery</h2>
+              <p className="mt-3 rounded-2xl bg-white/70 px-4 py-3 font-ui text-sm text-ink/80">
+                <strong className="text-ink">
+                  Please order at least {leadDays} day{leadDays === 1 ? "" : "s"} ahead.
+                </strong>{" "}
+                Everything is made fresh for your order, so pickup is from{" "}
+                {today ? prettyDate(addDays(today, leadDays)) : `${leadDays} days out`} and deliveries go
+                out on {DELIVERY_SCHEDULE.dayName}s.
+              </p>
               <fieldset className="mt-4">
                 <legend className="sr-only">How would you like to get your order?</legend>
                 <div className="grid gap-2">
@@ -287,17 +301,27 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                       detail: `${shop.pickupWhere} · ${shop.pickupWindow}`,
                       price: "Free",
                     },
-                    ...DELIVERY_ZONES.map((z) => ({
-                      id: z.id,
-                      title: `Delivery to ${z.label}`,
-                      detail: `${money(z.fee)}, free on orders of ${money(z.freeOver)} or more`,
-                      price: subtotal >= z.freeOver ? "Free" : money(z.fee),
-                    })),
+                    ...DELIVERY_ZONES.map((z) => {
+                      const tooSmall = subtotal < z.minOrder;
+                      return {
+                        id: z.id,
+                        title: `Delivery to ${z.label}`,
+                        detail: z.minOrder
+                          ? `${DELIVERY_SCHEDULE.dayName}s · free on orders of ${money(z.minOrder)} or more (not available under ${money(z.minOrder)})`
+                          : `${DELIVERY_SCHEDULE.dayName}s · ${money(z.fee)}, free on orders of ${money(z.freeOver)} or more`,
+                        price: tooSmall ? "—" : subtotal >= z.freeOver ? "Free" : money(z.fee),
+                        disabled: tooSmall,
+                      };
+                    }),
                   ].map((o) => (
                     <label
                       key={o.id}
-                      className={`flex cursor-pointer items-start gap-3 rounded-2xl bg-white p-3.5 ring-2 transition ${
-                        method === o.id ? "ring-lakeside" : "ring-transparent hover:ring-alpine"
+                      className={`flex items-start gap-3 rounded-2xl bg-white p-3.5 ring-2 transition ${
+                        "disabled" in o && o.disabled && method !== o.id
+                          ? "cursor-not-allowed opacity-60 ring-transparent"
+                          : method === o.id
+                            ? "cursor-pointer ring-lakeside"
+                            : "cursor-pointer ring-transparent hover:ring-alpine"
                       }`}
                     >
                       <input
@@ -305,6 +329,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                         name="fulfillment"
                         value={o.id}
                         checked={method === o.id}
+                        disabled={"disabled" in o && o.disabled && method !== o.id}
                         onChange={() => setMethod(o.id)}
                         className="mt-1 h-4 w-4 accent-[#2f6e7e]"
                       />
@@ -317,6 +342,40 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                   ))}
                 </div>
               </fieldset>
+
+              {zone ? (
+                <div className="mt-4 rounded-2xl bg-butter px-4 py-3 font-ui text-sm text-ink">
+                  <p>
+                    Our gelato is freshly prepared for{" "}
+                    <strong>{DELIVERY_SCHEDULE.dayName} deliveries each week</strong>.
+                  </p>
+                  <ul className="mt-1.5 space-y-0.5">
+                    <li>
+                      <strong>Order deadline:</strong> {DELIVERY_SCHEDULE.cutoffName} by {DELIVERY_SCHEDULE.cutoffTime}
+                    </li>
+                    <li>
+                      <strong>Delivery day:</strong> {DELIVERY_SCHEDULE.dayName}
+                    </li>
+                  </ul>
+                  <p className="mt-1.5 text-ink/80">
+                    Orders placed after the {DELIVERY_SCHEDULE.cutoffName} deadline are delivered the following
+                    week
+                    {today ? (
+                      <>
+                        {" "}
+                        — the next delivery for this order is{" "}
+                        <strong>{prettyDate(firstDeliveryDate(today, leadDays))}</strong>
+                      </>
+                    ) : null}
+                    .
+                  </p>
+                </div>
+              ) : null}
+              {zoneProblem ? (
+                <p role="alert" className="mt-3 font-ui text-sm font-bold text-berry">
+                  {zoneProblem}
+                </p>
+              ) : null}
 
               {zone
                 ? (
@@ -361,7 +420,8 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
               </p>
               {zone ? (
                 <p className="-mt-1 mb-2 font-ui text-sm text-ink/70">
-                  We&rsquo;ll be in touch to arrange a delivery time on the day.
+                  Choose a {DELIVERY_SCHEDULE.dayName}. We&rsquo;ll be in touch to arrange a delivery time on the
+                  day.
                 </p>
               ) : null}
               <div role="group" aria-labelledby="pickup-label">
@@ -455,7 +515,11 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                 type="button"
                 className="btn btn-primary mt-6 w-full"
                 disabled={
-                  !pickupDate || Boolean(dateProblem) || lines.length === 0 || status.state === "loading"
+                  !pickupDate ||
+                  Boolean(dateProblem) ||
+                  Boolean(zoneProblem) ||
+                  lines.length === 0 ||
+                  status.state === "loading"
                 }
                 onClick={checkout}
               >

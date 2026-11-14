@@ -1,11 +1,32 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+const weekdays = [
+  { title: "Mon", value: "mon" },
+  { title: "Tue", value: "tue" },
+  { title: "Wed", value: "wed" },
+  { title: "Thu", value: "thu" },
+  { title: "Fri", value: "fri" },
+  { title: "Sat", value: "sat" },
+  { title: "Sun", value: "sun" },
+];
+
+/** "Jun 20" from "2027-06-20". */
+const shortDate = (ymd?: string) =>
+  ymd
+    ? new Date(`${ymd}T12:00:00Z`).toLocaleDateString("en-CA", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      })
+    : "";
+
 export const location = defineType({
   name: "location",
   title: "Location",
   type: "document",
   groups: [
     { name: "hours", title: "Hours & status", default: true },
+    { name: "calendar", title: "Calendar" },
     { name: "details", title: "Details & map" },
   ],
   fields: [
@@ -74,6 +95,97 @@ export const location = defineType({
       type: "string",
       group: "hours",
       placeholder: "Summer (late Jun – Sep)",
+    }),
+    defineField({
+      name: "openDates",
+      title: "Open dates",
+      description:
+        "When this spot is open, shown on the calendar on the Find us page. Add a line per date or run of dates. Past dates can stay; the calendar only shows them when someone pages back.",
+      type: "array",
+      group: "calendar",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "from",
+              title: "From",
+              type: "date",
+              options: { dateFormat: "MMM D, YYYY" },
+              validation: (r) => r.required(),
+            }),
+            defineField({
+              name: "to",
+              title: "Until (optional)",
+              description: "Leave empty for a single day.",
+              type: "date",
+              options: { dateFormat: "MMM D, YYYY" },
+              validation: (r) =>
+                r.custom((to, ctx) => {
+                  const from = (ctx.parent as { from?: string } | undefined)?.from;
+                  return !to || !from || to >= from ? true : "Must be on or after the first date";
+                }),
+            }),
+            defineField({
+              name: "days",
+              title: "Only on these days (optional)",
+              description: "Leave all unticked for every day in the dates above.",
+              type: "array",
+              of: [defineArrayMember({ type: "string" })],
+              options: { list: weekdays, layout: "grid" },
+            }),
+          ],
+          preview: {
+            select: { from: "from", to: "to", days: "days" },
+            prepare: ({ from, to, days }) => {
+              const range = to && to !== from ? `${shortDate(from)} – ${shortDate(to)}` : shortDate(from);
+              const on = ((days as string[] | undefined) ?? [])
+                .map((d) => weekdays.find((w) => w.value === d)?.title)
+                .filter(Boolean)
+                .join(", ");
+              return {
+                title: range || "Pick a date",
+                subtitle: on ? `${on} only` : to && to !== from ? "Every day" : undefined,
+              };
+            },
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: "calendarCode",
+      title: "Calendar code",
+      description:
+        "A short code for this spot on the calendar, e.g. RO. Leave empty to keep it off the calendar.",
+      type: "string",
+      group: "calendar",
+      validation: (r) => r.max(3),
+    }),
+    defineField({
+      name: "calendarLabel",
+      title: "Name in the calendar key",
+      description: "Shown under the calendar as “RO = Roundhouse”. Leave empty to use the name.",
+      type: "string",
+      group: "calendar",
+    }),
+    defineField({
+      name: "calendarColor",
+      title: "Calendar colour",
+      type: "string",
+      group: "calendar",
+      options: {
+        list: [
+          { title: "Orange", value: "heatwave" },
+          { title: "Blue", value: "lakeside" },
+          { title: "Green", value: "grass" },
+          { title: "Pink", value: "alpenglow" },
+          { title: "Yellow", value: "sunflower" },
+          { title: "Strawberry", value: "strawberry" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+      initialValue: "lakeside",
     }),
     defineField({
       name: "season",

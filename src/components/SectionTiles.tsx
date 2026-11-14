@@ -14,7 +14,7 @@ const tiles = [
   {
     href: "/order",
     label: "Order",
-    copy: "Pints and custom gelato cakes, ready for pickup at Base II.",
+    copy: "Pints and custom gelato cakes, for pickup at Base II or Thursday delivery.",
     bg: "bg-blush",
     text: "text-strawberry",
     img: { src: "/home/bear-order.webp", w: 700, h: 635 },

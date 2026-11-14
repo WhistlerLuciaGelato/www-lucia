@@ -4,9 +4,10 @@ import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { LocationStatus } from "@/components/LocationStatus";
 import { Wave } from "@/components/Wave";
+import { ScheduleCalendar } from "@/components/find-us/ScheduleCalendar";
 import { SeasonalSpots } from "@/components/find-us/SeasonalSpots";
 import { getLocations, getSiteSettings, getStockists } from "@/lib/content";
-import type { Location } from "@/lib/content-types";
+import type { Location, Venue } from "@/lib/content-types";
 
 export const metadata: Metadata = {
   title: "Find us",
@@ -52,15 +53,6 @@ const shortcuts = [
   },
 ];
 
-/** Codes for the schedule legend, by location id (colours from the design). */
-const legend: { id: string; code: string; label: string; color: string }[] = [
-  { id: "roundhouse", code: "RO", label: "Roundhouse", color: "text-heatwave" },
-  { id: "blackcomb-kids", code: "B", label: "Blackcomb Base", color: "text-lakeside" },
-  { id: "lost-lake", code: "L", label: "Lost Lake", color: "text-grass" },
-  { id: "rainbow-park", code: "RB", label: "Rainbow", color: "text-alpenglow" },
-  { id: "olympic-plaza", code: "O", label: "Olympic Plaza", color: "text-sunflower" },
-];
-
 function Pill({ children, className }: { children: React.ReactNode; className: string }) {
   return (
     <p
@@ -71,15 +63,35 @@ function Pill({ children, className }: { children: React.ReactNode; className: s
   );
 }
 
-/** "Daily, 12 – 7pm"; spots with no hours yet show "Hours TBC". */
+/** "Daily, 12 – 7pm"; spots with no hours yet show "Hours TBC". Lines still TBC are faded. */
 function Hours({ spot }: { spot: Location }) {
   if (!spot.hours.length) return <span className="text-lakeside/60">Hours TBC</span>;
   return (
     <ul className="space-y-1">
-      {spot.hours.map((h) => (
-        <li key={`${h.days}${h.time}`}>{[h.days, h.time].filter(Boolean).join(", ")}</li>
-      ))}
+      {spot.hours.map((h) => {
+        const line = [h.days, h.time].filter(Boolean).join(", ");
+        return (
+          <li key={line} className={/\bTBC\b/i.test(line) ? "text-lakeside/60" : undefined}>
+            {line}
+          </li>
+        );
+      })}
     </ul>
+  );
+}
+
+/** A business name, linked to its website (in a new tab) when it has one. */
+function VenueName({ venue }: { venue: Venue }) {
+  if (!venue.url) return venue.name;
+  return (
+    <a
+      href={venue.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline decoration-grass/40 underline-offset-2 transition-colors hover:text-grass hover:decoration-grass"
+    >
+      {venue.name}
+    </a>
   );
 }
 
@@ -89,7 +101,6 @@ export default async function FindUsPage() {
     getStockists(),
     getSiteSettings(),
   ]);
-  const codes = legend.filter((l) => spots.some((s) => s.id === l.id));
 
   return (
     <>
@@ -162,7 +173,7 @@ export default async function FindUsPage() {
       {/* Seasonal scoop shops: pink map and location cards. */}
       <section
         id="map"
-        className="relative scroll-mt-24 bg-petal px-4 pt-14 pb-20 sm:px-8 lg:-mt-[6.5rem] lg:px-[6.25rem] lg:pt-[8.5rem] lg:pb-28"
+        className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-petal px-4 pt-14 pb-20 sm:px-8 lg:-mt-[6.5rem] lg:px-[6.25rem] lg:pt-[8.5rem] lg:pb-28"
       >
         <Wave color={PETAL} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[77.5rem]">
@@ -179,7 +190,7 @@ export default async function FindUsPage() {
       </section>
 
       {/* Schedule & hours */}
-      <section id="schedule" className="relative scroll-mt-24 bg-snow px-4 py-20 sm:px-8 lg:px-[6.25rem]">
+      <section id="schedule" className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-snow px-4 py-20 sm:px-8 lg:px-[6.25rem]">
         <Wave color={SNOW} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[76.5rem]">
           <div className="flex flex-col items-center gap-[0.9375rem] text-center">
@@ -189,61 +200,9 @@ export default async function FindUsPage() {
             </h2>
           </div>
           <div className="mt-14 grid gap-12 lg:grid-cols-[31.9375rem_minmax(0,1fr)] lg:gap-[2.1875rem]">
+            <ScheduleCalendar spots={spots} instagramUrl={contact.instagramUrl} />
             <div>
-              <p className="text-xl text-heatwave italic">
-                Check{" "}
-                <a href={contact.instagramUrl} className="font-bold underline-offset-2 hover:underline">
-                  Instagram
-                </a>{" "}
-                to confirm we&rsquo;re open before heading out!
-              </p>
-              {/* Weekly calendar: greyed out with a note on top until the live schedule is ready. */}
-              <div className="relative mt-4 h-[22.9375rem] overflow-hidden rounded-[1.25rem] border-2 border-ink/15 bg-white">
-                <div
-                  aria-hidden
-                  className="grid h-full grid-cols-7 grid-rows-[auto_1fr] opacity-40 grayscale"
-                >
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                    <span
-                      key={d}
-                      className="eyebrow border-b border-ink/15 bg-ink/10 py-2 text-center !text-sm text-ink/70"
-                    >
-                      {d}
-                    </span>
-                  ))}
-                  {Array.from({ length: 7 }, (_, i) => (
-                    <span
-                      key={i}
-                      className="flex flex-col gap-2 border-r border-ink/10 p-1.5 last:border-r-0"
-                    >
-                      {i % 3 !== 2 ? <span className="h-10 rounded-md bg-ink/15" /> : null}
-                      {i % 2 === 0 ? <span className="h-6 rounded-md bg-ink/10" /> : null}
-                    </span>
-                  ))}
-                </div>
-                <div className="absolute inset-0 grid place-items-center bg-white/40 p-6">
-                  <a
-                    href={contact.instagramUrl}
-                    className="max-w-[18rem] rounded-[1.25rem] bg-snow p-6 text-center font-ui font-bold text-heatwave shadow-soft ring-2 ring-heatwave transition hover:-translate-y-0.5"
-                  >
-                    Our weekly calendar is coming soon. For now, this week&rsquo;s schedule is posted on
-                    Instagram
-                    <span className="mt-1 block text-lg">{contact.instagramHandle}</span>
-                  </a>
-                </div>
-              </div>
-              {codes.length ? (
-                <ul className="mt-5 eyebrow !text-xl leading-normal">
-                  {codes.map((l) => (
-                    <li key={l.id} className={l.color}>
-                      {l.code} = {l.label}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-            <div>
-              <p className="text-xl text-lakeside italic">
+              <p className="text-base text-lakeside">
                 Our outdoor spots open with the seasons and the weather. Here&rsquo;s when to find us.
               </p>
               <div className="mt-4 overflow-hidden rounded-[1.25rem] border border-bluebird bg-snow">
@@ -310,7 +269,7 @@ export default async function FindUsPage() {
       </section>
 
       {/* Take-home pints: grocery stores */}
-      <section id="grocery" className="relative scroll-mt-24 bg-peach px-4 py-20 sm:px-8 lg:px-[6.25rem]">
+      <section id="grocery" className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-peach px-4 py-20 sm:px-8 lg:px-[6.25rem]">
         <Wave color={PEACH} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto grid max-w-[76.5rem] gap-10 lg:grid-cols-[31.75rem_37.1875rem] lg:justify-between">
           <div>
@@ -318,12 +277,12 @@ export default async function FindUsPage() {
             <h2 className="subhead mt-[0.9375rem] text-5xl leading-[0.85] text-heatwave sm:text-[3.75rem]">
               Take home a pint!
             </h2>
-            <p className="mt-6 text-xl text-heatwave">
+            <p className="mt-6 text-base text-heatwave">
               Craving Lucia Gelato from the comfort of your own home? Find our take-home tubs at local grocery
               stores and retailers throughout Whistler, Squamish and Pemberton. Stock up on your favourite
               flavours or discover something new!
             </p>
-            <p className="mt-1.5 text-xl font-bold text-heatwave italic">
+            <p className="mt-1.5 text-base font-bold text-heatwave">
               Flavours and availability vary by location.
             </p>
           </div>
@@ -348,18 +307,18 @@ export default async function FindUsPage() {
       </section>
 
       {/* Scoop partners and menus */}
-      <section id="scoops" className="relative scroll-mt-24 bg-snow px-4 pt-20 sm:px-8 lg:px-16">
+      <section id="scoops" className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-snow px-4 pt-20 sm:px-8 lg:px-16">
         <Wave color={SNOW} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[81.875rem]">
           <div className="mx-auto flex max-w-[41.875rem] flex-col items-center gap-[0.9375rem] text-center text-grass">
             <Pill className="bg-grass">Seasonal</Pill>
             <h2 className="subhead text-5xl leading-[0.85] sm:text-[3.75rem]">Scoop partners</h2>
-            <p className="mt-2 text-xl">
+            <p className="mt-2 text-base">
               We&rsquo;re proud to partner with local businesses throughout the Sea to Sky corridor that serve
               Lucia Gelato by the scoop! Whether you&rsquo;re exploring Whistler, spending the day in
               Squamish, or visiting Pemberton, you can enjoy your favourite flavours at these local spots.
             </p>
-            <p className="text-xl font-bold italic">
+            <p className="text-base font-bold">
               Flavours and availability vary by location.
               <br />
               Check directly with our partners for current availability.
@@ -370,10 +329,15 @@ export default async function FindUsPage() {
             {scoopShops.map((shop) => (
               <li key={shop.name}>
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${shop.name} ${shop.address} ${shop.town} BC`)}`}
+                  href={
+                    shop.url ||
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${shop.name} ${shop.address} ${shop.town} BC`)}`
+                  }
                   target="_blank"
-                  rel="noreferrer"
-                  title={`${shop.name}, ${shop.address} — open in Google Maps`}
+                  rel="noopener noreferrer"
+                  title={
+                    shop.url ? `${shop.name} website` : `${shop.name}, ${shop.address}: open in Google Maps`
+                  }
                   className="flex flex-col items-start gap-3 rounded-[1.25rem] border-2 border-grass bg-pistachio p-[1.5625rem] text-grass transition-colors hover:bg-light-green/60"
                 >
                   <span className="eyebrow rounded-[1.25rem] border-2 border-grass px-4 py-[0.4375rem] !text-[0.9375rem]">
@@ -399,7 +363,9 @@ export default async function FindUsPage() {
                       className={`mt-2.5 font-ui text-[0.9375rem] leading-[1.6] font-medium text-black ${i === 0 ? "gap-6 sm:columns-2" : ""}`}
                     >
                       {group.places.map((place) => (
-                        <li key={place}>{place}</li>
+                        <li key={place.name}>
+                          <VenueName venue={place} />
+                        </li>
                       ))}
                     </ul>
                   </div>

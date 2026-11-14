@@ -4,7 +4,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import type { Shop } from "@/lib/content-types";
 import { addDays, prettyDate } from "@/lib/format";
-import { pickupProblem } from "@/lib/pickup";
+import { firstDeliveryDate, pickupProblem } from "@/lib/pickup";
 
 // The calendar works with local Date objects; the rest of the app uses YYYY-MM-DD strings.
 const toDate = (iso: string) => {
@@ -35,12 +35,12 @@ export function PickupCalendar({
     return <div className="h-[22rem] animate-pulse rounded-3xl bg-white/70" aria-hidden />;
   }
 
-  const earliest = addDays(today, leadDays);
+  const earliest = delivery ? firstDeliveryDate(today, leadDays) : addDays(today, leadDays);
   const latest = addDays(today, 120);
   const closedDates = new Set(shop.blackoutDates.map((b) => b.date));
   const isUnavailable = (date: Date) => {
     const iso = toIso(date);
-    return iso > latest || pickupProblem(iso, shop, leadDays, today) !== null;
+    return iso > latest || pickupProblem(iso, shop, leadDays, today, delivery) !== null;
   };
 
   return (
@@ -71,7 +71,9 @@ export function PickupCalendar({
                 </>
               )
             ) : (
-              `Choose a ${delivery ? "delivery" : "pickup"} day. Greyed-out days aren't available.`
+              delivery
+                ? "Choose a Thursday. Greyed-out days aren't available."
+                : "Choose a pickup day. Greyed-out days aren't available."
             )}
           </p>
         }

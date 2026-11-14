@@ -196,7 +196,7 @@ export function PinkMap({
     <div className="relative h-[22rem] overflow-hidden rounded-[1.25rem] border-2 border-[#f48991] bg-snow sm:h-[28rem] lg:h-[40.625rem]">
       <div ref={container} className="h-full w-full" />
       {failed ? (
-        <p className="absolute inset-0 grid place-items-center p-8 text-center font-ui font-semibold text-berry">
+        <p className="absolute inset-0 grid place-items-center p-8 text-center font-ui font-semibold text-strawberry">
           The map couldn’t load here. Use “Show in Google Maps” on any spot to find it.
         </p>
       ) : null}

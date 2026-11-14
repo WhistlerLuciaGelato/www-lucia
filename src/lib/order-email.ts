@@ -1,6 +1,7 @@
 import "server-only";
 import { getShop, getSiteSettings } from "@/lib/content";
 import { emailConfigured, inboxAddresses, sendEmail } from "@/lib/email";
+import { DELIVERY_SCHEDULE } from "@/data/shop";
 import { money, prettyDate } from "@/lib/format";
 import {
   describeCard,
@@ -95,7 +96,11 @@ export async function sendOrderEmails(square: SquareConfig, orderId: string): Pr
             "",
             `${delivery ? "Delivery" : "Pickup"}: ${pickup}`,
             `${delivery ? "Delivering to" : "Where"}: ${where}`,
-            ...(delivery ? ["We'll be in touch to arrange a delivery time."] : []),
+            ...(delivery
+              ? [
+                  `Your gelato is freshly prepared for our weekly ${DELIVERY_SCHEDULE.dayName} delivery. We'll be in touch to arrange a delivery time on the day.`,
+                ]
+              : [`Pickup is at our kitchen between ${shop.pickupWindow} on the day. See you then!`]),
             "",
             ...itemLines(order),
             "",

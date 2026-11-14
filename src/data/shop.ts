@@ -20,14 +20,16 @@ export function salesTax(subtotal: number): number {
 }
 
 /**
- * Delivery by the Lucia team, priced on the pre-tax subtotal (CAD cents): a flat fee, free from
- * `freeOver` up. Pickup is always free.
+ * Delivery by the Lucia team, priced on the pre-tax subtotal (CAD cents): a flat `fee`, free from
+ * `freeOver` up, and only offered from `minOrder` up. Pickup is always free.
+ *
+ * Whistler: $10, free from $100. Squamish & Pemberton: free, on orders of $400 or more only.
  */
-export type DeliveryZone = { id: string; label: string; fee: number; freeOver: number };
+export type DeliveryZone = { id: string; label: string; fee: number; freeOver: number; minOrder: number };
 
 export const DELIVERY_ZONES: DeliveryZone[] = [
-  { id: "whistler", label: "Whistler", fee: 1000, freeOver: 10000 },
-  { id: "squamish-pemberton", label: "Squamish or Pemberton", fee: 4000, freeOver: 40000 },
+  { id: "whistler", label: "Whistler", fee: 1000, freeOver: 10000, minOrder: 0 },
+  { id: "squamish-pemberton", label: "Squamish or Pemberton", fee: 0, freeOver: 0, minOrder: 40000 },
 ];
 
 /** Delivery fee in cents for a zone and pre-tax subtotal, or null for an unknown zone. */
@@ -37,6 +39,34 @@ export function deliveryFee(zoneId: string, subtotal: number): number | null {
   return subtotal >= zone.freeOver ? 0 : zone.fee;
 }
 
+/** A zone's terms in a phrase, e.g. "Whistler $10 (free over $100)". */
+export function deliveryZoneSummary(zone: DeliveryZone): string {
+  const dollars = (cents: number) => `$${cents / 100}`;
+  if (zone.minOrder) return `${zone.label} free on orders over ${dollars(zone.minOrder)}`;
+  return `${zone.label} ${dollars(zone.fee)} (free over ${dollars(zone.freeOver)})`;
+}
+
+/** Why a zone can't take this order (below its minimum), or null if it can. */
+export function deliveryZoneProblem(zone: DeliveryZone, subtotal: number): string | null {
+  if (subtotal >= zone.minOrder) return null;
+  const short = zone.minOrder - subtotal;
+  return `Delivery to ${zone.label} is for orders of $${zone.minOrder / 100} or more (add $${Math.ceil(short / 100)} more), or choose pickup.`;
+}
+
+/**
+ * Deliveries go out once a week: the gelato is made fresh for Thursday, and orders close the
+ * Sunday before at 11:59pm (Whistler time). An order placed after that goes the following week.
+ */
+export const DELIVERY_SCHEDULE = {
+  /** 0 = Sunday … 4 = Thursday. */
+  weekday: 4,
+  dayName: "Thursday",
+  cutoffName: "Sunday",
+  cutoffTime: "11:59pm",
+  /** Days from the cut-off (Sunday) to delivery (Thursday). */
+  cutoffDaysBefore: 4,
+};
+
 // Hard limits per cart line (not editable content).
 export const PINT_MAX_PER_FLAVOUR = 18;
 export const CAKE_MAX_QTY = 4;
@@ -44,8 +74,8 @@ export const CAKE_MAX_QTY = 4;
 export const defaultShop: Shop = {
   // Retail pint price, raised to $8 by Lucia (Nov 2026). The live value is the Studio's.
   pintPrice: 800,
-  // TODO(client): confirm how much notice the kitchen needs for pint orders.
-  pintLeadDays: 2,
+  // Pint orders need 3 days' notice (Lucia, Nov 2026). The live value is the Studio's.
+  pintLeadDays: 3,
   cakeLeadDays: 4,
   // TODO(client): confirm pickup window and days at the kitchen.
   pickupWindow: "12–5pm",

@@ -26,7 +26,7 @@ export function LocationStatus({
     <span className="mt-2 flex flex-wrap items-center gap-2 font-ui text-sm">
       <span
         className={`rounded-full px-2.5 py-0.5 font-extrabold ${
-          inverted ? "bg-snow text-berry" : "bg-berry text-white"
+          inverted ? "bg-snow text-heatwave" : "bg-heatwave text-snow"
         }`}
       >
         {seasonClosed ? "Closed for the season" : "Closed today"}

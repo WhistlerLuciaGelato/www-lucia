@@ -42,8 +42,8 @@ export const wholesaleLineSchema = z.object({
   qty: z.coerce.number().int().min(1).max(999),
 });
 
-/** "Other size" in the wholesale form: the customer describes the size in the notes. */
-export const OTHER_FORMAT = { id: "other", label: "Other size (tell us in the notes)" } as const;
+/** "Other custom size" in the wholesale form: the customer describes the size in the notes. */
+export const OTHER_FORMAT = { id: "other", label: "Other custom size (tell us in the notes)" } as const;
 /** "Other / custom flavour" in the wholesale form, available in every size. */
 export const OTHER_FLAVOUR = "Other / custom flavour (tell us in the notes)";
 

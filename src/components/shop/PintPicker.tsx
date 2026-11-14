@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PintFlavour } from "@/lib/content-types";
+import { pintLimit } from "@/lib/cart";
 import { PintCard } from "@/components/shop/PintCard";
+import { PintDetails } from "@/components/shop/PintDetails";
 import { AddToCartPill } from "@/components/shop/AddToCartPill";
 
 /** The design's filter pills (Our gelato): outlined in each tag's colour, filled when picked. */
@@ -60,12 +62,26 @@ const filters: {
 const FIRST = 6;
 
 /**
- * "Order pints for pickup" on Our gelato: filter pills, then the flavour cards with a one-tap
- * add-to-cart, six at a time ("Show more" reveals the rest).
+ * "Order pints" on Our gelato: filter pills, then the flavour cards with a one-tap add-to-cart,
+ * six at a time ("Show more" reveals the rest). Hovering a card shows its description; clicking it
+ * opens the expanded card with the ingredients.
  */
 export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price: number }) {
   const [active, setActive] = useState("all");
   const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState<PintFlavour | null>(null);
+
+  // A link to one flavour (e.g. from the home page, /our-gelato#mango) may point past the first
+  // six: show them all, then scroll to it once it's rendered.
+  useEffect(() => {
+    const slug = decodeURIComponent(window.location.hash.slice(1));
+    const index = flavours.findIndex((f) => f.slug === slug);
+    if (index < FIRST) return;
+    // Syncing with the URL on load is what this effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExpanded(true);
+    requestAnimationFrame(() => document.getElementById(slug)?.scrollIntoView());
+  }, [flavours]);
   const filter = filters.find((f) => f.id === active) ?? filters[0];
   const matching = flavours.filter(filter.match);
   const shown = expanded ? matching : matching.slice(0, FIRST);
@@ -99,10 +115,13 @@ export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price
             flavour={f}
             framed
             showSize
+            showLabel
+            revealBlurb
+            onOpen={() => setOpen(f)}
             listPrice={price}
             action={
               f.available ? (
-                <AddToCartPill flavour={f.slug} name={f.name} />
+                <AddToCartPill flavour={f.slug} name={f.name} limit={pintLimit(f)} />
               ) : (
                 <p className="eyebrow mt-1 rounded-[1.25rem] bg-ink/10 px-2.5 py-1.5 !text-sm text-ink/70">
                   Sold out
@@ -128,6 +147,8 @@ export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price
           </button>
         </div>
       ) : null}
+
+      {open ? <PintDetails key={open.slug} flavour={open} price={price} onClose={() => setOpen(null)} /> : null}
     </>
   );
 }

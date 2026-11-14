@@ -38,6 +38,8 @@ export type PricedLine = {
   qty: number;
   total: number;
   leadDays: number;
+  /** The pint flavour's slug (pints only). */
+  flavour?: string;
 };
 
 /** Stable identity for merging identical items in the cart. */
@@ -47,11 +49,19 @@ export function itemKey(item: CartItem): string {
     : `cake:${item.size}:${item.base}:${item.combo}:${item.message ?? ""}`;
 }
 
-/** Prices one item, or returns null if it's no longer for sale (removed or sold out). */
+/** Most pints of one flavour a single order can have: 18, or fewer when stock is low. */
+export function pintLimit(flavour: { stock?: number }): number {
+  return Math.min(PINT_MAX_PER_FLAVOUR, flavour.stock ?? PINT_MAX_PER_FLAVOUR);
+}
+
+/**
+ * Prices one item, or returns null if it's no longer for sale (removed, sold out, or fewer left
+ * than the cart asks for).
+ */
 export function priceItem(item: CartItem, { shop, pints }: Catalogue): PricedLine | null {
   if (item.kind === "pint") {
     const flavour = pints.find((p) => p.slug === item.flavour);
-    if (!flavour || !flavour.available) return null;
+    if (!flavour || !flavour.available || item.qty > pintLimit(flavour)) return null;
     return {
       key: itemKey(item),
       name: `${flavour.name} pint`,
@@ -61,6 +71,7 @@ export function priceItem(item: CartItem, { shop, pints }: Catalogue): PricedLin
       qty: item.qty,
       total: shop.pintPrice * item.qty,
       leadDays: shop.pintLeadDays,
+      flavour: flavour.slug,
     };
   }
   const size = shop.cakeSizes.find((s) => s.id === item.size);
@@ -68,7 +79,7 @@ export function priceItem(item: CartItem, { shop, pints }: Catalogue): PricedLin
   const combo = shop.cakeCombos.find((c) => c.id === item.combo);
   if (!size || !base || !combo) return null;
   const parts = [combo.flavours, `${base.label} base`, `serves ${size.serves}`];
-  if (item.message) parts.push(`Note: ${item.message}`);
+  if (item.message) parts.push(`Allergies / dietary: ${item.message}`);
   return {
     key: itemKey(item),
     name: `${size.label} gelato cake`,

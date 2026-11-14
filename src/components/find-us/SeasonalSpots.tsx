@@ -50,16 +50,14 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
         onClick={onSelect}
         aria-expanded={active}
         aria-controls={panelId}
-        className="flex w-full flex-col items-start gap-2.5 text-left"
+        className="flex w-full flex-col items-start gap-3 text-left"
       >
         <span className="eyebrow rounded-[1.25rem] border-2 border-strawberry px-5 py-2 !text-base text-strawberry sm:!text-xl">
           {spot.season}
         </span>
         <span className="subhead text-[1.75rem] text-strawberry">{spot.name}</span>
         {spot.area ? (
-          <span className="font-heading text-lg leading-none font-bold text-strawberry/80 sm:text-xl">
-            {spot.area}
-          </span>
+          <span className="font-ui text-lg leading-none font-bold text-strawberry/80">{spot.area}</span>
         ) : null}
       </button>
       <LocationStatus
@@ -76,7 +74,7 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
       >
         <div className="overflow-hidden">
           {spot.description ? (
-            <p className="pt-2.5 font-ui text-[0.9375rem] leading-[1.3] font-medium text-strawberry">
+            <p className="pt-3 font-ui text-sm leading-[1.3] font-medium text-strawberry">
               <RichText text={spot.description} />
             </p>
           ) : null}
@@ -84,7 +82,7 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="btn btn-berry !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg"
             >
               Show in Google Maps
@@ -93,7 +91,7 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
               href="#schedule"
               className="btn btn-berry !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg"
             >
-              Hours
+              Schedule
             </a>
           </div>
         </div>
@@ -107,8 +105,7 @@ function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: numb
   const rad = Math.PI / 180;
   const dLat = (b.lat - a.lat) * rad;
   const dLng = (b.lng - a.lng) * rad;
-  const h =
-    Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
   return 12742 * Math.asin(Math.sqrt(h));
 }
 
@@ -175,18 +172,21 @@ export function SeasonalSpots({ spots, instagramUrl }: { spots: Location[]; inst
           </a>
         </div>
         {geoError ? (
-          <p role="status" className="mt-2 font-ui text-sm font-bold text-berry">
+          <p role="status" className="mt-2 font-ui text-sm font-bold text-ink">
             {geoError}
           </p>
         ) : null}
         <div className="mt-10 flex flex-col items-center gap-2.5 rounded-[1.25rem] bg-white p-5 text-center lg:mt-[6.25rem]">
-          <p className="eyebrow rounded-[1.25rem] border-2 border-heatwave px-5 py-2 !text-xl text-heatwave">
-            Take note!
-          </p>
-          <p className="max-w-[35.5rem] text-xl leading-none text-heatwave italic">
-            Please note that locations, hours, and operating dates vary throughout the season. We try our
-            best to keep this page up to date, but please check our latest updates on{" "}
-            <a href={instagramUrl} className="font-bold underline-offset-2 hover:underline">
+          <p className="eyebrow px-5 py-2 !text-xl text-heatwave">Take note!</p>
+          <p className="max-w-[35.5rem] text-base leading-[1.18] text-heatwave">
+            Please note that locations, hours, and operating dates vary throughout the season. We try our best
+            to keep this page up to date, but please check our latest updates on{" "}
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-2 hover:underline"
+            >
               Instagram
             </a>{" "}
             before heading out to find us!

@@ -15,7 +15,20 @@ export type Bear =
   | "whitewater"
   | "zipline";
 
-type DefaultPint = Omit<PintFlavour, "image" | "available"> & { render?: boolean };
+type DefaultPint = Omit<PintFlavour, "image" | "available" | "label" | "stock"> & { render?: boolean };
+
+/** Flavours with a round lid label in public/pints/label (from the Figma product cards). */
+export const roundLabels = new Set([
+  "salted-caramel",
+  "coconut-cookies-cream",
+  "mango",
+  "lemon",
+  "chocolate-caramel-sea-salt",
+  "pistachio",
+  "choco-coco",
+  "vanilla-bean",
+  "wildberry",
+]);
 
 /**
  * The retail pint lineup (473 mL), in the order shown on the website. `render: true` flavours
@@ -32,6 +45,9 @@ export const pintFlavours: DefaultPint[] = [
       "Featuring our homemade caramel sauce, carefully prepared in-house and finished with a touch of salt. The perfect balance of sweet, salty, and creamy.",
     render: true,
     diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Sugars (sugar, dextrose), Cream, Caramel Sauce (Sugar, Cream, Glucose, Water, Salt), Skim Milk Powder, Kosher Salt, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan)",
+    contains: "Milk",
     color: "#d9874a",
     activity: "Lucia hikes the Sea to Sky",
     bear: "hiker",
@@ -101,7 +117,8 @@ export const pintFlavours: DefaultPint[] = [
     name: "Vanilla Bean",
     style: "Gelato",
     blurb:
-      "Our friend KO ordered vanilla at every gelato shop in Italy. She knows what she likes — and she has very good taste.",
+      "Made with real organic Madagascar vanilla beans for a beautifully smooth, fragrant, and timeless classic.",
+    render: true,
     diet: ["gluten-free"],
     color: "#6b5a49",
     activity: "Lucia paddles Alta Lake",
@@ -123,7 +140,8 @@ export const pintFlavours: DefaultPint[] = [
     name: "Choco Coco",
     style: "Dairy-free gelato",
     blurb:
-      "Dark chocolate and coconut milk, dense and intense. Like Christopher Walken said, you can never have too much cowbell — we mean coconut.",
+      "Rich, chocolatey and irresistibly creamy. Made with a coconut milk base for a deliciously indulgent dairy-free treat.",
+    render: true,
     diet: ["dairy-free", "vegan", "gluten-free"],
     color: "#4f8f9c",
     activity: "Lucia lays down a powder turn",
@@ -134,7 +152,8 @@ export const pintFlavours: DefaultPint[] = [
     name: "Wildberry",
     style: "Sorbet",
     blurb:
-      "A handful of mountain berries in every spoonful — tart, sweet and deep purple. Summer in the valley, all year round.",
+      "A delicious blend of raspberries, blueberries and strawberries sourced from Mandair Farm in Abbotsford, BC. A refreshing taste of summer berries in every spoonful.",
+    render: true,
     diet: ["dairy-free", "vegan", "gluten-free"],
     color: "#b33c8a",
     activity: "Lucia ziplines over the valley",

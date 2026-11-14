@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { priceCart } from "@/lib/cart";
 import { checkoutSchema, type CheckoutResponse } from "@/lib/checkout";
 import { getCatalogue } from "@/lib/content";
-import { DELIVERY_ZONES, SALES_TAX, deliveryFee } from "@/data/shop";
+import { DELIVERY_SCHEDULE, DELIVERY_ZONES, SALES_TAX, deliveryFee, deliveryZoneProblem } from "@/data/shop";
 import { e164Phone, prettyDate, todayInWhistler, whistlerDateTime } from "@/lib/format";
 import { pickupProblem } from "@/lib/pickup";
 import { createOrder, getSquareConfig } from "@/lib/square";
@@ -43,15 +43,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Your cart is empty." }, { status: 422 });
   }
 
-  const problem = pickupProblem(pickupDate, shop, leadDays, todayInWhistler());
-  if (problem) {
-    return NextResponse.json({ error: problem }, { status: 422 });
-  }
-
   const zone =
     fulfillment.method === "delivery" ? DELIVERY_ZONES.find((z) => z.id === fulfillment.zone) : undefined;
   if (fulfillment.method === "delivery" && !zone) {
     return NextResponse.json({ error: "Please choose a delivery area." }, { status: 422 });
+  }
+  const zoneProblem = zone ? deliveryZoneProblem(zone, subtotal) : null;
+  if (zoneProblem) {
+    return NextResponse.json({ error: zoneProblem }, { status: 422 });
+  }
+
+  const problem = pickupProblem(pickupDate, shop, leadDays, todayInWhistler(), Boolean(zone));
+  if (problem) {
+    return NextResponse.json({ error: problem }, { status: 422 });
   }
   const fee = zone ? (deliveryFee(zone.id, subtotal) ?? 0) : 0;
 
@@ -62,8 +66,8 @@ export async function POST(request: Request) {
 
   const pickupNote = [
     zone
-      ? `Delivery ${prettyDate(pickupDate)} (${zone.label}).`
-      : `Pickup ${prettyDate(pickupDate)}, ${shop.pickupWindow}.`,
+      ? `Delivery ${prettyDate(pickupDate)} (${zone.label}), the weekly ${DELIVERY_SCHEDULE.dayName} delivery.`
+      : `Pickup ${prettyDate(pickupDate)}, ${shop.pickupWindow}, at ${shop.pickupWhere}.`,
     notes,
   ]
     .filter(Boolean)
@@ -83,6 +87,8 @@ export async function POST(request: Request) {
         quantity: String(line.qty),
         note: line.detail,
         base_price_money: { amount: line.unitPrice, currency: "CAD" },
+        // Lets the paid order count down the flavour's stock (see lib/inventory).
+        ...(line.flavour ? { metadata: { flavour: line.flavour } } : {}),
       })),
       taxes: [{ uid: "gst", name: SALES_TAX.name, percentage: String(SALES_TAX.percentage), scope: "ORDER" }],
       // Taxable, so GST applies to the delivery fee as it does to the order.

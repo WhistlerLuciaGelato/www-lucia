@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { estimateEvent } from "@/data/events";
 import type { EventsContent } from "@/lib/content-types";
 import { useToday } from "@/lib/cart-store";
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
+import { CHOOSE_PACKAGE_EVENT } from "@/components/events/RequestPackageLink";
 
 export function EventBookingForm({
   packages: eventPackages,
@@ -20,6 +21,16 @@ export function EventBookingForm({
   const [pkgId, setPkgId] = useState(eventPackages[1]?.id ?? eventPackages[0]?.id ?? "unsure");
   const [guests, setGuests] = useState("75");
   const [travel, setTravel] = useState(travelOptions[0]);
+
+  // The "Request …" buttons on the package cards preselect their package here.
+  useEffect(() => {
+    const onChoose = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (eventPackages.some((p) => p.id === id)) setPkgId(id);
+    };
+    window.addEventListener(CHOOSE_PACKAGE_EVENT, onChoose);
+    return () => window.removeEventListener(CHOOSE_PACKAGE_EVENT, onChoose);
+  }, [eventPackages]);
 
   const pkg = eventPackages.find((p) => p.id === pkgId);
   const fee = travelFees.find((t) => t.area === travel)?.fee;
@@ -144,7 +155,7 @@ export function EventBookingForm({
         error={fieldError("message")}
       />
 
-      <div className="flex flex-col gap-4 rounded-3xl bg-mist p-5 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-[1.25rem] bg-mist px-5 py-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="font-ui">
           <p className="text-sm text-ink/70">Estimated starting price</p>
           <p className="text-2xl font-extrabold text-ink" aria-live="polite">
@@ -153,11 +164,8 @@ export function EventBookingForm({
           <p className="text-xs text-ink/60">
             Before taxes &amp; gratuity. Final quote confirmed by our team.
           </p>
-          <p className="mt-2 text-sm font-bold text-ink/80">
-            Subject to availability. Our team will be in touch to confirm your event booking.
-          </p>
         </div>
-        <button type="submit" className="btn btn-berry" disabled={state.status === "submitting"}>
+        <button type="submit" className="btn btn-berry shrink-0" disabled={state.status === "submitting"}>
           {state.status === "submitting" ? "Sending…" : "Send booking request"}
         </button>
       </div>

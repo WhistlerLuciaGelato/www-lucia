@@ -1,7 +1,7 @@
 import type { FlavourGroup, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
 
-// Default wholesale content, used until the Sanity Studio has its own. Prices in CAD cents.
-// Prices aren't shown on the website (Lucia quotes them); they only appear in the order email.
+// Default wholesale content, used until the Sanity Studio has its own. Prices in CAD cents, for
+// reference only: they aren't shown on the website or in quote requests (Lucia quotes each one).
 
 /** When wholesale orders close for that week's deliveries. */
 export const orderCutoff = "Order by Sunday evening for delivery that week.";
@@ -48,19 +48,22 @@ export const deliverySchedule: WholesaleContent["deliverySchedule"] = [
 
 export const wholesaleFlavours: FlavourGroup[] = [
   {
-    // TODO(client): confirm the bestseller list. These are a placeholder guess from the pint lineup.
+    // The retail pint lineup sold in grocery stores (src/data/flavours.ts), using the wholesale
+    // names where the flavour is also on the lists below. Shown first in the order form.
     id: "bestsellers",
     availableIn: ["tub", "pint", "snack"],
     label: "Bestsellers",
     flavours: [
-      "Mango",
       "Salted Caramel",
-      "Pistachio",
+      "Vegan Coconut Cookies 'n' Cream",
+      "Mango",
+      "Lemon",
       "Chocolate Caramel Sea Salt",
+      "Pistachio",
       "Vanilla Bean",
       "Fresh Mint Chip",
-      "Lemon",
-      "Vegan Coconut Cookies 'n' Cream",
+      "Vegan Choco Coco",
+      "Wildberry",
     ],
   },
   {

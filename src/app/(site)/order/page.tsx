@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Bear, CheckList, Container, PageHeading } from "@/components/ui";
 import { getPintFlavours, getShop } from "@/lib/content";
 import { money } from "@/lib/format";
-import { DELIVERY_ZONES } from "@/data/shop";
+import { DELIVERY_SCHEDULE, DELIVERY_ZONES, deliveryZoneSummary } from "@/data/shop";
 
 export const metadata: Metadata = {
   title: "Order",
@@ -33,7 +33,7 @@ export default async function OrderPage() {
       <section>
         <Container className="grid gap-6 lg:grid-cols-2">
           <Link
-            href="/order/pints"
+            href="/our-gelato#order-pints"
             className="group relative flex flex-col overflow-hidden rounded-[3.5rem] bg-alpine p-8 shadow-pop transition hover:-translate-y-1 sm:p-12"
           >
             <p className="eyebrow text-lake-deep">473 mL · {money(shop.pintPrice)} each</p>
@@ -69,10 +69,10 @@ export default async function OrderPage() {
             href="/order/cakes"
             className="group relative flex flex-col overflow-hidden rounded-[3.5rem] bg-blush p-8 shadow-pop transition hover:-translate-y-1 sm:p-12"
           >
-            <p className="eyebrow text-berry">
+            <p className="eyebrow text-ink/70">
               From {money(Math.min(...prices))} · serves {Math.min(...serves)}–{Math.max(...serves)}
             </p>
-            <h2 className="display mt-4 text-5xl text-berry sm:text-6xl">Gelato cakes</h2>
+            <h2 className="display mt-4 text-5xl text-strawberry sm:text-6xl">Gelato cakes</h2>
             <CheckList
               className="mt-6 text-lg text-ink/85"
               items={[
@@ -104,9 +104,9 @@ export default async function OrderPage() {
                 [
                   "3",
                   "Pick it up or we deliver",
-                  `Pickup at ${shop.pickupWhere}, ${shop.pickupWindow}, free. Delivery: ${DELIVERY_ZONES.map(
-                    (z) => `${z.label} ${money(z.fee)} (free from ${money(z.freeOver)})`,
-                  ).join(", ")}.`,
+                  `Pickup at ${shop.pickupWhere}, ${shop.pickupWindow}, free. Delivery every ${DELIVERY_SCHEDULE.dayName} (order by ${DELIVERY_SCHEDULE.cutoffName} ${DELIVERY_SCHEDULE.cutoffTime}): ${DELIVERY_ZONES.map(
+                    deliveryZoneSummary,
+                  ).join("; ")}.`,
                 ],
               ].map(([n, title, body]) => (
                 <li key={n}>

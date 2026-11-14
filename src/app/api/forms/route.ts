@@ -3,7 +3,6 @@ import { OTHER_FORMAT, formSchema, wholesaleLineIssues, type FormPayload } from 
 import { sendToInbox } from "@/lib/email";
 import { getEvents, getSiteSettings, getWholesale } from "@/lib/content";
 import type { EventsContent, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
-import { money } from "@/lib/format";
 
 type Rendered = { subject: string; text: string; replyTo: string };
 
@@ -48,16 +47,15 @@ function render(payload: FormPayload, events: EventsContent, wholesale: Wholesal
       };
     }
     case "wholesale": {
-      const formatOf = (id: string) => wholesale.formats.find((f) => f.id === id);
+      // No prices: Lucia replies with a quote. (If email is down, this text goes to the customer as a mailto.)
       const lines = payload.lines.map((l) => {
-        const format = formatOf(l.format);
-        const total = format ? ` (${money(format.price * l.qty)})` : "";
-        const label = format?.label ?? (l.format === OTHER_FORMAT.id ? "Other size (see notes)" : l.format);
-        return `- ${l.qty} × ${label} — ${l.flavour}${total}`;
+        const format = wholesale.formats.find((f) => f.id === l.format);
+        const label =
+          format?.label ?? (l.format === OTHER_FORMAT.id ? "Other custom size (see notes)" : l.format);
+        return `- ${l.qty} × ${label} — ${l.flavour}`;
       });
-      const subtotal = payload.lines.reduce((sum, l) => sum + (formatOf(l.format)?.price ?? 0) * l.qty, 0);
       return {
-        subject: `Wholesale order — ${payload.business} (${payload.area})`,
+        subject: `Wholesale quote request — ${payload.business} (${payload.area})`,
         replyTo: payload.email,
         text: [
           `Business: ${payload.business}${payload.newAccount ? " (new account)" : ""}`,
@@ -68,10 +66,8 @@ function render(payload: FormPayload, events: EventsContent, wholesale: Wholesal
           `Delivery address: ${payload.address}`,
           `Preferred delivery date: ${payload.deliveryDate || "Next scheduled delivery"}`,
           "",
-          "Order:",
+          "Quote requested for:",
           ...lines,
-          "",
-          `Estimated subtotal: ${money(subtotal)} (list prices, before delivery fees & tax; not shown to the customer)`,
           "",
           payload.message || "",
         ].join("\n"),

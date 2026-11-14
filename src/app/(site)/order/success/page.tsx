@@ -50,7 +50,8 @@ async function OrderSummary({
           </span>
           {delivery && order.metadata?.delivery_address ? (
             <span className="block text-sm text-ink/70">
-              To {order.metadata.delivery_address}. We&rsquo;ll be in touch to arrange a time.
+              To {order.metadata.delivery_address}. Your gelato is freshly prepared for our weekly Thursday
+              delivery; we&rsquo;ll be in touch to arrange a time on the day.
             </span>
           ) : null}
         </p>

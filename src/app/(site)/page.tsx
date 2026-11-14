@@ -110,13 +110,13 @@ export default async function Home() {
               large
               sticker
               hoverBlurb
-              href={`/order/pints#${f.slug}`}
+              href={`/our-gelato#${f.slug}`}
             />
           ))}
         </div>
         <div className="mt-14 flex flex-wrap justify-center gap-4 lg:mt-[4.5rem] lg:gap-[1.875rem]">
-          <Link href="/order/pints" className="btn btn-berry">
-            Order pints for pickup
+          <Link href="/our-gelato#order-pints" className="btn btn-berry">
+            Order pints
           </Link>
           <Link href="/order/cakes" className="btn bg-alpenglow text-snow">
             Make it a cake

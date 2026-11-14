@@ -42,7 +42,7 @@ export const nav: NavItem[] = [
     label: "Order",
     href: "/order",
     children: [
-      { label: "Pints", href: "/order/pints" },
+      { label: "Pints", href: "/our-gelato#order-pints" },
       { label: "Gelato cakes", href: "/order/cakes" },
     ],
   },

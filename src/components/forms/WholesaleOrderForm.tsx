@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { WholesaleContent, WholesaleFormat } from "@/lib/content-types";
+import type { FlavourGroup, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
 import { useToday } from "@/lib/cart-store";
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
@@ -18,8 +18,14 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
     flavour: "",
     qty: wholesaleFormats[0].multiple,
   });
+  // Bestsellers always lead the flavour dropdown, whatever order the Studio lists are in.
+  const isBestsellers = (g: FlavourGroup) => g.id === "bestsellers" || /^bestsellers?$/i.test(g.label.trim());
+  const orderedGroups = [
+    ...flavourGroups.filter(isBestsellers),
+    ...flavourGroups.filter((g) => !isBestsellers(g)),
+  ];
   const groupsFor = (format: WholesaleFormat) =>
-    flavourGroups.filter((g) => g.availableIn.includes(format.kind));
+    orderedGroups.filter((g) => g.availableIn.includes(format.kind));
   const { state, submit, fieldError } = useFormSubmit();
   const today = useToday();
   const [lines, setLines] = useState<Line[]>(() => [newLine(0)]);
@@ -34,8 +40,10 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
         state={state}
         success={
           <>
-            <p className="subhead text-2xl">Order received — thank you!</p>
-            <p className="mt-2 font-normal">We&rsquo;ll confirm your order and delivery day by email.</p>
+            <p className="subhead text-2xl">Quote request received — thank you!</p>
+            <p className="mt-2 font-normal">
+              We&rsquo;ll be in touch by email with your quote and delivery day.
+            </p>
           </>
         }
       />
@@ -107,15 +115,15 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
       />
 
       <fieldset className="sm:col-span-2">
-        <legend className="label">Your order</legend>
+        <legend className="label">What would you like a quote for?</legend>
         <ul className="space-y-3">
           {lines.map((line, index) => {
             const other = line.format === OTHER_FORMAT.id;
             const format = other
               ? { ...wholesaleFormats[0], multiple: 1, note: undefined }
               : (wholesaleFormats.find((f) => f.id === line.format) ?? wholesaleFormats[0]);
-            // "Other size" can be any flavour; otherwise only those made in that size.
-            const groups = other ? flavourGroups : groupsFor(format);
+            // "Other custom size" can be any flavour; otherwise only those made in that size.
+            const groups = other ? orderedGroups : groupsFor(format);
             const qtyError = fieldError(`lines.${index}.qty`);
             const flavourError = fieldError(`lines.${index}.flavour`);
             const badMultiple = line.qty > 0 && line.qty % format.multiple !== 0;
@@ -159,7 +167,7 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
                   >
                     <option value="">Choose a flavour…</option>
                     {groups.map((g) => (
-                      <optgroup key={g.id} label={g.label}>
+                      <optgroup key={g.id} label={g.note ? `${g.label} · ${g.note}` : g.label}>
                         {g.flavours.map((f) => (
                           <option key={f} value={f}>
                             {f}
@@ -196,7 +204,7 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
                     <button
                       type="button"
                       onClick={() => setLines((ls) => ls.filter((l) => l.id !== line.id))}
-                      className="grid h-8 w-8 place-items-center rounded-full bg-mist text-berry hover:bg-blush"
+                      className="grid h-8 w-8 place-items-center rounded-full bg-mist text-lakeside transition hover:bg-blush hover:text-strawberry"
                       aria-label="Remove this item"
                     >
                       ×
@@ -236,15 +244,13 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
 
       <TextArea label="Notes" name="message" className="sm:col-span-2" error={fieldError("message")} />
 
-      <div className="flex flex-col gap-4 rounded-3xl bg-mist p-5 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-[1.25rem] bg-seafoam p-5 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="font-ui">
           <p className="font-extrabold text-ink">{orderCutoff}</p>
-          <p className="text-sm text-ink/70">
-            We&rsquo;ll confirm your order, total and delivery day by email.
-          </p>
+          <p className="text-sm text-ink/70">We&rsquo;ll reply by email with your quote and delivery day.</p>
         </div>
         <button type="submit" className="btn btn-primary" disabled={state.status === "submitting"}>
-          {state.status === "submitting" ? "Sending…" : "Send order"}
+          {state.status === "submitting" ? "Sending…" : "Request quote"}
         </button>
       </div>
       <div className="sm:col-span-2">

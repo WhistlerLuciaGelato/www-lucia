@@ -40,7 +40,7 @@
    */
   --color-ink: #212121;
   --color-lake-deep: #2f6e7e;
-  --color-berry: #b8434b;
+  --color-berry: #b8434b; /* form errors only */
 
   /*
    * Fonts: the brand's Adobe Fonts (Sauna, Oskar) from the Typekit kit, then free stand-ins
@@ -276,7 +276,7 @@
 .lucia-calendar .rdp-root {
   --rdp-accent-color: var(--color-lake-deep);
   --rdp-accent-background-color: var(--color-mist);
-  --rdp-today-color: var(--color-berry);
+  --rdp-today-color: var(--color-strawberry);
   --rdp-day-width: 100%;
   --rdp-day-height: 2.6rem;
   --rdp-day_button-width: 2.5rem;
@@ -373,4 +373,16 @@
   outline: 3px solid var(--color-lake-deep);
   outline-offset: 2px;
   border-radius: 0.5rem;
+}
+
+/* The expanded flavour card (PintDetails) pops in. */
+@keyframes pint-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

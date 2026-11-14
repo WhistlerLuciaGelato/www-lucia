@@ -6,10 +6,30 @@ import { useEffect, useState } from "react";
 import { nav } from "@/data/site";
 import { useCart } from "@/lib/cart-store";
 import { Logo } from "@/components/Logo";
-import { WavyRule } from "@/components/Wave";
 
-/** Sub-menu pill colours, in order (the Our gelato hero's jump-link colours). */
-const pillColors = ["bg-strawberry", "bg-alpenglow", "bg-lakeside", "bg-bluebird", "bg-heatwave"];
+/**
+ * Sub-menu item colours, in order (Figma: "New dropdown with hover effect"): coloured text, with a
+ * matching pastel fill only on hover or keyboard focus.
+ */
+const menuColors = [
+  "text-lakeside hover:bg-alpine focus-visible:bg-alpine",
+  "text-strawberry hover:bg-blush focus-visible:bg-blush",
+  "text-grass hover:bg-light-green focus-visible:bg-light-green",
+  "text-heatwave hover:bg-peach focus-visible:bg-peach",
+];
+
+/** Mobile menu: the same colours as small pills, always filled (there's no hover on touch). */
+const mobileColors = [
+  "bg-alpine text-lakeside",
+  "bg-blush text-strawberry",
+  "bg-light-green text-grass",
+  "bg-peach text-heatwave",
+];
+
+/** The header's scalloped bottom edge (Figma "wiggle"): Snow bumps, 60px apart, 21px deep. */
+const wiggle = `url("data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="21" viewBox="0 0 60 21"><path d="M0 0H60V15C50 7 40 7 30 15C20 23 10 23 0 15Z" fill="#fffef4"/></svg>',
+)}")`;
 
 // "Order" lives in the pill button, so the text nav shows the other sections (as in the design).
 const textNav = nav.filter((item) => item.href !== "/order");
@@ -54,7 +74,7 @@ export function Header() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 bg-snow pb-1">
+    <header className="sticky top-0 z-40 bg-snow">
       <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-[6.25rem] lg:py-5">
         <Link href="/" className="shrink-0" aria-label="Whistler Lucia Gelato — home">
           <Logo className="w-36 sm:w-44 xl:w-[15.625rem]" />
@@ -67,24 +87,24 @@ export function Header() {
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="eyebrow relative block rounded-full px-3 py-2 !text-lg text-lakeside transition hover:text-lake-deep xl:!text-xl"
+                  className="eyebrow relative block rounded-full px-3 py-2 !text-lg !leading-[0.9] text-lakeside transition hover:text-lake-deep xl:!text-xl"
                 >
                   {item.label}
                   {isActive(item.href) ? (
                     <span
                       aria-hidden
-                      className="absolute inset-x-3 -bottom-1 h-[5px] bg-[url(/brand/nav-squiggle.svg)] bg-[length:100%_100%] bg-no-repeat"
+                      className="absolute inset-x-3 bottom-0 h-[5px] bg-[url(/brand/nav-squiggle.svg)] bg-[length:100%_100%] bg-no-repeat"
                     />
                   ) : null}
                 </Link>
                 {item.children ? (
-                  <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-3 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                    <ul className="flex flex-col items-center gap-[0.625rem]">
+                  <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-4 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                    <ul className="flex w-[12.6875rem] flex-col gap-3 rounded-2xl border border-alpine bg-snow px-[0.8125rem] py-2.5 shadow-[0_4px_4px_0_rgb(78_146_163/0.2)]">
                       {item.children.map((child, i) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
-                            className={`pill-link !text-base shadow-soft ${pillColors[i % pillColors.length]}`}
+                            className={`eyebrow flex min-h-8 items-center justify-center rounded-[0.6875rem] px-2 py-1 text-center !text-base !leading-[0.9] tracking-[0.02em] transition-colors focus-visible:outline-none ${menuColors[i % menuColors.length]}`}
                           >
                             {child.label}
                           </Link>
@@ -125,7 +145,11 @@ export function Header() {
           </button>
         </div>
       </div>
-      <WavyRule color="#78bdc7" className="absolute inset-x-0 -bottom-1.5" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-full h-[21px] bg-repeat-x"
+        style={{ backgroundImage: wiggle, backgroundSize: "60px 21px" }}
+      />
 
       {open ? (
         <div
@@ -139,7 +163,7 @@ export function Header() {
                   <Link
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="display text-4xl text-lakeside"
+                    className="display text-4xl !leading-[0.9] text-lakeside"
                   >
                     {item.label}
                   </Link>
@@ -150,7 +174,7 @@ export function Header() {
                           <Link
                             href={child.href}
                             onClick={() => setOpen(false)}
-                            className={`pill-link !text-sm ${pillColors[i % pillColors.length]}`}
+                            className={`eyebrow inline-flex rounded-[0.6875rem] px-3 py-2 !text-sm !leading-[0.9] ${mobileColors[i % mobileColors.length]}`}
                           >
                             {child.label}
                           </Link>

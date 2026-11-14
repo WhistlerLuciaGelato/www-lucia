@@ -35,8 +35,17 @@ export const eventsPage = defineType({
             defineField({
               name: "features",
               title: "What's included",
+              description: "Wrap words in **double asterisks** to make them bold.",
               type: "array",
               of: [defineArrayMember({ type: "string" })],
+            }),
+            defineField({
+              name: "moreInfo",
+              title: "More info",
+              description:
+                "Shown under the list. Leave a blank line between paragraphs, and wrap words in **double asterisks** to make them bold.",
+              type: "text",
+              rows: 8,
             }),
             defineField({
               name: "accent",
@@ -44,8 +53,8 @@ export const eventsPage = defineType({
               type: "string",
               options: {
                 list: [
-                  { title: "Blue", value: "lakeside" },
                   { title: "Pink", value: "strawberry" },
+                  { title: "Blue", value: "lakeside" },
                   { title: "Orange", value: "heatwave" },
                 ],
                 layout: "radio",
@@ -67,7 +76,8 @@ export const eventsPage = defineType({
     defineField({
       name: "travelFees",
       title: "Travel fees",
-      description: "These areas appear in the booking form and are added to the estimate.",
+      description:
+        "These areas appear in the booking form, are added to the estimate, and are listed under Travel & Booking Info.",
       type: "array",
       of: [
         defineArrayMember({
@@ -90,7 +100,8 @@ export const eventsPage = defineType({
     }),
     defineField({
       name: "terms",
-      title: "Good to know",
+      title: "Booking info",
+      description: "Pills under Travel & Booking Info, after the travel fees.",
       type: "array",
       of: [defineArrayMember({ type: "string" })],
     }),
@@ -119,6 +130,29 @@ export const eventsPage = defineType({
           preview: { select: { title: "question", subtitle: "answer" } },
         }),
       ],
+    }),
+    defineField({
+      name: "gallery",
+      title: "Photo gallery",
+      description: "Up to 20 photos for the scrolling gallery. Visitors can tap one to see it full screen.",
+      type: "array",
+      options: { layout: "grid" },
+      of: [
+        defineArrayMember({
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: "alt",
+              title: "Description",
+              description: "What's in the photo, for people using screen readers.",
+              type: "string",
+              validation: (r) => r.required(),
+            }),
+          ],
+        }),
+      ],
+      validation: (r) => r.max(20),
     }),
   ],
   preview: { prepare: () => ({ title: "Weddings & events" }) },

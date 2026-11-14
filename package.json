@@ -11,7 +11,11 @@
     "apply-figma-flavours": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-figma-flavours.mts",
     "apply-figma-locations": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-figma-locations.mts",
     "postinstall": "node scripts/copy-maplibre-worker.mjs",
-    "apply-lucia-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-lucia-edits.mts"
+    "apply-lucia-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-lucia-edits.mts",
+    "apply-events-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-events-edits.mts",
+    "apply-find-us-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-find-us-edits.mts",
+    "apply-pint-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-pint-edits.mts",
+    "apply-wholesale-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-wholesale-edits.mts"
   },
   "dependencies": {
     "@sanity/client": "8.9.0",

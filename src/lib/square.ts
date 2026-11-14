@@ -91,6 +91,7 @@ export type OrderLineItem = {
   /** Price × quantity before tax and discounts. */
   gross_sales_money?: Money;
   total_tax_money?: Money;
+  metadata?: Record<string, string>;
   /** After tax and discounts, so it includes the line's share of GST. */
   total_money?: Money;
 };
