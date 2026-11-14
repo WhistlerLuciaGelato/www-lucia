@@ -232,11 +232,14 @@ export async function getCatalogue(): Promise<Catalogue> {
   const [shop, pints] = await Promise.all([getShop(), getPintFlavours()]);
   return {
     shop,
-    pints: pints.map(({ slug, name, style, image, available, stock }) => ({
+    pints: pints.map(({ slug, name, style, image, lid, label, bear, available, stock }) => ({
       slug,
       name,
       style,
       image,
+      lid,
+      label,
+      bear,
       available,
       stock,
     })),

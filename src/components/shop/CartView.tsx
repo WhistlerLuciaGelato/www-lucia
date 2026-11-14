@@ -27,6 +27,7 @@ import {
   salesTax,
 } from "@/data/shop";
 import { PickupCalendar } from "@/components/shop/PickupCalendar";
+import { PintImage } from "@/components/shop/PintImage";
 import { SquarePayment } from "@/components/shop/SquarePayment";
 import { Bear } from "@/components/ui";
 
@@ -109,7 +110,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-xl rounded-blob bg-mist p-10 text-center">
+      <div className="mx-auto max-w-xl rounded-[2.5rem] bg-mist p-10 text-center">
         <Bear name="hiker" className="mx-auto w-28" />
         <p className="subhead mt-6 text-3xl text-lakeside">Your cart is empty</p>
         <p className="mt-3 text-ink/80">
@@ -172,24 +173,43 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
   return (
     <div className="grid gap-8 lg:grid-cols-5">
       <section aria-label="Items" className="lg:col-span-3">
-        <ul className="divide-y divide-alpine overflow-hidden rounded-blob bg-white shadow-soft ring-1 ring-alpine/60">
+        <ul className="divide-y divide-alpine overflow-hidden rounded-[2.5rem] bg-white shadow-soft ring-1 ring-alpine/60">
           {items.map((item) => {
             const line = lines.find((l) => l.key === itemKey(item));
             if (!line) return null;
             const src = line.image;
-            const pint = item.kind === "pint" ? catalogue.pints.find((p) => p.slug === item.flavour) : undefined;
+            const pint =
+              item.kind === "pint" ? catalogue.pints.find((p) => p.slug === item.flavour) : undefined;
             const max = item.kind === "pint" ? (pint ? pintLimit(pint) : PINT_MAX_PER_FLAVOUR) : CAKE_MAX_QTY;
             return (
               <li key={line.key} className="flex gap-4 p-5 sm:p-6">
-                <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-snow sm:h-24 sm:w-24">
-                  {src ? (
-                    <Image src={src} alt="" width={96} height={96} className="h-full w-full object-contain" />
-                  ) : (
-                    <span className="display text-3xl text-strawberry" aria-hidden>
-                      {line.name.split(" ")[0]}
-                    </span>
-                  )}
-                </div>
+                {pint ? (
+                  // The full pint as on the flavour cards: render, lid and round label.
+                  <div className="shrink-0 pt-2 pl-2">
+                    <div className="sm:hidden">
+                      <PintImage flavour={pint} scale={0.34} showLabel />
+                    </div>
+                    <div className="hidden sm:block">
+                      <PintImage flavour={pint} scale={0.42} showLabel />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-snow sm:h-24 sm:w-24">
+                    {src ? (
+                      <Image
+                        src={src}
+                        alt=""
+                        width={96}
+                        height={96}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      <span className="display text-3xl text-strawberry" aria-hidden>
+                        {line.name.split(" ")[0]}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className="flex min-w-0 flex-1 flex-col">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -259,7 +279,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
       </section>
 
       <section aria-label="Pickup or delivery, and payment" className="lg:col-span-2">
-        <div className="rounded-blob bg-mist p-6 sm:p-8 lg:sticky lg:top-28">
+        <div className="rounded-[2.5rem] bg-mist p-6 sm:p-8 lg:sticky lg:top-28">
           {checkoutOrder ? (
             <>
               <h2 className="subhead text-2xl text-lakeside">Payment</h2>
@@ -288,8 +308,8 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                   Please order at least {leadDays} day{leadDays === 1 ? "" : "s"} ahead.
                 </strong>{" "}
                 Everything is made fresh for your order, so pickup is from{" "}
-                {today ? prettyDate(addDays(today, leadDays)) : `${leadDays} days out`} and deliveries go
-                out on {DELIVERY_SCHEDULE.dayName}s.
+                {today ? prettyDate(addDays(today, leadDays)) : `${leadDays} days out`} and deliveries go out
+                on {DELIVERY_SCHEDULE.dayName}s.
               </p>
               <fieldset className="mt-4">
                 <legend className="sr-only">How would you like to get your order?</legend>
@@ -331,7 +351,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                         checked={method === o.id}
                         disabled={"disabled" in o && o.disabled && method !== o.id}
                         onChange={() => setMethod(o.id)}
-                        className="mt-1 h-4 w-4 accent-[#2f6e7e]"
+                        className="mt-1 h-4 w-4 accent-[#4e92a3]"
                       />
                       <span className="flex-1 font-ui">
                         <span className="block font-extrabold text-ink">{o.title}</span>
@@ -351,15 +371,16 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                   </p>
                   <ul className="mt-1.5 space-y-0.5">
                     <li>
-                      <strong>Order deadline:</strong> {DELIVERY_SCHEDULE.cutoffName} by {DELIVERY_SCHEDULE.cutoffTime}
+                      <strong>Order deadline:</strong> {DELIVERY_SCHEDULE.cutoffName} by{" "}
+                      {DELIVERY_SCHEDULE.cutoffTime}
                     </li>
                     <li>
                       <strong>Delivery day:</strong> {DELIVERY_SCHEDULE.dayName}
                     </li>
                   </ul>
                   <p className="mt-1.5 text-ink/80">
-                    Orders placed after the {DELIVERY_SCHEDULE.cutoffName} deadline are delivered the following
-                    week
+                    Orders placed after the {DELIVERY_SCHEDULE.cutoffName} deadline are delivered the
+                    following week
                     {today ? (
                       <>
                         {" "}
@@ -420,8 +441,8 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
               </p>
               {zone ? (
                 <p className="-mt-1 mb-2 font-ui text-sm text-ink/70">
-                  Choose a {DELIVERY_SCHEDULE.dayName}. We&rsquo;ll be in touch to arrange a delivery time on the
-                  day.
+                  Choose a {DELIVERY_SCHEDULE.dayName}. We&rsquo;ll be in touch to arrange a delivery time on
+                  the day.
                 </p>
               ) : null}
               <div role="group" aria-labelledby="pickup-label">

@@ -238,7 +238,7 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
       </fieldset>
 
       <label className="flex items-center gap-3 font-ui text-ink sm:col-span-2">
-        <input type="checkbox" name="newAccount" className="h-5 w-5 accent-[#2f6e7e]" />
+        <input type="checkbox" name="newAccount" className="h-5 w-5 accent-[#4e92a3]" />
         This is our first order — please set us up as a new wholesale account
       </label>
 

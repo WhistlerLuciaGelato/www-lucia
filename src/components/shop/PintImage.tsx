@@ -15,7 +15,7 @@ export function PintImage({
   tilt = false,
   priority = false,
 }: {
-  flavour: PintFlavour;
+  flavour: Pick<PintFlavour, "name" | "image" | "lid" | "label" | "bear">;
   scale?: number;
   showLabel?: boolean;
   soldOut?: boolean;

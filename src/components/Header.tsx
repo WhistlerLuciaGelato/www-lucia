@@ -98,7 +98,7 @@ export function Header() {
                   ) : null}
                 </Link>
                 {item.children ? (
-                  <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-4 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                  <div className="invisible absolute left-1/2 top-full z-10 -translate-x-1/2 pt-4 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
                     <ul className="flex w-[12.6875rem] flex-col gap-3 rounded-2xl border border-alpine bg-snow px-[0.8125rem] py-2.5 shadow-[0_4px_4px_0_rgb(78_146_163/0.2)]">
                       {item.children.map((child, i) => (
                         <li key={child.href}>

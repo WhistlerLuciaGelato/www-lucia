@@ -81,7 +81,10 @@ export type Shop = {
 /** Everything the cart and checkout need to price and validate an order. */
 export type Catalogue = {
   shop: Shop;
-  pints: Pick<PintFlavour, "slug" | "name" | "style" | "image" | "available" | "stock">[];
+  pints: Pick<
+    PintFlavour,
+    "slug" | "name" | "style" | "image" | "lid" | "label" | "bear" | "available" | "stock"
+  >[];
 };
 
 export type Location = {

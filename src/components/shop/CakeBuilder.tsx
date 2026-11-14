@@ -48,7 +48,7 @@ function Step({
 }) {
   const a = accents[accent];
   return (
-    <fieldset className={`rounded-[2.1875rem] border p-6 sm:p-8 ${a.card}`}>
+    <fieldset className={`rounded-[2.5rem] border p-6 sm:p-8 ${a.card}`}>
       <legend className="sr-only">{title}</legend>
       <div className="flex items-center gap-3" aria-hidden>
         <span
@@ -216,7 +216,7 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
       </div>
 
       <aside className="lg:sticky lg:top-40 lg:self-start">
-        <div className="relative rounded-[2.1875rem] border border-strawberry bg-rose p-7 sm:p-8">
+        <div className="relative rounded-[2.5rem] border border-strawberry bg-rose p-7 sm:p-8">
           <Bear name="snowboard-pink" className="absolute top-5 right-5 w-20 sm:w-24" />
           <p className="eyebrow text-strawberry">Your cake</p>
           <p className="display mt-3 text-5xl text-strawberry">{sizeInfo.label} cake</p>

@@ -1,15 +1,37 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getPintFlavours } from "@/lib/content";
+import { getPintFlavours, getShop } from "@/lib/content";
 import { PintCard } from "@/components/shop/PintCard";
 import { BackToTop } from "@/components/BackToTop";
 import { OurStory } from "@/components/OurStory";
 import { SectionTiles } from "@/components/SectionTiles";
-import { Blob } from "@/components/Blob";
-import { Wave } from "@/components/Wave";
 
-/** The flavour section's colour, for its wave edges. */
-const PETAL = "#ffeee9";
+/**
+ * The big, smooth cream waves that the flavour section's pink bites into (Figma: Home, vectors
+ * 131:260 and 131:262). Stretched to the full width; the top one is wider than the page and
+ * mirrored, as in the design.
+ */
+function CreamWave({ edge }: { edge: "top" | "bottom" }) {
+  return edge === "top" ? (
+    <svg
+      aria-hidden
+      viewBox="0 0 1796 137"
+      preserveAspectRatio="none"
+      className="absolute top-0 right-0 h-[clamp(3rem,9.5vw,8.5625rem)] w-[124.7%] -scale-x-100 fill-snow"
+    >
+      <path d="M750.418 132.333C524.372 150.197 158.422 113.619 0 76.1915V0H1796V76.1915C1360.76 -48.121 1105.62 104.262 750.418 132.333Z" />
+    </svg>
+  ) : (
+    <svg
+      aria-hidden
+      viewBox="0 0 1436 136.656"
+      preserveAspectRatio="none"
+      className="absolute bottom-0 left-0 h-[clamp(3rem,9.5vw,8.5625rem)] w-full rotate-180 fill-snow"
+    >
+      <path d="M600 132C419.264 149.819 126.667 113.333 0 76V0H1436V76C1088 -48 884 104 600 132Z" />
+    </svg>
+  );
+}
 
 const wheres = [
   {
@@ -42,7 +64,7 @@ const wheres = [
 ];
 
 export default async function Home() {
-  const pintFlavours = await getPintFlavours();
+  const [pintFlavours, shop] = await Promise.all([getPintFlavours(), getShop()]);
   const featured = pintFlavours.slice(0, 6);
 
   return (
@@ -91,25 +113,22 @@ export default async function Home() {
       <SectionTiles />
 
       {/* Flavours */}
-      <section className="relative isolate bg-petal px-4 pt-16 pb-20 sm:px-8 lg:pt-[3.875rem] lg:pb-[5.5rem]">
-        <Wave color={PETAL} variant="organic" className="absolute inset-x-0 -top-3.5" />
-        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-          <Blob shape="splash" color="#fcd5d1" className="top-24 -left-24 w-[26rem] rotate-12" />
-          <Blob shape="pebble" color="#bce4e7" className="top-[38%] -right-28 w-[24rem] opacity-70" />
-          <Blob shape="bean" color="#ffe1c2" className="bottom-10 left-[18%] w-[20rem] -rotate-6" />
-        </div>
-        <h2 className="display mx-auto max-w-[37.5rem] text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
+      <section className="relative isolate overflow-hidden bg-petal px-4 pt-[clamp(6rem,14vw,12.5rem)] pb-[clamp(6rem,14vw,12rem)] sm:px-8">
+        <CreamWave edge="top" />
+        <h2 className="display mx-auto text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
           Find your flavour
         </h2>
         <div className="mx-auto mt-12 grid max-w-[71rem] justify-items-center gap-x-[3.2rem] gap-y-10 sm:grid-cols-2 lg:mt-[4.25rem] lg:grid-cols-3 lg:items-start lg:gap-y-[4.25rem]">
           {featured.map((f) => (
+            // As on Our gelato (the description drops down on hover), without the add-to-cart pill.
             <PintCard
               key={f.slug}
               flavour={f}
               framed
-              large
-              sticker
-              hoverBlurb
+              showSize
+              listPrice={shop.pintPrice}
+              showLabel
+              revealBlurb
               href={`/our-gelato#${f.slug}`}
             />
           ))}
@@ -125,23 +144,15 @@ export default async function Home() {
             Wholesale flavours
           </Link>
         </div>
-        <Wave color={PETAL} variant="organic" className="absolute inset-x-0 -bottom-3.5 rotate-180" />
+        <CreamWave edge="bottom" />
       </section>
 
       {/* Where's Lucia? */}
-      <section className="relative isolate overflow-hidden px-4 py-20 sm:px-8 lg:pt-[6.75rem] lg:pb-[9.5rem]">
-        <Blob
-          shape="puddle"
-          color="#bce4e7"
-          className="top-1/2 right-0 w-[34rem] -translate-y-1/2 translate-x-1/4 opacity-60"
-        />
-        <Blob shape="bean" color="#ffeee9" className="top-10 -left-20 w-[18rem]" />
-        <div className="mx-auto grid max-w-[76.5rem] items-center gap-12 lg:grid-cols-[1fr_29.5rem] lg:gap-10">
-          <div className="text-center">
+      <section className="relative isolate overflow-x-clip px-4 pt-6 pb-20 sm:px-8 lg:-mt-24 lg:pb-[7rem]">
+        <div className="mx-auto grid max-w-[90rem] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,42rem)] lg:gap-6 lg:pl-[3.75rem]">
+          <div className="text-center lg:pt-24">
             <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
-              Where&rsquo;s
-              <br />
-              Lucia?
+              Where&rsquo;s Lucia?
             </h2>
             <ul className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-4 lg:mt-[3.75rem]">
               {wheres.map((w) => (
@@ -164,13 +175,14 @@ export default async function Home() {
               ))}
             </ul>
           </div>
+          {/* Figma: the trailer photo in a blob, running off the right edge. */}
           <Image
-            src="/home/trailer-crew.webp"
+            src="/home/trailer-blob.webp"
             alt="The Lucia crew waving from the gelato trailer"
-            width={1100}
-            height={1100}
-            sizes="(min-width: 1024px) 472px, 90vw"
-            className="mx-auto aspect-square w-full max-w-[29.5rem] rounded-full object-cover lg:mr-0"
+            width={1344}
+            height={1080}
+            sizes="(min-width: 1024px) 672px, 95vw"
+            className="mx-auto w-full max-w-[42rem] lg:mr-[-4.3rem] lg:ml-0"
           />
         </div>
       </section>

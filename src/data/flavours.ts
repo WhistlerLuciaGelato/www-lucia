@@ -28,6 +28,7 @@ export const roundLabels = new Set([
   "choco-coco",
   "vanilla-bean",
   "wildberry",
+  "fresh-mint-chips",
 ]);
 
 /**
@@ -142,6 +143,7 @@ export const pintFlavours: DefaultPint[] = [
   },
   {
     slug: "fresh-mint-chips",
+    render: true,
     name: "Fresh Mint Chips",
     style: "Gelato",
     blurb:
@@ -182,6 +184,66 @@ export const pintFlavours: DefaultPint[] = [
     color: "#b33c8a",
     activity: "Lucia ziplines over the valley",
     bear: "zipline",
+  },
+  {
+    slug: "chocolate-hazelnut",
+    name: "Chocolate Hazelnut",
+    style: "Gelato",
+    blurb:
+      "Made with locally grown hazelnuts from Fraser Valley Hazelnuts, which we transform into our own homemade hazelnut paste. Blended with rich chocolate for a perfectly nutty indulgence.",
+    render: true,
+    diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Sugar, Cream, Hazelnuts, Skim Milk Powder, Dark Chocolate (Chocolate, Sugar, Cocoa Butter, Soy Lecithin [Emulsifier], Vanilla), Cocoa Powder, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
+    contains: "Milk, Hazelnut, Soy",
+    color: "#a8492a",
+    activity: "Lucia pops a wheelie on the valley trail",
+    bear: "bike",
+  },
+  {
+    slug: "espresso",
+    name: "Espresso",
+    style: "Gelato",
+    blurb:
+      "Crafted in partnership with local Pemberton Valley Coffee, using bold, aromatic espresso for a rich and creamy coffee lover's dream.",
+    render: true,
+    diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Sugar, Cream, Espresso, Skim Milk Powder, Coffee, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
+    contains: "Milk",
+    color: "#5b3a26",
+    activity: "Lucia skis the backcountry",
+    bear: "ski-touring",
+  },
+  {
+    slug: "maple-pecan",
+    name: "Maple Pecan",
+    style: "Gelato",
+    blurb:
+      "A true Canadian favourite! Made with real maple syrup and maple-candied pecans for a delicious combination of smooth maple sweetness and crunchy, buttery nuts.",
+    render: true,
+    diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Cream, Sugar, Skim Milk Powder, Sugars (maple syrup), Candied Pecans, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan), Water, Alcohol, Corn Syrup, Natural Flavor.",
+    contains: "Milk, Pecan",
+    color: "#a3302e",
+    activity: "Lucia hikes to the summit",
+    bear: "hiker",
+  },
+  {
+    slug: "yogurt-mixed-berry",
+    name: "Yogurt Mixed Berry",
+    style: "Gelato",
+    blurb:
+      "Tangy Greek yogurt gelato swirled with strawberries, blueberries and raspberries. Bright, creamy and bursting with berries.",
+    render: true,
+    diet: ["gluten-free"],
+    ingredients:
+      "Greek Yogurt (Nonfat Yogurt [Cultured Pasteurized Nonfat Milk]), Whole Milk, Sugar, Cream, Skim Milk Powder, Sugars (mixed berries: strawberries, blueberries, raspberries, sugar, pectin, lemon juice), Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
+    contains: "Milk",
+    color: "#8b3d8f",
+    activity: "Lucia skis the bowls",
+    bear: "ski-touring",
   },
 ];
 

@@ -39,7 +39,7 @@
    * Lakeside/Strawberry so it stays readable on Snow.
    */
   --color-ink: #212121;
-  --color-lake-deep: #2f6e7e;
+  --color-lake-deep: #4e92a3; /* the logo wordmark blue (was a darker #2f6e7e) */
   --color-berry: #b8434b; /* form errors only */
 
   /*
