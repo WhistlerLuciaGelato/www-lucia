@@ -155,9 +155,9 @@ export default async function OurGelatoPage() {
         />
         <Blob shape="splash" color="#bce4e7" className="!z-0 top-10 right-[22%] hidden w-[17rem] lg:block" />
         <Blob shape="bean" color="#bce4e7" className="!z-0 top-28 right-[14%] hidden w-16 lg:block" />
-        <div className="relative mx-auto max-w-[81.8125rem] rounded-[1.25rem] bg-white shadow-[0_4px_24px_rgb(33_33_33/0.08)]">
+        <div className="relative isolate mx-auto max-w-[81.8125rem] rounded-[1.25rem] bg-white shadow-[0_4px_24px_rgb(33_33_33/0.08)]">
           <div className="grid gap-14 px-6 pt-14 pb-10 sm:px-12 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-0 lg:px-16 lg:pt-24 lg:pb-0">
-            <div id="what-is-gelato" className="relative isolate scroll-mt-28 text-center text-strawberry">
+            <div id="what-is-gelato" className="relative scroll-mt-28 text-center text-strawberry">
               <Blob
                 shape="puddle"
                 color="#ffd5d1"
