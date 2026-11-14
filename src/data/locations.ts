@@ -151,7 +151,6 @@ export const onTheMenu: Stockists["onTheMenu"] = [
         url: "https://www.fairmont.com/en/hotels/whistler/fairmont-chateau-whistler/dining/portobello.restaurant.html",
       },
       { name: "Quattro", url: "https://quattrorestaurants.com/" },
-      { name: "Ravens Room" },
       { name: "Red Door Bistro", url: "https://www.reddoorbistro.ca/" },
       { name: "Rendezvous (Blackcomb)", url: wb("rendezvous") },
       { name: "Rimrock", url: "https://www.rimrockcafe.com/" },
