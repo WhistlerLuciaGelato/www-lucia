@@ -46,7 +46,7 @@ export const pintFlavours: DefaultPint[] = [
     render: true,
     diet: ["gluten-free"],
     ingredients:
-      "Whole Milk, Sugars (sugar, dextrose), Cream, Caramel Sauce (Sugar, Cream, Glucose, Water, Salt), Skim Milk Powder, Kosher Salt, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan)",
+      "Whole Milk, Sugars (sugar, dextrose), Cream, Caramel Sauce (Sugar, Cream, Glucose, Water, Salt), Skim Milk Powder, Kosher Salt, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
     contains: "Milk",
     color: "#d9874a",
     activity: "Lucia hikes the Sea to Sky",
@@ -60,6 +60,9 @@ export const pintFlavours: DefaultPint[] = [
       "Smooth and creamy coconut-based gelato loaded with crunchy cookie pieces. All the indulgence of a classic favourite, without the dairy!",
     render: true,
     diet: ["dairy-free", "vegan"],
+    ingredients:
+      "Coconut Milk, Water, Sugar, Sugars (dextrose), Oreos (wheat flour, sugar, palm and/or canola oil, cocoa, invert sugar, leavening agents [sodium bicarbonate, ammonium bicarbonate], soy lecithin, salt, chocolate, artificial flavour), Vanilla Extract (Filtered Water, Alcohol, Vanilla Bean Extractives), Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
+    contains: "Wheat, Soy",
     color: "#5b74b5",
     activity: "Lucia rips the backcountry",
     bear: "snowmobile",
@@ -72,6 +75,8 @@ export const pintFlavours: DefaultPint[] = [
       "A Lucia bestseller for over 20 years! Our signature mango sorbetto has been a favourite since the very beginning. Sweet, tropical and bursting with real mango flavour.",
     render: true,
     diet: ["dairy-free", "vegan", "gluten-free"],
+    ingredients:
+      "Water, Mango (Alphonso Mangoes, Sugar, Water, Citric Acid), Sugar, Passionfruit, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
     color: "#f07a2e",
     activity: "Lucia paddleboards at sunset",
     bear: "paddleboard",
@@ -84,6 +89,8 @@ export const pintFlavours: DefaultPint[] = [
       "Made with lemons freshly squeezed in-house and blended with a simple sugar syrup. Bright, refreshing and the perfect balance of sweet and tart.",
     render: true,
     diet: ["dairy-free", "vegan", "gluten-free"],
+    ingredients:
+      "Water, Sugar, Lemon Juice, Fiber (Inulin, Fructose, Alimentary fibers), Sugars (dextrose), Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
     color: "#2f7aa0",
     activity: "Lucia hits the big air jump",
     bear: "ski-jump",
@@ -96,6 +103,9 @@ export const pintFlavours: DefaultPint[] = [
       "Rich chocolate gelato swirled with our homemade caramel sauce and a hint of sea salt. A decadent combination of sweet and salty flavours.",
     render: true,
     diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Sugars (sugar, dextrose), Water, Dark Chocolate (Chocolate, Sugar, Cocoa Butter, Soy Lecithin [Emulsifier], Vanilla), Cream, Cocoa Powder, Caramel Sauce (Sugar, Cream, Glucose, Water, Salt), Skim Milk Powder, Sea Salt, Stabilizer (Glucose syrup, locust bean gum, Alginate, Carrageenan).",
+    contains: "Milk, Soy",
     color: "#b05aa8",
     activity: "Lucia sends the bike park",
     bear: "bmx",
@@ -108,6 +118,9 @@ export const pintFlavours: DefaultPint[] = [
       "Made with premium Iranian pistachios, roasted and ground in-house to create our very own pistachio paste. Rich, nutty, and full of authentic pistachio flavour.",
     render: true,
     diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Sugars (sugar, dextrose), Cream, Pistachio Paste (pistachio, olive oil, canola oil, salt), Skim Milk Powder, Stabilizer (Glucose syrup, locust bean gum, Alginate, Carrageenan).",
+    contains: "Milk, Pistachios",
     color: "#7d8b2c",
     activity: "Lucia skins up for first tracks",
     bear: "ski-touring",
@@ -120,6 +133,9 @@ export const pintFlavours: DefaultPint[] = [
       "Made with real organic Madagascar vanilla beans for a beautifully smooth, fragrant, and timeless classic.",
     render: true,
     diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Sugars (sugar, dextrose), Cream, Skim Milk Powder, Egg Yolk, Vanilla Paste (Vanilla Bean, Rum, Vodka, Maple syrup), Stabilizer (Glucose syrup, locust bean gum, Alginate, Carrageenan).",
+    contains: "Milk, Egg",
     color: "#6b5a49",
     activity: "Lucia paddles Alta Lake",
     bear: "kayak",
@@ -131,6 +147,9 @@ export const pintFlavours: DefaultPint[] = [
     blurb:
       "Cool, fresh mint with dark chocolate chips folded through. Once it's open, it has a hard time making it back to the freezer.",
     diet: ["gluten-free"],
+    ingredients:
+      "Whole Milk, Cream, Sugars (sugar, dextrose), Skim Milk Powder, Dark Chocolate Shaving (Sugar, Cocoa mass, Cocoa butter, Milk fat, Soy lecithin, Natural Vanilla flavor), Mint, Stabilizer (Glucose syrup, locust bean gum, Alginate, Carrageenan).",
+    contains: "Milk, Soy",
     color: "#3f8a6c",
     activity: "Lucia runs the River of Golden Dreams",
     bear: "whitewater",
@@ -143,6 +162,9 @@ export const pintFlavours: DefaultPint[] = [
       "Rich, chocolatey and irresistibly creamy. Made with a coconut milk base for a deliciously indulgent dairy-free treat.",
     render: true,
     diet: ["dairy-free", "vegan", "gluten-free"],
+    ingredients:
+      "Water, Coconut Milk (Coconut Milk, water, Guar Gum, Cellulose Gum), Sugar, Sugars (dextrose), Dark Chocolate (Chocolate, Sugar, Cocoa Butter, Soy Lecithin [Emulsifier], Vanilla), Cocoa Powder, Coconut, Sea Salt, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
+    contains: "Soy, Sulfites",
     color: "#4f8f9c",
     activity: "Lucia lays down a powder turn",
     bear: "snowboard-pink",
@@ -155,6 +177,8 @@ export const pintFlavours: DefaultPint[] = [
       "A delicious blend of raspberries, blueberries and strawberries sourced from Mandair Farm in Abbotsford, BC. A refreshing taste of summer berries in every spoonful.",
     render: true,
     diet: ["dairy-free", "vegan", "gluten-free"],
+    ingredients:
+      "Sugar, Strawberries, Raspberries, Blueberries, Water, Sugars (dextrose), Lemon Juice, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
     color: "#b33c8a",
     activity: "Lucia ziplines over the valley",
     bear: "zipline",

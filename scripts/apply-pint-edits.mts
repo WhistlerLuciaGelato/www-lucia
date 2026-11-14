@@ -4,8 +4,8 @@
  *
  * - Flavours still shown as a regular photo (no lid) get the transparent Figma render, the lid and
  *   the design's description: Vanilla Bean, Vegan Choco Coco and Wildberry.
- * - Ingredients and allergens are filled in where the Studio has none and the code has them
- *   (so far only Salted Caramel, from the Figma example).
+ * - Ingredients and allergens ("Contains") are filled in where the Studio has none, from
+ *   Lucia_Gelato_Ingredients_EN_FR.docx (kept in src/data/flavours.ts). Sorbets list no allergens.
  * - Pints need 3 days' notice (was 2).
  *
  * Round lid labels need no upload: the site falls back to public/pints/label/<slug>.webp.
