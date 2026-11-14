@@ -4,7 +4,6 @@ import { nav, site } from "@/data/site";
 import { getSiteSettings } from "@/lib/content";
 import { phoneHref } from "@/lib/format";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
-import { Wave } from "@/components/Wave";
 
 // Footer link columns, in the order shown in the design.
 const columns = [
@@ -16,7 +15,6 @@ export async function Footer() {
   const { contact } = await getSiteSettings();
   return (
     <footer className="relative mt-24 bg-petal text-base tracking-[0.02em] text-black lg:text-lg">
-      <Wave color="#ffeee9" variant="organic" className="absolute inset-x-0 -top-3.5" />
       <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-8 lg:flex lg:justify-center lg:gap-14 lg:py-24">
         <address className="not-italic leading-normal lg:w-[16rem]">
           <p className="font-bold">Our kitchen at Base II</p>

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Bear, CheckList, Container, PageHeading } from "@/components/ui";
 import { getPintFlavours, getShop } from "@/lib/content";
 import { money } from "@/lib/format";
-import { DELIVERY_SCHEDULE, DELIVERY_ZONES, deliveryZoneSummary } from "@/data/shop";
 
 export const metadata: Metadata = {
   title: "Order",
@@ -16,7 +15,8 @@ export default async function OrderPage() {
   const [shop, pints] = await Promise.all([getShop(), getPintFlavours()]);
   const prices = shop.cakeSizes.map((c) => c.price);
   const serves = shop.cakeSizes.map((c) => c.serves);
-  const preview = pints.filter((p) => p.image).slice(0, 3);
+  // Three round lid labels, as on the product cards.
+  const preview = pints.filter((p) => p.label).slice(0, 3);
   return (
     <>
       <section className="pt-16 pb-12 sm:pt-24">
@@ -41,7 +41,7 @@ export default async function OrderPage() {
             <CheckList
               className="mt-6 text-lg text-ink/85"
               items={[
-                `${pints.length} flavours from the current lineup`,
+                "Our evolving cast of locally crafted flavours",
                 "Gelato, sorbet & dairy-free options",
                 shop.pintLeadDays
                   ? `Ready in ${shop.pintLeadDays} day${shop.pintLeadDays === 1 ? "" : "s"}`
@@ -50,15 +50,15 @@ export default async function OrderPage() {
             />
             <div className="relative mt-8 flex items-end justify-between">
               <span className="btn btn-primary">Shop pints</span>
-              <div className="flex -space-x-12">
+              <div className="flex -space-x-8">
                 {preview.map((p, i) => (
                   <Image
                     key={p.slug}
-                    src={p.image}
+                    src={p.label!}
                     alt=""
-                    width={200}
-                    height={200}
-                    className={`h-28 w-28 rounded-3xl bg-snow object-contain shadow-soft transition group-hover:-translate-y-1 sm:h-36 sm:w-36 ${i === 1 ? "z-10 -translate-y-3" : ""}`}
+                    width={240}
+                    height={240}
+                    className={`h-28 w-28 rounded-full drop-shadow-[0_4px_6px_rgb(33_33_33/0.18)] transition group-hover:-translate-y-1 sm:h-36 sm:w-36 ${i === 1 ? "z-10 -translate-y-3" : ""} ${i === 0 ? "-rotate-6" : i === 2 ? "rotate-6" : ""}`}
                   />
                 ))}
               </div>
@@ -103,10 +103,8 @@ export default async function OrderPage() {
                 ["2", "We make it", "Every cake is made fresh; pints are packed from our freezer."],
                 [
                   "3",
-                  "Pick it up or we deliver",
-                  `Pickup at ${shop.pickupWhere}, ${shop.pickupWindow}, free. Delivery every ${DELIVERY_SCHEDULE.dayName} (order by ${DELIVERY_SCHEDULE.cutoffName} ${DELIVERY_SCHEDULE.cutoffTime}): ${DELIVERY_ZONES.map(
-                    deliveryZoneSummary,
-                  ).join("; ")}.`,
+                  "Pick up or delivery",
+                  "Free pickup at Lucia kitchen. Some orders eligible for delivery (fees may apply).",
                 ],
               ].map(([n, title, body]) => (
                 <li key={n}>

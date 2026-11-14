@@ -23,7 +23,7 @@ export default async function CakesPage() {
       {/* Hero band: the header's snow wiggle bites into its top edge. */}
       <section className="bg-strawberry px-4 pt-20 pb-10 text-center sm:px-8 sm:pt-28 lg:pt-[7.3rem]">
         <p className="eyebrow !text-lg text-petal lg:!text-xl">Order · Gelato cakes</p>
-        <h1 className="display mx-auto mt-5 max-w-[37rem] text-6xl leading-[0.85] text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:text-[5rem]">
+        <h1 className="display mx-auto mt-5 max-w-[37rem] text-6xl text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:text-[5rem]">
           Make it a cake
         </h1>
         <p className="mx-auto mt-6 max-w-2xl font-ui text-lg leading-relaxed font-semibold text-ink/80">

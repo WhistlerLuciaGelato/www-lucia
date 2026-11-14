@@ -103,7 +103,7 @@ export function ScheduleCalendar({ spots, instagramUrl }: { spots: Location[]; i
           >
             <path d="M15 5l-7 7 7 7" />
           </MonthButton>
-          <h3 aria-live="polite" className="subhead text-[1.375rem] leading-none text-heatwave sm:text-2xl">
+          <h3 aria-live="polite" className="subhead text-[1.375rem] text-heatwave sm:text-2xl">
             {shown ? monthLabel(shown) : " "}
           </h3>
           <MonthButton

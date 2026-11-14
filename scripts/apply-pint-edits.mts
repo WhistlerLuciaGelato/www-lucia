@@ -3,7 +3,8 @@
  * Safe to run more than once, and nothing else edited in the Studio is touched.
  *
  * - Flavours still shown as a regular photo (no lid) get the transparent Figma render, the lid and
- *   the design's description: Vanilla Bean, Vegan Choco Coco, Wildberry and Fresh Mint Chips.
+ *   the design's description: Vanilla Bean, Vegan Choco Coco and Wildberry. (Fresh Mint Chips
+ *   isn't in Figma; see apply-feedback-edits.)
  * - Flavours from the Figma "All Product Cards" frame that the Studio doesn't have yet are created,
  *   after the existing ones: Chocolate Hazelnut, Espresso, Maple Pecan and Yogurt Mixed Berry.
  * - Ingredients and allergens ("Contains") are filled in where the Studio has none, from

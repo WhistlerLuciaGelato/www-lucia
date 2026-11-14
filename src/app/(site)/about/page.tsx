@@ -9,26 +9,27 @@ export const metadata: Metadata = {
     "Since 2007, Whistler Lucia Gelato has been whipping up small-batch gelato and sorbets at our kitchen in Base II — the only frozen treats made right here in Whistler.",
 };
 
+/** The bubbles under the story: a pale brand colour with its darker shade for the text. */
 const pillars = [
   {
     title: "Made here",
     body: "Since 2007, we've been whipping up small-batch gelato and sorbets at our kitchen in Base II — the only frozen treats made right here in Whistler.",
-    bg: "bg-alpine",
+    bg: "bg-alpine text-lakeside",
   },
   {
     title: "Sea to Sky sourced",
     body: "We source ingredients from the Sea to Sky, celebrate the community that shaped us, and never forget where we come from.",
-    bg: "bg-blush",
+    bg: "bg-blush text-strawberry",
   },
   {
     title: "Powered by adventure",
     body: "Inspired by the peaks and powered by a love of adventure, our gelato is playful, handmade, and full of local flavour.",
-    bg: "bg-peach",
+    bg: "bg-peach text-heatwave",
   },
   {
     title: "Just like Whistler",
     body: "For us, gelato isn't just dessert — it's an experience. Bold, joyful, a little whimsical.",
-    bg: "bg-light-green",
+    bg: "bg-light-green text-grass",
   },
 ];
 
@@ -102,9 +103,10 @@ export default function AboutPage() {
         <Container>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {pillars.map((p) => (
-              <li key={p.title} className={`rounded-blob p-7 ${p.bg}`}>
-                <h2 className="subhead text-2xl text-ink">{p.title}</h2>
-                <p className="mt-3 leading-relaxed text-ink/80">{p.body}</p>
+              // Each bubble's text is the darker shade of its own colour (brand guidelines).
+              <li key={p.title} className={`rounded-[1.875rem] p-7 ${p.bg}`}>
+                <h2 className="subhead text-2xl">{p.title}</h2>
+                <p className="mt-3 leading-relaxed">{p.body}</p>
               </li>
             ))}
           </ul>

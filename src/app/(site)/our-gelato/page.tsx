@@ -14,6 +14,12 @@ export const metadata: Metadata = {
     "Order Whistler Lucia Gelato pints for pickup or Thursday delivery, and learn what makes gelato, dairy-free gelato and sorbetto different. Handcrafted on Blackcomb Mountain.",
 };
 
+/** "Nesters Market Squamish" → "Nesters Market, Squamish"; "Stong's Market" → "Stong's Market, Squamish". */
+function withTown(store: string, town: string) {
+  if (store.endsWith(` ${town}`)) return `${store.slice(0, -town.length - 1)}, ${town}`;
+  return store.includes(town) ? store : `${store}, ${town}`;
+}
+
 /** The pint section's colour, for its wave edges. */
 const PETAL = "#ffeee9";
 
@@ -33,7 +39,12 @@ const shortcuts = [
  */
 export default async function OurGelatoPage() {
   const [pintFlavours, shop, stockists] = await Promise.all([getPintFlavours(), getShop(), getStockists()]);
-  const stores = stockists.groceryStores.flatMap((g) => g.stores);
+  // Two columns (Lucia, Nov 2026): the Whistler stores, then the rest with their town.
+  const [local, ...elsewhere] = stockists.groceryStores;
+  const storeColumns = [
+    local?.stores ?? [],
+    elsewhere.flatMap((g) => g.stores.map((store) => withTown(store, g.town))),
+  ];
 
   return (
     <>
@@ -74,16 +85,16 @@ export default async function OurGelatoPage() {
         className="relative -mt-[4.25rem] scroll-mt-24 bg-petal px-4 pt-[8.5rem] pb-20 sm:px-8 lg:pb-[5.5rem]"
       >
         <Wave color={PETAL} className="absolute inset-x-0 -top-3.5" />
-        <h2 className="display mx-auto max-w-[37.5rem] text-center text-6xl leading-[0.85] text-strawberry sm:text-7xl lg:text-[5rem]">
+        <h2 className="display mx-auto max-w-[37.5rem] text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem]">
           Order pints
         </h2>
-        <p className="mx-auto mt-5 max-w-[40rem] text-center font-ui text-base leading-[1.4] text-ink/80">
+        <p className="mx-auto mt-5 max-w-[40rem] text-center font-ui text-sm leading-[1.4] text-ink/80">
           <strong className="text-ink">
             Please order at least {shop.pintLeadDays} day{shop.pintLeadDays === 1 ? "" : "s"} ahead.
           </strong>{" "}
           Pick up free from our kitchen, or get delivery on {DELIVERY_SCHEDULE.dayName}s (order by{" "}
-          {DELIVERY_SCHEDULE.cutoffName} {DELIVERY_SCHEDULE.cutoffTime}): Whistler is free on orders over $100,
-          and Squamish &amp; Pemberton on orders over $400.
+          {DELIVERY_SCHEDULE.cutoffName} {DELIVERY_SCHEDULE.cutoffTime}). Whistler delivery is free on orders
+          over $100, and Squamish &amp; Pemberton on orders over $400.
         </p>
         <div className="mt-10 lg:mt-[3.3125rem]">
           <PintPicker flavours={pintFlavours} price={shop.pintPrice} />
@@ -107,16 +118,16 @@ export default async function OurGelatoPage() {
             <div className="flex flex-col items-center gap-2 rounded-[1.25rem] border-2 border-alpenglow bg-[#fff5ef] px-[1.875rem] py-5 text-center font-ui text-[#e0676b]">
               <h2 className="text-lg font-extrabold">Have allergies or dietary restrictions?</h2>
               <p className="text-[0.9375rem] leading-[1.35] font-medium">
-                Please let our team know before ordering. We&rsquo;re always happy to help you explore ingredients
-                and find a suitable option, whether you&rsquo;re choosing a scoop, ordering a gelato cake, or
-                planning an event.
+                Please let our team know before ordering. We&rsquo;re always happy to help you explore
+                ingredients and find a suitable option, whether you&rsquo;re choosing a scoop, ordering a
+                gelato cake, or planning an event.
               </p>
               <Link href="/contact" className="mt-3 text-sm font-bold underline underline-offset-2">
                 Contact us
               </Link>
             </div>
             <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[1.25rem] border-2 border-heatwave bg-peach p-5 text-center">
-              <h2 className="display text-[2.5rem] leading-none text-heatwave sm:text-5xl">Feeding a crowd?</h2>
+              <h2 className="display text-[2.5rem] text-heatwave sm:text-5xl">Feeding a crowd?</h2>
               <Link
                 href="/order/cakes"
                 className="eyebrow rounded-[1.25rem] bg-heatwave px-5 py-2.5 !text-xl tracking-[0.02em] text-snow transition hover:-translate-y-px"
@@ -127,17 +138,22 @@ export default async function OurGelatoPage() {
           </div>
 
           <div className="flex flex-col items-center gap-7 rounded-[1.25rem] border-2 border-grass bg-pistachio px-6 py-10 sm:px-[2.625rem]">
-            <h2 className="display text-center text-[2.125rem] leading-none text-grass sm:text-[2.5rem]">
+            <h2 className="display text-center text-[2.125rem] text-grass sm:text-[2.5rem]">
               Find pints in stores at
             </h2>
-            <ul className="columns-1 gap-6 font-ui text-[0.9375rem] leading-[1.6] font-medium text-ink sm:columns-2">
-              {stores.map((store) => (
-                <li key={store} className="break-inside-avoid">
-                  {store}
-                </li>
+            <div className="grid gap-x-10 gap-y-4 font-ui text-[0.9375rem] leading-[1.6] font-medium text-ink sm:grid-cols-2">
+              {storeColumns.map((column, i) => (
+                <ul key={i}>
+                  {column.map((store) => (
+                    <li key={store}>{store}</li>
+                  ))}
+                </ul>
               ))}
-            </ul>
-            <Link href="/find-us#grocery" className="font-ui text-sm font-bold text-ink underline underline-offset-2">
+            </div>
+            <Link
+              href="/find-us#grocery"
+              className="font-ui text-sm font-bold text-ink underline underline-offset-2"
+            >
               See all locations
             </Link>
           </div>
@@ -167,8 +183,8 @@ export default async function OurGelatoPage() {
               <p className="mx-auto mt-4 max-w-[28.75rem] text-lg leading-[1.35] text-[#e0676b]">
                 Gelato is a traditional Italian frozen dessert known for its smooth, creamy texture and rich,
                 intense flavours. Made with more milk, less cream, and less air than traditional ice cream,
-                gelato has a denser, silkier consistency that lets the natural flavours of its ingredients shine
-                through.
+                gelato has a denser, silkier consistency that lets the natural flavours of its ingredients
+                shine through.
               </p>
             </div>
 
@@ -179,10 +195,11 @@ export default async function OurGelatoPage() {
                 vs. sorbet
               </h2>
               <p className="mx-auto mt-5 max-w-[31.75rem] text-lg leading-[1.35]">
-                Our <strong>dairy-free gelato</strong> is primarily made with coconut milk, creating a rich, smooth,
-                and creamy consistency without the dairy. Our <strong>fruit sorbettos</strong> are made with
-                simple ingredients, combining fruit purées, water, and sugar for a light, refreshing treat bursting
-                with natural fruit flavour. We love using seasonal fruits whenever possible to bring out their best.
+                Our <strong>dairy-free gelato</strong> is primarily made with coconut milk, creating a rich,
+                smooth, and creamy consistency without the dairy. Our <strong>fruit sorbettos</strong> are
+                made with simple ingredients, combining fruit purées, water, and sugar for a light, refreshing
+                treat bursting with natural fruit flavour. We love using seasonal fruits whenever possible to
+                bring out their best.
               </p>
             </div>
           </div>
@@ -200,21 +217,21 @@ export default async function OurGelatoPage() {
               className="mx-auto w-full max-w-[38.25rem] lg:-mb-32 lg:-ml-12"
             />
             <div className="text-center text-heatwave lg:pb-24">
-              <h2 className="display mx-auto max-w-[26.25rem] text-5xl leading-[1.05] sm:text-[3.75rem]">
+              <h2 className="display mx-auto max-w-[26.25rem] text-5xl sm:text-[3.75rem]">
                 The Lucia Difference
               </h2>
               <div className="mx-auto mt-6 max-w-[29rem] space-y-3 text-lg leading-[1.35] tracking-[0.02em] text-[#d97a22]">
                 <p>
-                  We believe the best gelato starts with simple, quality ingredients. That&rsquo;s why we&rsquo;re
-                  passionate about making our gelato fresh, using natural ingredients and sourcing locally
-                  whenever possible. Every batch is made with care, bringing together authentic Italian
-                  traditions, homemade quality and a little Whistler creativity.
+                  We believe the best gelato starts with simple, quality ingredients. That&rsquo;s why
+                  we&rsquo;re passionate about making our gelato fresh, using natural ingredients and sourcing
+                  locally whenever possible. Every batch is made with care, bringing together authentic
+                  Italian traditions, homemade quality and a little Whistler creativity.
                 </p>
                 <p>
-                  Alongside our signature favourites, we love experimenting with seasonal ingredients and creating
-                  exciting new flavours throughout the year. Whether you&rsquo;re enjoying a scoop after a day on
-                  the mountain or bringing a gelato pint home to share, you&rsquo;re enjoying a little taste of
-                  Whistler, made right here in the mountains.
+                  Alongside our signature favourites, we love experimenting with seasonal ingredients and
+                  creating exciting new flavours throughout the year. Whether you&rsquo;re enjoying a scoop
+                  after a day on the mountain or bringing a gelato pint home to share, you&rsquo;re enjoying a
+                  little taste of Whistler, made right here in the mountains.
                 </p>
               </div>
               <Link

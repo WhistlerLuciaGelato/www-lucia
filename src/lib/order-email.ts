@@ -25,6 +25,9 @@ function itemLines(order: Order): string[] {
 
 function totals(order: Order): string[] {
   return [
+    ...(order.discounts ?? []).map(
+      (d) => `${d.name ?? "Discount"}: −${money(d.applied_money?.amount ?? d.amount_money?.amount ?? 0)}`,
+    ),
     ...(order.service_charges ?? []).map(
       (c) => `${c.name ?? "Delivery"}: ${money(c.amount_money?.amount ?? 0)}`,
     ),

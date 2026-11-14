@@ -8,16 +8,21 @@ import { PintDetails } from "@/components/shop/PintDetails";
 import { AddToCartPill } from "@/components/shop/AddToCartPill";
 
 /** The design's filter pills (Our gelato): outlined in each tag's colour, filled when picked. */
-const filters: {
+type Filter = {
   id: string;
   label: string;
+  /** "style" pills (Gelato, Sorbet) pick one or the other; "diet" pills combine with anything. */
+  kind: "all" | "style" | "diet";
   match: (f: PintFlavour) => boolean;
   on: string;
   off: string;
-}[] = [
+};
+
+const filters: Filter[] = [
   {
     id: "all",
     label: "All",
+    kind: "all",
     match: () => true,
     on: "border-strawberry !bg-strawberry",
     off: "border-strawberry text-strawberry",
@@ -25,6 +30,7 @@ const filters: {
   {
     id: "gelato",
     label: "Gelato",
+    kind: "style",
     match: (f) => f.style !== "Sorbet",
     on: "border-alpenglow !bg-alpenglow",
     off: "border-alpenglow text-alpenglow",
@@ -32,6 +38,7 @@ const filters: {
   {
     id: "sorbet",
     label: "Sorbet",
+    kind: "style",
     match: (f) => f.style === "Sorbet",
     on: "border-bluebird !bg-bluebird",
     off: "border-bluebird text-bluebird",
@@ -39,6 +46,7 @@ const filters: {
   {
     id: "gluten-free",
     label: "Gluten-free",
+    kind: "diet",
     match: (f) => f.diet.includes("gluten-free"),
     on: "border-heatwave !bg-heatwave",
     off: "border-heatwave text-heatwave",
@@ -46,6 +54,7 @@ const filters: {
   {
     id: "dairy-free",
     label: "Dairy-free",
+    kind: "diet",
     match: (f) => f.diet.includes("dairy-free"),
     on: "border-lakeside !bg-lakeside",
     off: "border-lakeside text-lakeside",
@@ -53,21 +62,37 @@ const filters: {
   {
     id: "vegan",
     label: "Vegan",
+    kind: "diet",
     match: (f) => f.diet.includes("vegan"),
     on: "border-grass !bg-grass",
     off: "border-grass text-grass",
   },
 ];
 
+/**
+ * Picking a pill: "All" clears the rest; Gelato and Sorbet replace each other; the dietary pills
+ * add up (e.g. gluten-free + dairy-free + vegan). Picking a lit pill again turns it off.
+ */
+function toggle(picked: string[], id: string): string[] {
+  const filter = filters.find((f) => f.id === id);
+  if (!filter || filter.kind === "all") return [];
+  if (picked.includes(id)) return picked.filter((p) => p !== id);
+  const others =
+    filter.kind === "style"
+      ? picked.filter((p) => filters.find((f) => f.id === p)?.kind !== "style")
+      : picked;
+  return [...others, id];
+}
+
 const FIRST = 6;
 
 /**
- * "Order pints" on Our gelato: filter pills, then the flavour cards with a one-tap add-to-cart,
+ * "Order pints" on Our gelato: filter pills (combinable), then the flavour cards with a one-tap add-to-cart,
  * six at a time ("Show more" reveals the rest). Hovering a card shows its description; clicking it
  * opens the expanded card with the ingredients.
  */
 export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price: number }) {
-  const [active, setActive] = useState("all");
+  const [picked, setPicked] = useState<string[]>([]);
   const [expanded, setExpanded] = useState(false);
   const [open, setOpen] = useState<PintFlavour | null>(null);
 
@@ -82,21 +107,21 @@ export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price
     setExpanded(true);
     requestAnimationFrame(() => document.getElementById(slug)?.scrollIntoView());
   }, [flavours]);
-  const filter = filters.find((f) => f.id === active) ?? filters[0];
-  const matching = flavours.filter(filter.match);
+  const chosen = filters.filter((f) => picked.includes(f.id));
+  const matching = flavours.filter((flavour) => chosen.every((f) => f.match(flavour)));
   const shown = expanded ? matching : matching.slice(0, FIRST);
 
   return (
     <>
       <div role="group" aria-label="Filter flavours" className="flex flex-wrap justify-center gap-2.5">
         {filters.map((f) => {
-          const on = f.id === active;
+          const on = f.kind === "all" ? picked.length === 0 : picked.includes(f.id);
           return (
             <button
               key={f.id}
               type="button"
               aria-pressed={on}
-              onClick={() => setActive(f.id)}
+              onClick={() => setPicked((p) => toggle(p, f.id))}
               className={`tag ${on ? `!text-snow ${f.on}` : `!bg-transparent ${f.off}`} cursor-pointer px-[0.9375rem] transition hover:-translate-y-px`}
             >
               {f.label}
@@ -132,7 +157,7 @@ export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price
         ))}
       </div>
       {matching.length === 0 ? (
-        <p className="mt-10 text-center text-lg text-ink/70">No pints in this group right now.</p>
+        <p className="mt-10 text-center text-lg text-ink/70">No pints match all of these right now.</p>
       ) : null}
 
       {matching.length > FIRST ? (
@@ -148,7 +173,9 @@ export function PintPicker({ flavours, price }: { flavours: PintFlavour[]; price
         </div>
       ) : null}
 
-      {open ? <PintDetails key={open.slug} flavour={open} price={price} onClose={() => setOpen(null)} /> : null}
+      {open ? (
+        <PintDetails key={open.slug} flavour={open} price={price} onClose={() => setOpen(null)} />
+      ) : null}
     </>
   );
 }

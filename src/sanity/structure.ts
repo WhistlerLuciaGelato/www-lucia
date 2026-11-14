@@ -1,7 +1,8 @@
 import type { StructureResolver } from "sanity/structure";
+import { PROMO_CODES_ID } from "./promo-codes-id";
 
-const singleton = (S: Parameters<StructureResolver>[0], type: string, title: string) =>
-  S.listItem().title(title).id(type).child(S.document().schemaType(type).documentId(type).title(title));
+const singleton = (S: Parameters<StructureResolver>[0], type: string, title: string, id = type) =>
+  S.listItem().title(title).id(type).child(S.document().schemaType(type).documentId(id).title(title));
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -19,6 +20,7 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       S.documentTypeListItem("pintFlavour").title("Pint flavours"),
       singleton(S, "shopSettings", "Online shop: prices, pickup & cakes"),
+      singleton(S, "promoCodes", "Promo codes", PROMO_CODES_ID),
       S.divider(),
       singleton(S, "stockists", "Stockists"),
       S.divider(),

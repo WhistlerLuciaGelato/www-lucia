@@ -90,7 +90,7 @@ export default async function Home() {
         <div className="mx-auto flex min-h-[38rem] max-w-[90rem] flex-col justify-between px-4 pt-8 pb-14 sm:px-8 lg:h-[47.6875rem] lg:px-[6.25rem] lg:pt-[3.125rem] lg:pb-[6.25rem]">
           <p className="eyebrow !text-base sm:pl-2.5 lg:!text-xl">Locally crafted since 2007</p>
           <div className="max-w-[37.5rem]">
-            <h1 className="display text-6xl [text-shadow:0_2px_16px_rgb(14_56_89/0.25)] sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
+            <h1 className="display text-6xl [text-shadow:0_2px_16px_rgb(14_56_89/0.25)] sm:text-7xl lg:text-[5rem]">
               Made on the Mountain
             </h1>
             <p className="mt-7 max-w-[25.625rem] text-base tracking-[0.02em] sm:pl-2.5">
@@ -115,7 +115,7 @@ export default async function Home() {
       {/* Flavours */}
       <section className="relative isolate overflow-hidden bg-petal px-4 pt-[clamp(6rem,14vw,12.5rem)] pb-[clamp(6rem,14vw,12rem)] sm:px-8">
         <CreamWave edge="top" />
-        <h2 className="display mx-auto text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
+        <h2 className="display mx-auto text-center text-6xl text-strawberry sm:text-7xl lg:text-[5rem]">
           Find your flavour
         </h2>
         <div className="mx-auto mt-12 grid max-w-[71rem] justify-items-center gap-x-[3.2rem] gap-y-10 sm:grid-cols-2 lg:mt-[4.25rem] lg:grid-cols-3 lg:items-start lg:gap-y-[4.25rem]">
@@ -151,7 +151,7 @@ export default async function Home() {
       <section className="relative isolate overflow-x-clip px-4 pt-6 pb-20 sm:px-8 lg:-mt-24 lg:pb-[7rem]">
         <div className="mx-auto grid max-w-[90rem] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,42rem)] lg:gap-6 lg:pl-[3.75rem]">
           <div className="text-center lg:pt-24">
-            <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem] lg:leading-[0.85]">
+            <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem]">
               Where&rsquo;s Lucia?
             </h2>
             <ul className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-4 lg:mt-[3.75rem]">

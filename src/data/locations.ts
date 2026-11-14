@@ -165,7 +165,7 @@ export const onTheMenu: Stockists["onTheMenu"] = [
     group: "Cafés",
     places: [
       { name: "Camp Lifestyle & Coffee Co.", url: "https://www.camplifestyle.ca/" },
-      { name: "Delish Cafe" },
+      { name: "Delish Cafe", url: "https://www.instagram.com/delish_cafe_whistler/?hl=en" },
       { name: "Forecast Coffee", url: "https://forecastcoffee.ca/" },
       { name: "Scandinave Spa", url: "https://www.scandinave.com/whistler" },
       {

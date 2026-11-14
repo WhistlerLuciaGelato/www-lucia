@@ -5,6 +5,8 @@ import { getCatalogue } from "@/lib/content";
 import { DELIVERY_SCHEDULE, DELIVERY_ZONES, SALES_TAX, deliveryFee, deliveryZoneProblem } from "@/data/shop";
 import { e164Phone, prettyDate, todayInWhistler, whistlerDateTime } from "@/lib/format";
 import { pickupProblem } from "@/lib/pickup";
+import { promoDiscount } from "@/lib/promo";
+import { findPromo } from "@/lib/promo-codes";
 import { createOrder, getSquareConfig } from "@/lib/square";
 
 /**
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { items, fulfillment, pickupDate, notes, contact, idempotencyKey } = parsed.data;
+  const { items, fulfillment, pickupDate, notes, contact, promoCode, idempotencyKey } = parsed.data;
   const catalogue = await getCatalogue();
   const { shop } = catalogue;
   const { lines, unavailable, leadDays, subtotal } = priceCart(items, catalogue);
@@ -58,6 +60,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: problem }, { status: 422 });
   }
   const fee = zone ? (deliveryFee(zone.id, subtotal) ?? 0) : 0;
+
+  // Delivery pricing above uses the full subtotal; the promo comes off the items only.
+  let discount = 0;
+  if (promoCode) {
+    const terms = await findPromo(promoCode);
+    if (!terms) {
+      return NextResponse.json(
+        { error: "Your promo code isn't valid any more. Remove it and try again." },
+        { status: 422 },
+      );
+    }
+    const result = promoDiscount(terms, lines, subtotal);
+    if (result.problem) {
+      return NextResponse.json({ error: result.problem }, { status: 422 });
+    }
+    discount = result.amount;
+  }
 
   const square = getSquareConfig();
   if (!square) {
@@ -91,6 +110,20 @@ export async function POST(request: Request) {
         ...(line.flavour ? { metadata: { flavour: line.flavour } } : {}),
       })),
       taxes: [{ uid: "gst", name: SALES_TAX.name, percentage: String(SALES_TAX.percentage), scope: "ORDER" }],
+      // The promo as a fixed amount off the items (worked out above), before GST.
+      ...(discount > 0 && promoCode
+        ? {
+            discounts: [
+              {
+                uid: "promo",
+                name: `Promo ${promoCode}`,
+                type: "FIXED_AMOUNT",
+                amount_money: { amount: discount, currency: "CAD" },
+                scope: "ORDER",
+              },
+            ],
+          }
+        : {}),
       // Taxable, so GST applies to the delivery fee as it does to the order.
       ...(fee > 0 && zone
         ? {
@@ -153,6 +186,7 @@ export async function POST(request: Request) {
             }
           : {}),
         ...(notes ? { notes: notes.slice(0, 255) } : {}),
+        ...(discount > 0 && promoCode ? { promo_code: promoCode } : {}),
       },
     });
   } catch (err) {
@@ -167,6 +201,7 @@ export async function POST(request: Request) {
     orderId: order.id,
     total: order.total_money?.amount ?? 0,
     tax: order.total_tax_money?.amount ?? 0,
+    discount: order.total_discount_money?.amount ?? 0,
     square: {
       applicationId: square.applicationId,
       locationId: square.locationId,

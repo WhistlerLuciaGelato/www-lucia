@@ -5,6 +5,8 @@ import { BackToTop } from "@/components/BackToTop";
 import { Blob } from "@/components/Blob";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Wave } from "@/components/Wave";
+import { BearInView } from "@/components/events/BearInView";
+import { MoreInfo } from "@/components/events/MoreInfo";
 import { RequestPackageLink } from "@/components/events/RequestPackageLink";
 import { Rich, paragraphs } from "@/components/events/Rich";
 import { EventBookingForm } from "@/components/forms/EventBookingForm";
@@ -47,22 +49,24 @@ const accent = {
 /** Header links land on #packages, #faq and #book; keep them clear of the sticky header. */
 const anchor = "scroll-mt-24 lg:scroll-mt-40";
 
-function PackageCard({ pkg }: { pkg: EventPackage }) {
+function PackageCard({ pkg, index }: { pkg: EventPackage; index: number }) {
   const a = accent[pkg.accent] ?? accent.lakeside;
   const short = pkg.name.replace(/^The\s+/i, "");
   return (
     <li
       className={`flex flex-col items-center gap-[1.5625rem] rounded-[2.1875rem] border px-6 py-10 text-center sm:px-[3.125rem] sm:py-[3.125rem] lg:px-10 ${a.card}`}
     >
-      <Image
-        src={a.bear.src}
-        alt=""
-        aria-hidden
-        width={a.bear.width}
-        height={a.bear.height}
-        className={`w-auto select-none ${a.bear.className}`}
-      />
-      <h2 className={`display text-[2.5rem] leading-[0.9] ${a.text}`}>{pkg.name}</h2>
+      <BearInView delay={index * 120}>
+        <Image
+          src={a.bear.src}
+          alt=""
+          aria-hidden
+          width={a.bear.width}
+          height={a.bear.height}
+          className={`w-auto select-none ${a.bear.className}`}
+        />
+      </BearInView>
+      <h2 className={`display text-[2.5rem] ${a.text}`}>{pkg.name}</h2>
       <p className="flex flex-col items-center gap-[0.3125rem] font-ui">
         <span className={`text-xs font-bold ${a.text}`}>Starting at</span>
         <span className={`text-[1.625rem] leading-none font-black ${a.text}`}>
@@ -83,14 +87,13 @@ function PackageCard({ pkg }: { pkg: EventPackage }) {
         ))}
       </ul>
       {pkg.moreInfo ? (
-        <div className="w-full border-t border-black pt-1 text-left font-ui text-[0.8125rem] leading-snug text-black">
-          <p className="font-bold">More info</p>
+        <MoreInfo>
           {paragraphs(pkg.moreInfo).map((p) => (
             <p key={p} className="mb-[0.5625rem] last:mb-0">
               <Rich text={p} />
             </p>
           ))}
-        </div>
+        </MoreInfo>
       ) : null}
       <RequestPackageLink packageId={pkg.id} className={`pill-link mt-auto !text-sm ${a.button}`}>
         Request {short}
@@ -131,7 +134,7 @@ export default async function EventsPage() {
 
         <div className="px-4 pt-16 text-center sm:px-8 lg:pt-[5.8rem]">
           <p className="eyebrow !text-lg text-rose lg:!text-xl">Packages &amp; pricing</p>
-          <h1 className="subhead mt-5 text-6xl leading-[0.85] text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:mt-7 lg:text-[5rem]">
+          <h1 className="subhead mt-5 text-6xl text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:mt-7 lg:text-[5rem]">
             Bring gelato
             <br />
             to your party
@@ -139,15 +142,15 @@ export default async function EventsPage() {
         </div>
 
         <ul className="relative mx-auto mt-10 grid max-w-md items-start gap-8 px-4 sm:px-8 lg:mt-[3.4rem] lg:max-w-[81rem] lg:grid-cols-3 lg:gap-[2.8125rem]">
-          {packages.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} />
+          {packages.map((pkg, i) => (
+            <PackageCard key={pkg.id} pkg={pkg} index={i} />
           ))}
           <Blob shape="pebble" color="#ffe1c2" className="-bottom-16 left-10 hidden w-10 rotate-45 lg:block" />
         </ul>
 
         {/* Travel & booking info */}
         <div className="mx-auto max-w-[56rem] px-4 pt-16 pb-12 text-center sm:px-8 lg:pt-[3.75rem]">
-          <h2 className="subhead text-[2.5rem] leading-[0.95] text-lakeside">Travel &amp; Booking Info</h2>
+          <h2 className="subhead text-[2.5rem] text-lakeside">Travel &amp; Booking Info</h2>
           <ul className="mt-6 flex flex-wrap justify-center gap-2.5">
             {pills.map((t) => (
               <li key={t} className="rounded-[1.25rem] bg-seafoam px-5 py-2.5 font-ui text-sm leading-tight text-black">
@@ -180,7 +183,7 @@ export default async function EventsPage() {
         <Blob shape="bean" color="#e3f4ef" className="top-20 -left-40 w-[26rem] lg:-left-28 lg:w-[32rem]" />
         <Blob shape="pebble" color="#fcd5d1" className="top-14 right-[6%] hidden w-14 lg:block" />
         <Blob shape="splash" color="#ffe2df" className="-right-40 bottom-0 w-[24rem] lg:w-[26rem]" />
-        <h2 className="subhead text-center text-6xl leading-[0.85] text-strawberry lg:text-[5rem]">FAQ</h2>
+        <h2 className="subhead text-center text-6xl text-strawberry lg:text-[5rem]">FAQ</h2>
         <div className="mx-auto mt-10 grid max-w-[70.625rem] gap-[0.9375rem] lg:mt-[2.8rem] lg:grid-cols-2 lg:gap-x-[2.0625rem]">
           {faqColumns.map((col, c) => (
             <div key={c} className="flex flex-col gap-[0.9375rem]">

@@ -147,7 +147,7 @@ export function Header() {
       </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-full h-[21px] bg-repeat-x"
+        className="pointer-events-none absolute inset-x-0 top-full h-[21px] bg-repeat-x drop-shadow-[0_3px_3px_rgb(33_33_33/0.07)]"
         style={{ backgroundImage: wiggle, backgroundSize: "60px 21px" }}
       />
 
@@ -163,7 +163,7 @@ export function Header() {
                   <Link
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="display text-4xl !leading-[0.9] text-lakeside"
+                    className="display text-4xl text-lakeside"
                   >
                     {item.label}
                   </Link>

@@ -111,10 +111,12 @@ export type Order = {
   line_items?: OrderLineItem[];
   total_money?: Money;
   total_tax_money?: Money;
+  total_discount_money?: Money;
   net_amount_due_money?: Money;
   tenders?: OrderTender[];
   metadata?: Record<string, string>;
   service_charges?: { name?: string; amount_money?: Money; total_money?: Money }[];
+  discounts?: { name?: string; applied_money?: Money; amount_money?: Money }[];
   fulfillments?: {
     type: string;
     pickup_details?: {

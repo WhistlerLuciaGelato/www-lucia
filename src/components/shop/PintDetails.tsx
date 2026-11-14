@@ -68,7 +68,7 @@ export function PintDetails({
           </div>
 
           <div className="flex flex-col items-center gap-3 text-center">
-            <h2 id="pint-details-title" className="subhead text-[2.125rem] leading-[0.95] text-balance text-ink">
+            <h2 id="pint-details-title" className="subhead text-[2.125rem] text-balance text-ink">
               {flavour.name}
             </h2>
             <ul className="flex flex-wrap justify-center gap-2" aria-label="Type and dietary information">

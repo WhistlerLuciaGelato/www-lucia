@@ -34,7 +34,7 @@ export default async function WholesalePage() {
       {/* Hero band: the header's snow wiggle bites into its top edge. */}
       <section className="bg-bluebird px-4 pt-20 pb-24 text-center sm:px-8 sm:pt-28 sm:pb-32 lg:pt-[7.3rem] lg:pb-[10rem]">
         <p className="eyebrow !text-lg text-seafoam lg:!text-xl">Wholesale</p>
-        <h1 className="display mx-auto mt-5 max-w-[37rem] text-6xl leading-[0.85] text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:text-[5rem]">
+        <h1 className="display mx-auto mt-5 max-w-[37rem] text-6xl text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:text-[5rem]">
           Put Lucia on your menu
         </h1>
         <div className="mt-8 flex flex-wrap justify-center gap-3 lg:mt-10">
@@ -66,7 +66,7 @@ export default async function WholesalePage() {
           className={`mx-auto -mt-12 grid max-w-[76.125rem] gap-6 lg:grid-cols-2 lg:gap-[4.375rem] ${anchor}`}
         >
           <div className="rounded-[2.1875rem] border border-strawberry bg-petal px-6 py-10 sm:px-[3.125rem] sm:py-[3.125rem]">
-            <h2 className="display text-center text-4xl leading-[0.9] text-strawberry sm:text-[2.5rem]">
+            <h2 className="display text-center text-4xl text-strawberry sm:text-[2.5rem]">
               Wholesale Pricing
             </h2>
             <p className="mx-auto mt-4 max-w-sm text-center font-ui text-ink/80">
@@ -89,9 +89,7 @@ export default async function WholesalePage() {
           </div>
 
           <div className="rounded-[2.1875rem] border border-lakeside bg-seafoam px-6 py-10 sm:px-[3.125rem] sm:py-[3.125rem]">
-            <h2 className="display text-center text-4xl leading-[0.9] text-lakeside sm:text-[2.5rem]">
-              Delivery Schedule
-            </h2>
+            <h2 className="display text-center text-4xl text-lakeside sm:text-[2.5rem]">Delivery Schedule</h2>
             <p className="mt-5 flex justify-center">
               <span className="rounded-full border border-lakeside bg-snow px-4 py-1.5 text-center font-ui text-sm font-extrabold text-lakeside">
                 {orderCutoff}

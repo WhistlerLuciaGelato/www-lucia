@@ -260,6 +260,12 @@ export function SquarePayment({
   return (
     <div>
       <dl className="space-y-2 font-ui">
+        {checkout.discount > 0 ? (
+          <div className="flex justify-between text-sm">
+            <dt className="text-ink/70">Promo discount</dt>
+            <dd className="font-bold text-lake-deep">−{money(checkout.discount)}</dd>
+          </div>
+        ) : null}
         {checkout.tax > 0 ? (
           <div className="flex justify-between text-sm">
             <dt className="text-ink/70">GST</dt>

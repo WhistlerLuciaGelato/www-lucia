@@ -143,7 +143,6 @@ export const pintFlavours: DefaultPint[] = [
   },
   {
     slug: "fresh-mint-chips",
-    render: true,
     name: "Fresh Mint Chips",
     style: "Gelato",
     blurb:
@@ -235,7 +234,7 @@ export const pintFlavours: DefaultPint[] = [
     name: "Yogurt Mixed Berry",
     style: "Gelato",
     blurb:
-      "Tangy Greek yogurt gelato swirled with strawberries, blueberries and raspberries. Bright, creamy and bursting with berries.",
+      "A refreshing combination of tangy yogurt and sweet summer berries. Light, creamy, and bursting with fruity flavour.",
     render: true,
     diet: ["gluten-free"],
     ingredients:

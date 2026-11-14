@@ -18,7 +18,7 @@ export function OurStory() {
         </div>
         <div className="mx-auto flex max-w-[37.125rem] flex-col items-center px-6 py-12 text-center lg:pt-[4.5rem] lg:pb-14">
           <p className="eyebrow !text-xl text-bluebird">Our story</p>
-          <h2 className="display mt-10 text-5xl leading-[1.05] text-lakeside sm:text-[3.75rem] lg:mt-[3.25rem]">
+          <h2 className="display mt-10 text-5xl text-lakeside sm:text-[3.75rem] lg:mt-[3.25rem]">
             Inspired by Italy, made in Whistler
           </h2>
           <p className="mt-6 max-w-[35.1875rem] text-lg tracking-[0.02em] text-lakeside">

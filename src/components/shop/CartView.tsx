@@ -16,6 +16,7 @@ import {
 import type { Catalogue } from "@/lib/content-types";
 import { addDays, money, prettyDate } from "@/lib/format";
 import { firstDeliveryDate, pickupProblem } from "@/lib/pickup";
+import { promoDiscount, type PromoTerms } from "@/lib/promo";
 import {
   CAKE_MAX_QTY,
   DELIVERY_SCHEDULE,
@@ -28,6 +29,7 @@ import {
 } from "@/data/shop";
 import { PickupCalendar } from "@/components/shop/PickupCalendar";
 import { PintImage } from "@/components/shop/PintImage";
+import { PromoCodeField } from "@/components/shop/PromoCodeField";
 import { SquarePayment } from "@/components/shop/SquarePayment";
 import { Bear } from "@/components/ui";
 
@@ -72,6 +74,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
   const [method, setMethod] = useState("pickup");
   const [address, setAddress] = useState<Address>({ street: "", city: "", postalCode: "" });
   const [showContactErrors, setShowContactErrors] = useState(false);
+  const [promo, setPromo] = useState<PromoTerms | null>(null);
   // Set once the Square order exists; the panel then shows the payment step and the cart is locked.
   const [checkoutOrder, setCheckoutOrder] = useState<CheckoutResponse | null>(null);
   const [status, setStatus] = useState<
@@ -104,7 +107,11 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
       addressErrors[field] ??= issue.message;
     }
   }
-  const tax = salesTax(subtotal + fee);
+  // The promo comes off the items, before GST; delivery is priced on the full subtotal.
+  const promoResult = promo ? promoDiscount(promo, lines, subtotal) : null;
+  const discount = promoResult?.amount ?? 0;
+  const promoProblem = promoResult?.problem ?? null;
+  const tax = salesTax(subtotal - discount + fee);
   const deliverTo = zone ? `${address.street}, ${address.city} ${address.postalCode} (${zone.label})` : null;
   const locked = checkoutOrder !== null;
 
@@ -144,6 +151,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
           pickupDate,
           notes: notes.trim() || undefined,
           contact: contactCheck.data,
+          promoCode: promo && !promoProblem ? promo.code : undefined,
           idempotencyKey: crypto.randomUUID(),
         }),
       });
@@ -511,11 +519,24 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                 }
               />
 
+              <PromoCodeField
+                applied={promo}
+                problem={promoProblem}
+                onApply={setPromo}
+                onRemove={() => setPromo(null)}
+              />
+
               <dl className="mt-6 space-y-2 border-t border-alpine pt-5 font-ui">
                 <div className="flex justify-between">
                   <dt className="text-ink/80">Subtotal</dt>
                   <dd className="font-extrabold text-ink">{money(subtotal)}</dd>
                 </div>
+                {discount > 0 ? (
+                  <div className="flex justify-between text-sm">
+                    <dt className="text-ink/70">Promo {promo?.code}</dt>
+                    <dd className="font-bold text-lake-deep">−{money(discount)}</dd>
+                  </div>
+                ) : null}
                 <div className="flex justify-between text-sm">
                   <dt className="text-ink/70">{zone ? `Delivery (${zone.label})` : "Pickup"}</dt>
                   <dd className="text-ink/70">{fee ? money(fee) : "Free"}</dd>
@@ -528,7 +549,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
                 </div>
                 <div className="flex justify-between border-t border-alpine pt-2">
                   <dt className="font-bold text-ink">Total</dt>
-                  <dd className="font-extrabold text-ink">{money(subtotal + fee + tax)}</dd>
+                  <dd className="font-extrabold text-ink">{money(subtotal - discount + fee + tax)}</dd>
                 </div>
               </dl>
 

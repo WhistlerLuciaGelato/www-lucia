@@ -73,6 +73,12 @@ async function OrderSummary({
           </li>
         ))}
       </ul>
+      {order.discounts?.map((d, i) => (
+        <p key={`discount-${i}`} className="mt-4 flex justify-between font-ui text-sm text-ink/70">
+          <span>{d.name ?? "Discount"}</span>
+          <span>−{money(d.applied_money?.amount ?? d.amount_money?.amount ?? 0)}</span>
+        </p>
+      ))}
       {order.service_charges?.map((c, i) => (
         <p key={i} className="mt-4 flex justify-between font-ui text-sm text-ink/70">
           <span>{c.name ?? "Delivery"}</span>

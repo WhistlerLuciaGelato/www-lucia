@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { cartSchema } from "@/lib/cart";
 import { isIsoDate } from "@/lib/format";
+import { promoCodeSchema } from "@/lib/promo";
 
 /** Who's picking up. Square needs a name and a way to reach them on the pickup fulfillment. */
 export const contactSchema = z.object({
@@ -35,6 +36,8 @@ export const checkoutSchema = z.object({
   pickupDate: z.string().refine(isIsoDate, "Choose a date"),
   notes: z.string().trim().max(500).optional(),
   contact: contactSchema,
+  /** A promo code from the Studio; checked again on the server, so the cart can't invent one. */
+  promoCode: promoCodeSchema.optional(),
   idempotencyKey: z.uuid(),
 });
 
@@ -62,6 +65,8 @@ export type CheckoutResponse = {
   orderId: string;
   total: number;
   tax: number;
+  /** The promo discount on the order, in cents (0 without a code). */
+  discount: number;
   square: { applicationId: string; locationId: string; environment: "sandbox" | "production" };
 };
 

@@ -78,7 +78,8 @@ function pinkify(style: StyleSpecification): StyleSpecification {
 
 /**
  * The design's map pin (Figma "Lucia Website" › XX Working Zone › Find us › Frame 55): pale
- * pins for every spot, the selected spot's pin in the card pink.
+ * pins for every spot, the selected spot's pin in the card pink, and every pin in the card pink
+ * when showing them all.
  */
 function pinElement(name: string) {
   const el = document.createElement("button");
@@ -148,7 +149,7 @@ export function PinkMap({
           const el = pinElement(s.name);
           el.addEventListener("click", () => onSelectRef.current(s.id));
           // The map loads after the first render, so mark the already-selected spot here.
-          el.toggleAttribute("data-active", s.id === activeIdRef.current);
+          el.toggleAttribute("data-active", !activeIdRef.current || s.id === activeIdRef.current);
           const marker = new maplibre.Marker({ element: el, anchor: "bottom" })
             .setLngLat([s.lng, s.lat])
             .addTo(m);
@@ -167,7 +168,8 @@ export function PinkMap({
   }, [spots]);
 
   useEffect(() => {
-    for (const [id, { el }] of pins.current) el.toggleAttribute("data-active", id === activeId);
+    // With no spot picked ("See all on map") every pin is the darker pink.
+    for (const [id, { el }] of pins.current) el.toggleAttribute("data-active", !activeId || id === activeId);
     const spot = spots.find((s) => s.id === activeId);
     // Leave the opening view showing every spot; fly once someone picks one.
     if (firstFly.current) {

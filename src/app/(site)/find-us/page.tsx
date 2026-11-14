@@ -109,7 +109,7 @@ export default async function FindUsPage() {
         <div className="relative mx-auto max-w-[77.5rem]">
           <div className="relative z-10 flex flex-col lg:absolute lg:top-[3.125rem] lg:left-[0.4375rem] lg:w-[37.5rem]">
             <div className="flex w-full flex-col items-center gap-6 rounded-t-[1.25rem] border border-bluebird bg-snow px-6 pt-10 pb-12 text-center sm:px-10 sm:pt-[2.4375rem]">
-              <h1 className="display text-6xl leading-[0.85] text-bluebird sm:text-[5rem]">Find Lucia</h1>
+              <h1 className="display text-6xl text-bluebird sm:text-[5rem]">Find Lucia</h1>
               <p className="text-base tracking-[0.02em] text-lakeside">
                 Handcrafted with care in Whistler, our gelato and sorbetto can be found at our seasonal
                 stands, mobile trailer, and a variety of local partners throughout Whistler, Squamish, and
@@ -178,7 +178,7 @@ export default async function FindUsPage() {
         <Wave color={PETAL} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[77.5rem]">
           <Pill className="bg-alpenglow">Summer only!</Pill>
-          <h2 className="subhead mt-[0.9375rem] text-[2.5rem] leading-[0.85] text-strawberry">
+          <h2 className="subhead mt-[0.9375rem] text-[2.5rem] text-strawberry">
             Seasonal
             <br />
             scoop shops
@@ -195,7 +195,7 @@ export default async function FindUsPage() {
         <div className="mx-auto max-w-[76.5rem]">
           <div className="flex flex-col items-center gap-[0.9375rem] text-center">
             <Pill className="bg-alpenglow">Summer only!</Pill>
-            <h2 className="subhead text-6xl leading-[0.85] text-lakeside sm:text-[5rem]">
+            <h2 className="subhead text-6xl text-lakeside sm:text-[5rem]">
               Schedule &amp; Hours
             </h2>
           </div>
@@ -274,7 +274,7 @@ export default async function FindUsPage() {
         <div className="mx-auto grid max-w-[76.5rem] gap-10 lg:grid-cols-[31.75rem_37.1875rem] lg:justify-between">
           <div>
             <Pill className="bg-heatwave">Year-round</Pill>
-            <h2 className="subhead mt-[0.9375rem] text-5xl leading-[0.85] text-heatwave sm:text-[3.75rem]">
+            <h2 className="subhead mt-[0.9375rem] text-5xl text-heatwave sm:text-[3.75rem]">
               Take home a pint!
             </h2>
             <p className="mt-6 text-base text-heatwave">
@@ -312,7 +312,7 @@ export default async function FindUsPage() {
         <div className="mx-auto max-w-[81.875rem]">
           <div className="mx-auto flex max-w-[41.875rem] flex-col items-center gap-[0.9375rem] text-center text-grass">
             <Pill className="bg-grass">Seasonal</Pill>
-            <h2 className="subhead text-5xl leading-[0.85] sm:text-[3.75rem]">Scoop partners</h2>
+            <h2 className="subhead text-5xl sm:text-[3.75rem]">Scoop partners</h2>
             <p className="mt-2 text-base">
               We&rsquo;re proud to partner with local businesses throughout the Sea to Sky corridor that serve
               Lucia Gelato by the scoop! Whether you&rsquo;re exploring Whistler, spending the day in
@@ -352,7 +352,7 @@ export default async function FindUsPage() {
           <div className="mt-[1.5625rem] overflow-hidden rounded-[1.25rem] border-2 border-grass bg-white pb-10">
             <div aria-hidden className="h-[3.9375rem] bg-grass" />
             <div className="px-6 sm:px-[2.625rem]">
-              <h3 className="subhead mt-[1.875rem] text-center text-[2rem] leading-normal text-grass">
+              <h3 className="subhead mt-[1.875rem] text-center text-[2rem] text-grass">
                 Also on the menu at&hellip;
               </h3>
               <div className="mt-[1.875rem] flex flex-wrap justify-center gap-10">

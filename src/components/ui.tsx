@@ -31,9 +31,7 @@ export function PageHeading({
   return (
     <div className="mx-auto max-w-3xl text-center">
       <p className="eyebrow !text-lg text-lakeside lg:!text-xl">{eyebrow}</p>
-      <h1 className={`display mt-5 text-6xl sm:text-7xl lg:text-[5rem] lg:leading-[0.85] ${toneClass[tone]}`}>
-        {title}
-      </h1>
+      <h1 className={`display mt-5 text-6xl sm:text-7xl lg:text-[5rem] ${toneClass[tone]}`}>{title}</h1>
       {intro ? (
         <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed tracking-[0.01em] text-black/80">
           {intro}

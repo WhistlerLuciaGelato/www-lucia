@@ -101,13 +101,13 @@ export function PintCard({
           />
         ) : null}
         {hoverBlurb ? (
-          <p className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 rounded-[1.75rem] bg-snow/95 p-4 text-base leading-[1.25] text-black/85 opacity-0 shadow-soft transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+          <p className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 rounded-[1.75rem] bg-snow/95 p-4 text-sm leading-[1.25] text-black/85 opacity-0 shadow-soft transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
             {flavour.blurb}
           </p>
         ) : null}
       </div>
 
-      <h3 className="subhead max-w-[15.75rem] text-2xl leading-[0.9] text-balance text-ink">
+      <h3 className="subhead max-w-[15.75rem] text-2xl text-balance text-ink">
         {href ? (
           <Link href={href} className={stretch}>
             {flavour.name}
@@ -134,12 +134,12 @@ export function PintCard({
       {hoverBlurb ? null : revealBlurb ? (
         // Folded away until the card is hovered or focused (Figma: Our gelato hover state).
         <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100">
-          <p className="max-w-[18.25rem] overflow-hidden text-base leading-[1.2] text-black/80">
+          <p className="max-w-[18.25rem] overflow-hidden text-sm leading-[1.25] text-black/80">
             {flavour.blurb}
           </p>
         </div>
       ) : (
-        <p className="max-w-[18.25rem] text-base leading-[1.2] text-black/80">{flavour.blurb}</p>
+        <p className="max-w-[18.25rem] text-sm leading-[1.25] text-black/80">{flavour.blurb}</p>
       )}
 
       <ul

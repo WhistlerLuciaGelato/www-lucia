@@ -88,16 +88,20 @@
     font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    line-height: 0.88;
+    /* Sauna Black is always set at 90% (Lucia, Nov 2026). --tw-leading makes the text-* sizes
+       use it too instead of their own line heights. */
+    --tw-leading: 0.9;
+    line-height: 0.9;
     text-wrap: balance;
   }
 
-  /* Card titles & subheadings: Sauna (Black/Bold) Italic. */
+  /* Card titles & subheadings: Sauna Black Italic, at 90% leading like .display. */
   .subhead {
     font-family: var(--font-heading);
     font-weight: 900;
     font-style: italic;
-    line-height: 1;
+    --tw-leading: 0.9;
+    line-height: 0.9;
   }
 
   /* Eyebrows, nav and labels: Oskar One Bold, uppercase. */
@@ -373,6 +377,25 @@
   outline: 3px solid var(--color-lake-deep);
   outline-offset: 2px;
   border-radius: 0.5rem;
+}
+
+/* Event package bears hop into view (BearInView). */
+@keyframes bear-hop {
+  0% {
+    opacity: 0;
+    transform: translateY(1.25rem) rotate(-10deg) scale(0.8);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-0.375rem) rotate(5deg) scale(1.05);
+  }
+  80% {
+    transform: translateY(0) rotate(-2deg) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* The expanded flavour card (PintDetails) pops in. */
