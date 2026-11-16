@@ -80,19 +80,71 @@ export function estimateEvent(pkg: EventPackage, guests: number, travelFee: numb
   return pkg.basePrice + extra * pkg.perGuest + travelFee;
 }
 
-/** Photos for the events gallery, until the Studio has its own (up to 20). */
+/**
+ * Photos for the events gallery, until the Studio has its own (up to 20). From Lucia's event
+ * photos (Nov 2026), wide and tall shots alternating.
+ */
 export const eventGallery: EventPhoto[] = [
-  { src: "/find-us/hero-trailer.webp", alt: "The Lucia gelato trailer", width: 1500, height: 2251 },
-  { src: "/photos/kids-cones.webp", alt: "Kids enjoying gelato cones outdoors", width: 1600, height: 900 },
   {
-    src: "/home/trailer-crew.webp",
-    alt: "The Lucia crew waving from the gelato trailer",
-    width: 1100,
-    height: 1100,
+    src: "/events/gallery/trailer-1.webp",
+    alt: "Smiling from the serving window of the Lucia gelato trailer",
+    width: 2048,
+    height: 1365,
   },
-  { src: "/photos/skiers-cones.webp", alt: "Friends sharing gelato", width: 1200, height: 1833 },
-  { src: "/photos/gelato-tray.webp", alt: "Gelato in the display case", width: 1407, height: 716 },
-  { src: "/our-gelato/scooping-gelato.webp", alt: "Scooping mango sorbetto", width: 1800, height: 2700 },
+  {
+    src: "/events/gallery/img-4699.webp",
+    alt: "Scooping gelato at a mountaintop event, with snowy trees outside",
+    width: 1800,
+    height: 2400,
+  },
+  {
+    src: "/events/gallery/gelato-events.webp",
+    alt: "The Lucia gelato bar at an evening wedding",
+    width: 2400,
+    height: 1801,
+  },
+  {
+    src: "/events/gallery/katcraats-0158.webp",
+    alt: "The Lucia crew waving from the trailer door",
+    width: 1600,
+    height: 2400,
+  },
+  {
+    src: "/events/gallery/gelato-affogato.webp",
+    alt: "Espresso pouring over a cup of gelato for an affogato",
+    width: 1734,
+    height: 2400,
+  },
+  {
+    src: "/events/gallery/gelato-events-pemberton.webp",
+    alt: "An evening event set up in a Pemberton field under string lights and mountains",
+    width: 2400,
+    height: 1801,
+  },
+  {
+    src: "/events/gallery/img-8467.webp",
+    alt: "A gelato display on a pink table, set up on a patio with red Adirondack chairs",
+    width: 1800,
+    height: 2400,
+  },
+  {
+    src: "/events/gallery/katcraats-0101.webp",
+    alt: "The side of the Whistler Lucia Gelato trailer, painted with colourful mountains",
+    width: 1600,
+    height: 2400,
+  },
+  {
+    src: "/events/gallery/gelato-close.webp",
+    alt: "A close-up of creamy berry gelato",
+    width: 1734,
+    height: 2400,
+  },
+  {
+    src: "/events/gallery/katcraats-0096.webp",
+    alt: "The front of the gelato trailer beside its menu board",
+    width: 1600,
+    height: 2400,
+  },
 ];
 
 /**
