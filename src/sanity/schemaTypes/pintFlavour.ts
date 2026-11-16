@@ -97,6 +97,13 @@ export const pintFlavour = defineType({
       type: "image",
     }),
     defineField({
+      name: "isNew",
+      title: "New flavour",
+      description: "Shows a pink NEW badge on the pint, in place of the round lid label.",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
       name: "color",
       title: "Accent colour",
       description: "Hex colour from the label, e.g. #f07a2e.",
@@ -125,9 +132,16 @@ export const pintFlavour = defineType({
   ],
   orderings: [{ title: "Sort order", name: "rank", by: [{ field: "orderRank", direction: "asc" }] }],
   preview: {
-    select: { title: "name", subtitle: "style", media: "image", available: "available", stock: "stock" },
-    prepare: ({ title, subtitle, media, available, stock }) => ({
-      title,
+    select: {
+      title: "name",
+      subtitle: "style",
+      media: "image",
+      available: "available",
+      stock: "stock",
+      isNew: "isNew",
+    },
+    prepare: ({ title, subtitle, media, available, stock, isNew }) => ({
+      title: isNew ? `${title} · NEW` : title,
       subtitle:
         available === false || stock === 0
           ? `${subtitle} · SOLD OUT`

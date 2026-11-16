@@ -3,9 +3,8 @@
  * than once; nothing else edited in the Studio is touched.
  *
  * - Yogurt Mixed Berry gets Lucia's description (replacing the placeholder).
- * - Fresh Mint Chips is shown as its own pint photo, with no lid drawn behind it (the photo
- *   already has one, so the two used to show at once). It isn't in Figma; a flat label render
- *   like the other flavours' would replace this.
+ * - Fresh Mint Chips uses its label render from Figma ("All Flavours") on the usual lid.
+ * - Chocolate Hazelnut, Espresso, Maple Pecan and Yogurt Mixed Berry are tagged as new.
  * - Delish Cafe (also on the menu) links to its Instagram.
  * - Events FAQ: Lucia's answers on trailer size, power, what's included and cancellations.
  * - Wholesale: Lucia's top-10 bestsellers, most popular first, and her suppliers.
@@ -60,21 +59,35 @@ async function apply(id: string, set: Record<string, unknown>) {
 }
 
 /* Fresh Mint Chips ---------------------------------------------------------- */
+// The label render from Figma ("All Flavours"), on the Made on the Mountain lid like the others.
+// It replaces the stand-in photo used until the flat label art arrived.
 {
   const doc = await client.fetch<{ _id: string; lid?: string } | null>(
     `*[_type == "pintFlavour" && slug.current == "fresh-mint-chips" && !(_id in path("drafts.**"))][0]{_id, lid}`,
   );
-  if (doc && doc.lid !== "none") {
-    const path = "public/pints/fresh-mint-chips.webp";
+  if (doc && doc.lid !== "local") {
+    const path = "public/pints/render/fresh-mint-chips.webp";
     let image: unknown = `(upload ${path})`;
     if (!dryRun) {
       const file = await readFile(new URL(`../${path}`, import.meta.url));
-      const asset = await client.assets.upload("image", file, { filename: "fresh-mint-chips-pint.webp" });
+      const asset = await client.assets.upload("image", file, { filename: "fresh-mint-chips.webp" });
       image = { _type: "image", asset: { _type: "reference", _ref: asset._id } };
     }
-    await apply(doc._id, { lid: "none", image });
+    await apply(doc._id, { lid: "local", image });
   } else if (doc) {
     console.log(`${doc._id}: nothing to change`);
+  }
+}
+
+/* New flavours ---------------------------------------------------------------- */
+// The NEW badge from Figma, for flavours the Studio hasn't set either way yet.
+{
+  const docs = await client.fetch<{ _id: string; slug: string; isNew: boolean | null }[]>(
+    `*[_type == "pintFlavour" && !(_id in path("drafts.**"))]{_id, "slug": slug.current, isNew}`,
+  );
+  for (const doc of docs) {
+    const isNew = pintFlavours.find((p) => p.slug === doc.slug)?.isNew === true;
+    if (doc.isNew == null && isNew) await apply(doc._id, { isNew: true });
   }
 }
 

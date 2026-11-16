@@ -4,7 +4,8 @@ import { Bear } from "@/components/ui";
 
 /**
  * A pint as in the website design: the transparent render in front of its lid, with the round
- * lid label over the top-left corner (`showLabel`). Laid out at 228×248px and scaled by `scale`,
+ * lid label over the top-left corner (`showLabel`), or the NEW badge for a new flavour. Laid out
+ * at 228×248px and scaled by `scale`,
  * so the pieces keep their Figma positions at any size.
  */
 export function PintImage({
@@ -15,7 +16,7 @@ export function PintImage({
   tilt = false,
   priority = false,
 }: {
-  flavour: Pick<PintFlavour, "name" | "image" | "lid" | "label" | "bear">;
+  flavour: Pick<PintFlavour, "name" | "image" | "lid" | "label" | "bear"> & { isNew?: boolean };
   scale?: number;
   showLabel?: boolean;
   soldOut?: boolean;
@@ -73,7 +74,12 @@ export function PintImage({
             </span>
           ) : null}
         </div>
-        {showLabel && flavour.label ? (
+        {showLabel && flavour.isNew ? (
+          // Figma "All Flavours": a Strawberry circle in the round label's place, a little smaller.
+          <span className="pointer-events-none absolute -top-[0.85rem] -left-[0.6rem] grid size-[5.5rem] place-items-center rounded-full bg-strawberry font-eyebrow text-[1.5625rem] leading-none font-bold tracking-[0.02em] text-white uppercase shadow-[0_2px_8px_rgb(0_0_0/0.22)]">
+            New
+          </span>
+        ) : showLabel && flavour.label ? (
           // Figma: 112px label at (-15, -19) on the 260px product frame.
           <Image
             src={flavour.label}

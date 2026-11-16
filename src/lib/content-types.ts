@@ -53,6 +53,8 @@ export type PintFlavour = {
   stock?: number;
   /** The round lid label, shown overlapping the pint's top-left (Figma product cards). */
   label?: string;
+  /** A new flavour: shows the NEW badge where the round lid label would go. */
+  isNew?: boolean;
   /** Ingredient list for the expanded product card, e.g. "Whole Milk, Sugars (sugar, dextrose), …". */
   ingredients?: string;
   /** Allergens, e.g. "Milk". */
@@ -83,7 +85,7 @@ export type Catalogue = {
   shop: Shop;
   pints: Pick<
     PintFlavour,
-    "slug" | "name" | "style" | "image" | "lid" | "label" | "bear" | "available" | "stock"
+    "slug" | "name" | "style" | "image" | "lid" | "label" | "isNew" | "bear" | "available" | "stock"
   >[];
 };
 

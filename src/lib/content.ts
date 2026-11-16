@@ -122,6 +122,7 @@ type PintDoc = {
   image?: { asset?: { _ref: string } };
   lid?: "local" | "dairy-free" | "none";
   roundLabel?: { asset?: { _ref: string } };
+  isNew?: boolean;
   ingredients?: string;
   contains?: string;
   stock?: number | null;
@@ -130,7 +131,7 @@ type PintDoc = {
 const pintsQuery = defineQuery(
   `*[_type == "pintFlavour" && defined(slug.current)] | order(orderRank asc, name asc) {
     name, "slug": slug.current, style, blurb, diet, color, activity, bear, available, image, lid,
-    roundLabel, ingredients, contains, stock
+    roundLabel, isNew, ingredients, contains, stock
   }`,
 );
 
@@ -173,6 +174,7 @@ export async function getPintFlavours(): Promise<PintFlavour[]> {
       : roundLabels.has(d.slug)
         ? `/pints/label/${d.slug}.webp`
         : undefined,
+    isNew: d.isNew === true,
     // Until the Studio has them, use the ingredient lists kept in the code (src/data/flavours.ts).
     ingredients: d.ingredients?.trim() || defaultPints.find((p) => p.slug === d.slug)?.ingredients,
     contains: d.contains?.trim() || defaultPints.find((p) => p.slug === d.slug)?.contains,
@@ -232,13 +234,14 @@ export async function getCatalogue(): Promise<Catalogue> {
   const [shop, pints] = await Promise.all([getShop(), getPintFlavours()]);
   return {
     shop,
-    pints: pints.map(({ slug, name, style, image, lid, label, bear, available, stock }) => ({
+    pints: pints.map(({ slug, name, style, image, lid, label, isNew, bear, available, stock }) => ({
       slug,
       name,
       style,
       image,
       lid,
       label,
+      isNew,
       bear,
       available,
       stock,

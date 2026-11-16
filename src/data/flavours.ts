@@ -33,7 +33,8 @@ export const roundLabels = new Set([
 
 /**
  * The retail pint lineup (473 mL), in the order shown on the website. `render: true` flavours
- * have transparent pint renders (public/pints/render) shown in front of a lid.
+ * have transparent pint renders (public/pints/render) shown in front of a lid; `isNew` ones show
+ * the NEW badge in place of their round lid label (Figma "All Flavours").
  * The 2025 lineup matches the new packaging.
  * Dietary tags follow the icons printed on each label.
  */
@@ -147,6 +148,7 @@ export const pintFlavours: DefaultPint[] = [
     style: "Gelato",
     blurb:
       "Cool, fresh mint with dark chocolate chips folded through. Once it's open, it has a hard time making it back to the freezer.",
+    render: true,
     diet: ["gluten-free"],
     ingredients:
       "Whole Milk, Cream, Sugars (sugar, dextrose), Skim Milk Powder, Dark Chocolate Shaving (Sugar, Cocoa mass, Cocoa butter, Milk fat, Soy lecithin, Natural Vanilla flavor), Mint, Stabilizer (Glucose syrup, locust bean gum, Alginate, Carrageenan).",
@@ -191,6 +193,7 @@ export const pintFlavours: DefaultPint[] = [
     blurb:
       "Made with locally grown hazelnuts from Fraser Valley Hazelnuts, which we transform into our own homemade hazelnut paste. Blended with rich chocolate for a perfectly nutty indulgence.",
     render: true,
+    isNew: true,
     diet: ["gluten-free"],
     ingredients:
       "Whole Milk, Sugar, Cream, Hazelnuts, Skim Milk Powder, Dark Chocolate (Chocolate, Sugar, Cocoa Butter, Soy Lecithin [Emulsifier], Vanilla), Cocoa Powder, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
@@ -206,6 +209,7 @@ export const pintFlavours: DefaultPint[] = [
     blurb:
       "Crafted in partnership with local Pemberton Valley Coffee, using bold, aromatic espresso for a rich and creamy coffee lover's dream.",
     render: true,
+    isNew: true,
     diet: ["gluten-free"],
     ingredients:
       "Whole Milk, Sugar, Cream, Espresso, Skim Milk Powder, Coffee, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
@@ -221,6 +225,7 @@ export const pintFlavours: DefaultPint[] = [
     blurb:
       "A true Canadian favourite! Made with real maple syrup and maple-candied pecans for a delicious combination of smooth maple sweetness and crunchy, buttery nuts.",
     render: true,
+    isNew: true,
     diet: ["gluten-free"],
     ingredients:
       "Whole Milk, Cream, Sugar, Skim Milk Powder, Sugars (maple syrup), Candied Pecans, Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan), Water, Alcohol, Corn Syrup, Natural Flavor.",
@@ -236,6 +241,7 @@ export const pintFlavours: DefaultPint[] = [
     blurb:
       "A refreshing combination of tangy yogurt and sweet summer berries. Light, creamy, and bursting with fruity flavour.",
     render: true,
+    isNew: true,
     diet: ["gluten-free"],
     ingredients:
       "Greek Yogurt (Nonfat Yogurt [Cultured Pasteurized Nonfat Milk]), Whole Milk, Sugar, Cream, Skim Milk Powder, Sugars (mixed berries: strawberries, blueberries, raspberries, sugar, pectin, lemon juice), Stabilizer (Mono and diglycerides, locust bean gum, sodium alginate, guar gum, carrageenan).",
