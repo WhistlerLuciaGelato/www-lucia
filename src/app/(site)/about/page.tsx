@@ -113,7 +113,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="relative overflow-hidden bg-[#1f3b4a] py-20 text-snow sm:py-28">
+      <section className="relative overflow-hidden bg-lakeside py-20 text-snow sm:py-28">
         <Image
           src="/bears/ski-jump-white.png"
           alt=""

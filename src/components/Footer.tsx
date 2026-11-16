@@ -72,10 +72,10 @@ export async function Footer() {
         </nav>
 
         <div className="lg:w-80">
-          <p className="font-heading text-2xl leading-[1.05] font-bold text-coral">
+          <p className="font-heading text-2xl leading-[1.05] font-bold text-strawberry">
             New flavours, trailer sightings &amp; Lucia&rsquo;s latest adventures.
           </p>
-          <p className="mt-[1.2em] text-coral">A few emails a season. No spam, just gelato.</p>
+          <p className="mt-[1.2em] text-strawberry">A few emails a season. No spam, just gelato.</p>
           <NewsletterForm />
         </div>
 

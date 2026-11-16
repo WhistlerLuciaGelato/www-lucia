@@ -38,10 +38,10 @@ export function NewsletterForm() {
           required
           autoComplete="email"
           placeholder="yourname@email.com"
-          className="h-[2.6875rem] w-full rounded-[1.25rem] border border-coral bg-snow px-4 text-center font-body text-base text-coral placeholder:font-bold placeholder:text-coral placeholder:italic focus:outline-none focus:ring-2 focus:ring-coral"
+          className="h-[2.6875rem] w-full rounded-[1.25rem] border border-strawberry bg-snow px-4 text-center font-body text-base text-strawberry placeholder:font-bold placeholder:text-strawberry placeholder:italic focus:outline-none focus:ring-2 focus:ring-strawberry"
         />
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
-        <button type="submit" className="btn bg-coral !text-base text-snow" disabled={state.status === "submitting"}>
+        <button type="submit" className="btn bg-strawberry !text-base text-snow" disabled={state.status === "submitting"}>
           {state.status === "submitting" ? "Joining…" : "Sign up"}
         </button>
       </div>

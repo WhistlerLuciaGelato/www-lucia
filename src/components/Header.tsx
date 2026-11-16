@@ -145,9 +145,10 @@ export function Header() {
           </button>
         </div>
       </div>
+      {/* Tucked 1px under the header so no hairline shows between them at fractional heights. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-full h-[21px] bg-repeat-x drop-shadow-[0_3px_3px_rgb(33_33_33/0.07)]"
+        className="pointer-events-none absolute inset-x-0 top-[calc(100%-1px)] h-[21px] bg-repeat-x drop-shadow-[0_3px_3px_rgb(33_33_33/0.07)]"
         style={{ backgroundImage: wiggle, backgroundSize: "60px 21px" }}
       />
 
