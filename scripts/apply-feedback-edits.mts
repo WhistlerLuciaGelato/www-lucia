@@ -7,6 +7,7 @@
  * - Chocolate Hazelnut, Espresso, Maple Pecan and Yogurt Mixed Berry are tagged as new.
  * - Delish Cafe (also on the menu) links to its Instagram.
  * - Events FAQ: Lucia's answers on trailer size, power, what's included and cancellations.
+ * - Events gallery: Lucia's event photos, uploaded so they can be managed in the Studio.
  * - Wholesale: Lucia's top-10 bestsellers, most popular first, and her suppliers.
  *
  *   npm run apply-feedback-edits -- --dry-run
@@ -15,7 +16,7 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createClient } from "@sanity/client";
-import { eventFaq } from "../src/data/events.ts";
+import { eventFaq, eventGallery } from "../src/data/events.ts";
 import { pintFlavours } from "../src/data/flavours.ts";
 import { suppliers, wholesaleFlavours } from "../src/data/wholesale.ts";
 
@@ -164,5 +165,27 @@ async function apply(id: string, set: Record<string, unknown>) {
     });
   } else {
     console.log("wholesalePage suppliers: nothing to change");
+  }
+}
+
+/* Events gallery ------------------------------------------------------------- */
+// Lucia's event photos (public/events/gallery), added only if the Studio gallery is empty.
+{
+  const doc = await client.fetch<{ gallery?: unknown[] | null } | null>(`*[_id == "eventsPage"][0]{gallery}`);
+  if (doc && !doc.gallery?.length) {
+    const gallery = [];
+    for (const photo of eventGallery) {
+      const path = `public${photo.src}`;
+      let asset: unknown = `(upload ${path})`;
+      if (!dryRun) {
+        const file = await readFile(new URL(`../${path}`, import.meta.url));
+        const uploaded = await client.assets.upload("image", file, { filename: path.split("/").pop() });
+        asset = { _type: "reference", _ref: uploaded._id };
+      }
+      gallery.push({ _key: randomUUID().slice(0, 12), _type: "image", asset, alt: photo.alt });
+    }
+    await apply("eventsPage", { gallery });
+  } else {
+    console.log("eventsPage gallery: nothing to change");
   }
 }
