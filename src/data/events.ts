@@ -70,7 +70,9 @@ export const eventTerms = [
 
 /** "No travel fee within Whistler", "+ $100 travel fee for Squamish & Pemberton", … */
 export function travelFeeLabel({ area, fee }: { area: string; fee: number }) {
-  return fee > 0 ? `+ $${fee.toLocaleString("en-CA")} travel fee for ${area}` : `No travel fee within ${area}`;
+  return fee > 0
+    ? `+ $${fee.toLocaleString("en-CA")} travel fee for ${area}`
+    : `No travel fee within ${area}`;
 }
 
 export function estimateEvent(pkg: EventPackage, guests: number, travelFee: number) {
@@ -94,8 +96,9 @@ export const eventGallery: EventPhoto[] = [
 ];
 
 /**
- * The FAQ, in reading order: the first half fills the left column on wide screens. Answers use
- * only what's already on the site (packages, travel fees, deposit, taxes).
+ * The FAQ, in reading order: the first half fills the left column on wide screens. Trailer size,
+ * power, what's included and cancellations are Lucia's own answers (Nov 2026). Blank lines
+ * start a new paragraph.
  */
 export const eventFaq: { q: string; a: string }[] = [
   {
@@ -105,6 +108,10 @@ export const eventFaq: { q: string; a: string }[] = [
   {
     q: "What's the difference between your catering packages?",
     a: "The Classic is our wooden gelato display on a portable table, with 5 flavours kept chilled over ice, so it needs no electricity. The Signature brings our full mobile gelato trailer with 7 flavours. The Experience is everything in The Signature plus toppings, sauces and a build-your-own sundae bar, with service for up to 3 hours. See each package above for the details.",
+  },
+  {
+    q: "What's included?",
+    a: "All event packages include cups, spoons, napkins, serving staff, and serving utensils.",
   },
   {
     q: "How many flavours can we choose?",
@@ -127,12 +134,20 @@ export const eventFaq: { q: string; a: string }[] = [
     a: "The Classic needs only a little space for its portable table, and no electricity. The Signature and The Experience need access to electricity to power the gelato freezer, plus enough space and vehicle access for us to deliver, position and collect the trailer. We'll confirm the details with you before your event.",
   },
   {
+    q: "What are the dimensions of the mobile gelato trailer?",
+    a: "Our mobile gelato trailer is 14 ft long, 92 inches (7 ft 8 in) wide and 87 inches (7 ft 3 in) high. Please note that some additional space will be required to accommodate the trailer hitch and allow comfortable access around the serving area.\n\nOur trailer is transported by truck, which can be detached and moved away during your event, as needed. The dimensions above are for the gelato trailer only and do not include the towing vehicle.",
+  },
+  {
+    q: "What are the power requirements for the mobile gelato trailer?",
+    a: "Ideally, our mobile gelato trailer operates best with an L14-30 (120/240V, 30-amp) power connection, which provides the most efficient power supply for our equipment.\n\nDon't have this connection available? No problem! We can also operate using a standard electrical outlet.\n\nIf you're unsure about the power available at your venue, feel free to reach out. We're happy to help determine the best setup for your event!",
+  },
+  {
     q: "How do I book Lucia Gelato for my event?",
     a: "Send us a booking request with the form below. Our team will be in touch to confirm availability and your event booking. Summer weekends, especially in wedding season, fill up early, so reach out as soon as you have a date.",
   },
   {
-    q: "Is a deposit required to secure my booking?",
-    a: "Yes. A minimum $500 deposit secures your date.",
+    q: "What is the cancellation and deposit refund policy?",
+    a: "A $500 deposit is required to confirm your booking and secure your event date.\n\nWe understand that plans can change! If you cancel more than 14 days before your event, you'll receive a full refund of your $500 deposit. If you cancel 14 days or less before your event, your $500 deposit is non-refundable.\n\nWe recommend letting us know as early as possible if your plans change.",
   },
   {
     q: "Are taxes and gratuity included in the package prices?",

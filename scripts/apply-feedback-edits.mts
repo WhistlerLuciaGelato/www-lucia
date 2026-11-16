@@ -7,13 +7,18 @@
  *   already has one, so the two used to show at once). It isn't in Figma; a flat label render
  *   like the other flavours' would replace this.
  * - Delish Cafe (also on the menu) links to its Instagram.
+ * - Events FAQ: Lucia's answers on trailer size, power, what's included and cancellations.
+ * - Wholesale: Lucia's top-10 bestsellers, most popular first.
  *
  *   npm run apply-feedback-edits -- --dry-run
  *   SANITY_API_WRITE_TOKEN=... npm run apply-feedback-edits
  */
+import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createClient } from "@sanity/client";
+import { eventFaq } from "../src/data/events.ts";
 import { pintFlavours } from "../src/data/flavours.ts";
+import { wholesaleFlavours } from "../src/data/wholesale.ts";
 
 const dryRun = process.argv.includes("--dry-run");
 const token = process.env.SANITY_API_WRITE_TOKEN;
@@ -88,4 +93,50 @@ async function apply(id: string, set: Record<string, unknown>) {
     }
   }
   await apply("stockists", set);
+}
+
+/* Events FAQ ---------------------------------------------------------------- */
+// Lucia's answers on trailer size, power, what's included and cancellations. Questions already in
+// the Studio keep their wording; the short deposit question gives way to the cancellation policy.
+{
+  type Faq = { _key: string; question?: string; answer?: string };
+  const OLD_DEPOSIT = "Is a deposit required to secure my booking?";
+  const doc = await client.fetch<{ faq?: Faq[] } | null>(`*[_id == "eventsPage"][0]{faq}`);
+  const live = doc?.faq ?? [];
+  const missing = eventFaq.filter((f) => !live.some((l) => l.question === f.q));
+  if (doc && missing.length) {
+    const faq = [
+      ...eventFaq.map((f) => {
+        const existing = live.find((l) => l.question === f.q);
+        return existing ?? { _key: randomUUID().slice(0, 12), question: f.q, answer: f.a };
+      }),
+      // Anything added in the Studio that the code doesn't know about stays, at the end.
+      ...live.filter((l) => l.question !== OLD_DEPOSIT && !eventFaq.some((f) => f.q === l.question)),
+    ];
+    console.log(`FAQ: adding ${missing.map((f) => f.q).join(" · ")}`);
+    await apply("eventsPage", { faq });
+  } else {
+    console.log("eventsPage: nothing to change");
+  }
+}
+
+/* Wholesale bestsellers ------------------------------------------------------- */
+// Lucia's top 10 in order of popularity. Vegan Choco Coco leaves the bestsellers, so it joins the
+// vegan list to stay orderable.
+{
+  type Group = { _key: string; flavours?: string[] };
+  const doc = await client.fetch<{ flavourGroups?: Group[] } | null>(
+    `*[_id == "wholesalePage"][0]{flavourGroups}`,
+  );
+  const want = (id: string) => wholesaleFlavours.find((g) => g.id === id)?.flavours ?? [];
+  const set: Record<string, unknown> = {};
+  const best = doc?.flavourGroups?.find((g) => g._key === "bestsellers");
+  if (best && JSON.stringify(best.flavours) !== JSON.stringify(want("bestsellers"))) {
+    set[`flavourGroups[_key=="bestsellers"].flavours`] = want("bestsellers");
+  }
+  const vegan = doc?.flavourGroups?.find((g) => g._key === "vegan");
+  if (vegan && !vegan.flavours?.includes("Vegan Choco Coco")) {
+    set[`flavourGroups[_key=="vegan"].flavours`] = [...(vegan.flavours ?? []), "Vegan Choco Coco"].sort();
+  }
+  await apply("wholesalePage", set);
 }

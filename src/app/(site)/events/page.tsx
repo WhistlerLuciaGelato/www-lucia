@@ -118,19 +118,23 @@ export default async function EventsPage() {
     <>
       {/* Packages & pricing: a coral band with the package cards overlapping its wavy bottom. */}
       <section id="packages" className={`relative isolate overflow-x-clip ${anchor}`}>
-        <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[24rem] bg-strawberry sm:h-[26rem] lg:h-[37.5rem]">
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 -z-10 h-[24rem] bg-strawberry sm:h-[26rem] lg:h-[37.5rem]"
+        >
           <svg
             viewBox="0 0 1440 100"
             preserveAspectRatio="none"
             className="absolute top-full left-0 h-12 w-full lg:h-24"
           >
-            <path
-              d="M0 0H1440V30C1330 34 1220 8 1040 4S700 22 520 44 180 98 0 92Z"
-              fill={STRAWBERRY}
-            />
+            <path d="M0 0H1440V30C1330 34 1220 8 1040 4S700 22 520 44 180 98 0 92Z" fill={STRAWBERRY} />
           </svg>
         </div>
-        <Blob shape="puddle" color="#ffe1c2" className="-bottom-40 -left-32 w-[22rem] -rotate-12 lg:w-[30rem]" />
+        <Blob
+          shape="puddle"
+          color="#ffe1c2"
+          className="-bottom-40 -left-32 w-[22rem] -rotate-12 lg:w-[30rem]"
+        />
 
         <div className="px-4 pt-16 text-center sm:px-8 lg:pt-[5.8rem]">
           <p className="eyebrow !text-lg text-rose lg:!text-xl">Packages &amp; pricing</p>
@@ -145,7 +149,11 @@ export default async function EventsPage() {
           {packages.map((pkg, i) => (
             <PackageCard key={pkg.id} pkg={pkg} index={i} />
           ))}
-          <Blob shape="pebble" color="#ffe1c2" className="-bottom-16 left-10 hidden w-10 rotate-45 lg:block" />
+          <Blob
+            shape="pebble"
+            color="#ffe1c2"
+            className="-bottom-16 left-10 hidden w-10 rotate-45 lg:block"
+          />
         </ul>
 
         {/* Travel & booking info */}
@@ -153,7 +161,10 @@ export default async function EventsPage() {
           <h2 className="subhead text-[2.5rem] text-lakeside">Travel &amp; Booking Info</h2>
           <ul className="mt-6 flex flex-wrap justify-center gap-2.5">
             {pills.map((t) => (
-              <li key={t} className="rounded-[1.25rem] bg-seafoam px-5 py-2.5 font-ui text-sm leading-tight text-black">
+              <li
+                key={t}
+                className="rounded-[1.25rem] bg-seafoam px-5 py-2.5 font-ui text-sm leading-tight text-black"
+              >
                 {t}
               </li>
             ))}
@@ -179,7 +190,10 @@ export default async function EventsPage() {
       ) : null}
 
       {/* FAQ */}
-      <section id="faq" className={`relative isolate overflow-x-clip px-4 pt-12 sm:px-8 lg:pt-[3.2rem] ${anchor}`}>
+      <section
+        id="faq"
+        className={`relative isolate overflow-x-clip px-4 pt-12 sm:px-8 lg:pt-[3.2rem] ${anchor}`}
+      >
         <Blob shape="bean" color="#e3f4ef" className="top-20 -left-40 w-[26rem] lg:-left-28 lg:w-[32rem]" />
         <Blob shape="pebble" color="#fcd5d1" className="top-14 right-[6%] hidden w-14 lg:block" />
         <Blob shape="splash" color="#ffe2df" className="-right-40 bottom-0 w-[24rem] lg:w-[26rem]" />
@@ -199,13 +213,22 @@ export default async function EventsPage() {
                       className="grid h-[1.8125rem] w-[1.8125rem] shrink-0 place-items-center rounded-full bg-seafoam text-lakeside transition group-open:rotate-45"
                     >
                       <svg viewBox="0 0 12 12" className="h-3 w-3">
-                        <path d="M6 1.5v9M1.5 6h9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                        <path
+                          d="M6 1.5v9M1.5 6h9"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                        />
                       </svg>
                     </span>
                   </summary>
-                  <p className="px-6 pb-5 font-ui text-[0.9375rem] leading-relaxed text-black/80 lg:px-9">
-                    {item.a}
-                  </p>
+                  <div className="space-y-3 px-6 pb-5 font-ui text-[0.9375rem] leading-relaxed text-black/80 lg:px-9">
+                    {paragraphs(item.a).map((p) => (
+                      <p key={p}>
+                        <Rich text={p} />
+                      </p>
+                    ))}
+                  </div>
                 </details>
               ))}
             </div>
@@ -225,7 +248,9 @@ export default async function EventsPage() {
         className={`relative mt-24 bg-rose px-4 pt-14 pb-14 sm:px-8 lg:mt-[8rem] lg:pt-[3.75rem] lg:pb-[3.3rem] ${anchor}`}
       >
         <Wave color={ROSE} className="absolute inset-x-0 -top-3.5" />
-        <h2 className="eyebrow text-center !text-[2.5rem] !leading-[0.95] text-strawberry">Request a booking</h2>
+        <h2 className="eyebrow text-center !text-[2.5rem] !leading-[0.95] text-strawberry">
+          Request a booking
+        </h2>
         <p className="mx-auto mt-4 max-w-[22.625rem] text-center font-ui text-sm text-black">
           Tell us a little about your event and we&rsquo;ll get back to you with availability and a quote.
         </p>
@@ -233,8 +258,8 @@ export default async function EventsPage() {
           <EventBookingForm packages={packages} travelFees={events.travelFees} />
         </div>
         <p className="mx-auto mt-6 max-w-[45.625rem] text-center font-ui text-sm text-black">
-          Please note that event requests are subject to our availability. Our team will be in touch to confirm
-          your event booking.
+          Please note that event requests are subject to our availability. Our team will be in touch to
+          confirm your event booking.
         </p>
         <Wave color={ROSE} className="absolute inset-x-0 -bottom-3.5 rotate-180" />
       </section>

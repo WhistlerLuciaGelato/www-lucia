@@ -48,22 +48,22 @@ export const deliverySchedule: WholesaleContent["deliverySchedule"] = [
 
 export const wholesaleFlavours: FlavourGroup[] = [
   {
-    // The retail pint lineup sold in grocery stores (src/data/flavours.ts), using the wholesale
-    // names where the flavour is also on the lists below. Shown first in the order form.
+    // Lucia's top 10, most popular first (Nov 2026), using the wholesale names from the lists
+    // below. Shown first in the order form.
     id: "bestsellers",
     availableIn: ["tub", "pint", "snack"],
     label: "Bestsellers",
     flavours: [
-      "Salted Caramel",
-      "Vegan Coconut Cookies 'n' Cream",
-      "Mango",
-      "Lemon",
-      "Chocolate Caramel Sea Salt",
-      "Pistachio",
       "Vanilla Bean",
-      "Fresh Mint Chip",
-      "Vegan Choco Coco",
+      "Mango",
+      "Salted Caramel",
+      "Pistachio",
+      "Chocolate Caramel Sea Salt",
+      "Vegan Coconut Cookies 'n' Cream",
+      "Maple Pecan",
       "Wildberry",
+      "Vegan Chocolate Macaroon",
+      "Fresh Mint Chip",
     ],
   },
   {
@@ -168,6 +168,7 @@ export const wholesaleFlavours: FlavourGroup[] = [
     note: "Dairy-free & vegan",
     flavours: [
       "Vegan Blueberry Lemon",
+      "Vegan Choco Coco",
       "Vegan Chocolate",
       "Vegan Chocolate Macaroon",
       "Vegan Coconut",
