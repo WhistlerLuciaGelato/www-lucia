@@ -24,7 +24,7 @@ import { pintFlavours as defaultPints, roundLabels } from "@/data/flavours";
 import { defaultShop } from "@/data/shop";
 import { groceryStores, onTheMenu, scoopShops, seasonalSpots } from "@/data/locations";
 import { eventFaq, eventGallery, eventPackages, eventTerms, travelFees } from "@/data/events";
-import { deliverySchedule, wholesaleFlavours, wholesaleFormats } from "@/data/wholesale";
+import { deliverySchedule, suppliers, wholesaleFlavours, wholesaleFormats } from "@/data/wholesale";
 
 /**
  * Every cached read carries this tag; the Sanity publish webhook revalidates it.
@@ -424,6 +424,7 @@ type WholesaleDoc = {
     flavours?: string[];
     availableIn?: WholesaleKind[];
   }[];
+  suppliers?: { _key: string; name?: string; supplies?: string; url?: string }[];
 };
 
 const wholesaleQuery = defineQuery(`*[_id == "wholesalePage"][0]`);
@@ -456,5 +457,10 @@ export async function getWholesale(): Promise<WholesaleContent> {
           availableIn: g.availableIn ?? [],
         }))
       : wholesaleFlavours,
+    suppliers: d?.suppliers?.length
+      ? d.suppliers
+          .filter((s) => s.name && s.supplies)
+          .map((s) => ({ name: s.name!, supplies: s.supplies!, url: s.url || undefined }))
+      : suppliers,
   };
 }

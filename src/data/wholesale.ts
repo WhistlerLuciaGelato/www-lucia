@@ -1,4 +1,4 @@
-import type { FlavourGroup, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
+import type { FlavourGroup, Supplier, WholesaleContent, WholesaleFormat } from "@/lib/content-types";
 
 // Default wholesale content, used until the Sanity Studio has its own. Prices in CAD cents, for
 // reference only: they aren't shown on the website or in quote requests (Lucia quotes each one).
@@ -208,4 +208,22 @@ export const wholesaleFlavours: FlavourGroup[] = [
     label: "Gelato cookie sandwiches",
     flavours: ["Vanilla Gelato", "Chocolate Gelato", "Mango Sorbet", "Wildberry Sorbet"],
   },
+];
+
+/** Lucia's suppliers (Nov 2026), in her order. Suppliers of the same thing are shown together. */
+export const suppliers: Supplier[] = [
+  { supplies: "Pistachio", name: "Perfectly Nuts", url: "https://www.perfectlynuts.ca/" },
+  { supplies: "Hazelnut", name: "Fraser Valley Hazelnuts", url: "https://fraservalleyhazelnuts.com/" },
+  { supplies: "Fruit, vegetables & herbs", name: "Mandair Farm", url: "https://www.mandairfarms.com/" },
+  { supplies: "Fruit, vegetables & herbs", name: "Berry Mobile", url: "https://berrymobile.com/" },
+  { supplies: "Fruit, vegetables & herbs", name: "Rootdown Organic Farm", url: "https://www.rootdownfarm.net/" },
+  {
+    supplies: "Fruit, vegetables & herbs",
+    name: "Kaleidoscope Fruit Ranch",
+    url: "https://www.kaleidoscopefruitranch.ca/",
+  },
+  { supplies: "Coffee", name: "Pemberton Valley Coffee", url: "https://pembertonvalleycoffee.com/" },
+  { supplies: "Honey", name: "Mountain Bee Farm", url: "https://www.instagram.com/mountainbeepemberton/" },
+  { supplies: "Vanilla bean", name: "Organic Matter", url: "https://omfoods.com/" },
+  { supplies: "Lavender", name: "Playlist Lavender", url: "https://playlistorchard.ca/" },
 ];

@@ -8,7 +8,7 @@
  *   like the other flavours' would replace this.
  * - Delish Cafe (also on the menu) links to its Instagram.
  * - Events FAQ: Lucia's answers on trailer size, power, what's included and cancellations.
- * - Wholesale: Lucia's top-10 bestsellers, most popular first.
+ * - Wholesale: Lucia's top-10 bestsellers, most popular first, and her suppliers.
  *
  *   npm run apply-feedback-edits -- --dry-run
  *   SANITY_API_WRITE_TOKEN=... npm run apply-feedback-edits
@@ -18,7 +18,7 @@ import { readFile } from "node:fs/promises";
 import { createClient } from "@sanity/client";
 import { eventFaq } from "../src/data/events.ts";
 import { pintFlavours } from "../src/data/flavours.ts";
-import { wholesaleFlavours } from "../src/data/wholesale.ts";
+import { suppliers, wholesaleFlavours } from "../src/data/wholesale.ts";
 
 const dryRun = process.argv.includes("--dry-run");
 const token = process.env.SANITY_API_WRITE_TOKEN;
@@ -139,4 +139,17 @@ async function apply(id: string, set: Record<string, unknown>) {
     set[`flavourGroups[_key=="vegan"].flavours`] = [...(vegan.flavours ?? []), "Vegan Choco Coco"].sort();
   }
   await apply("wholesalePage", set);
+}
+
+/* Wholesale suppliers -------------------------------------------------------- */
+// Lucia's supplier list, added only if the Studio has none yet.
+{
+  const doc = await client.fetch<{ suppliers?: unknown[] } | null>(`*[_id == "wholesalePage"][0]{suppliers}`);
+  if (doc && !doc.suppliers?.length) {
+    await apply("wholesalePage", {
+      suppliers: suppliers.map((s) => ({ _key: randomUUID().slice(0, 12), ...s })),
+    });
+  } else {
+    console.log("wholesalePage suppliers: nothing to change");
+  }
 }

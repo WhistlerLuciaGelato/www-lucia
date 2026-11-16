@@ -174,8 +174,17 @@ export type FlavourGroup = {
   availableIn: WholesaleKind[];
 };
 
+/** A farm or producer Lucia buys from, shown on the Wholesale page. */
+export type Supplier = {
+  name: string;
+  /** What Lucia gets from them, e.g. "Pistachio". Suppliers sharing one are shown together. */
+  supplies: string;
+  url?: string;
+};
+
 export type WholesaleContent = {
   formats: WholesaleFormat[];
   deliverySchedule: { area: string; days: string; terms: string }[];
   flavourGroups: FlavourGroup[];
+  suppliers: Supplier[];
 };

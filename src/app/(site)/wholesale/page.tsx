@@ -4,6 +4,7 @@ import { FlavourTabs } from "@/components/FlavourTabs";
 import { WholesaleOrderForm } from "@/components/forms/WholesaleOrderForm";
 import { SectionHeading } from "@/components/ui";
 import { getWholesale } from "@/lib/content";
+import type { Supplier } from "@/lib/content-types";
 import { orderCutoff } from "@/data/wholesale";
 
 export const metadata: Metadata = {
@@ -14,6 +15,14 @@ export const metadata: Metadata = {
 
 /** Bluebird, for the hero band and its curved bottom edge. */
 const BLUEBIRD = "#78bdc7";
+
+/** Supplier cards cycle through the site's pastel and text pairs. */
+const supplierTones = [
+  "border-grass bg-pistachio text-grass",
+  "border-strawberry bg-petal text-strawberry",
+  "border-lakeside bg-seafoam text-lakeside",
+  "border-heatwave bg-peach text-heatwave",
+];
 
 /** Anchors the header menu links to, clear of the sticky header and its wiggle. */
 const anchor = "scroll-mt-28 lg:scroll-mt-44";
@@ -28,6 +37,13 @@ export default async function WholesalePage() {
   const { formats: wholesaleFormats, deliverySchedule, flavourGroups: wholesaleFlavours } = content;
   // Bestsellers repeat flavours from the other lists, so count each name once.
   const flavourCount = new Set(wholesaleFlavours.flatMap((g) => g.flavours)).size;
+  // One card per ingredient, in the order Lucia lists her suppliers.
+  const supplierGroups: { supplies: string; names: Supplier[] }[] = [];
+  for (const s of content.suppliers) {
+    const group = supplierGroups.find((g) => g.supplies.toLowerCase() === s.supplies.toLowerCase());
+    if (group) group.names.push(s);
+    else supplierGroups.push({ supplies: s.supplies, names: [s] });
+  }
 
   return (
     <>
@@ -126,6 +142,51 @@ export default async function WholesalePage() {
           </div>
         </div>
       </section>
+
+      {supplierGroups.length ? (
+        <section id="suppliers" className={`px-4 py-12 sm:px-8 ${anchor}`}>
+          <div className="mx-auto max-w-[76.125rem]">
+            <SectionHeading
+              eyebrow="Our suppliers"
+              title="Where our ingredients come from"
+              intro="We buy from farms and producers close to home wherever we can. Here's who goes into your gelato."
+            />
+            <ul className="mt-10 flex flex-wrap justify-center gap-5">
+              {supplierGroups.map((group, i) => {
+                const tone = supplierTones[i % supplierTones.length];
+                return (
+                  <li
+                    key={group.supplies}
+                    className={`flex w-full flex-col items-start gap-3 rounded-[1.25rem] border-2 p-[1.5625rem] sm:w-[calc(50%-0.625rem)] lg:w-[calc(25%-0.9375rem)] ${tone}`}
+                  >
+                    <span className="eyebrow rounded-[1.25rem] border-2 border-current px-4 py-[0.4375rem] !text-[0.9375rem]">
+                      {group.supplies}
+                    </span>
+                    <ul className="flex flex-col gap-1.5">
+                      {group.names.map((s) => (
+                        <li key={s.name} className="subhead text-[1.625rem]">
+                          {s.url ? (
+                            <a
+                              href={s.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline decoration-2 decoration-transparent underline-offset-4 transition-colors hover:decoration-current"
+                            >
+                              {s.name}
+                            </a>
+                          ) : (
+                            s.name
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section id="order" className={`px-4 py-12 sm:px-8 lg:pb-20 ${anchor}`}>
         <div className="mx-auto max-w-5xl rounded-[2.1875rem] bg-white p-6 shadow-soft ring-1 ring-alpine/60 sm:p-12">

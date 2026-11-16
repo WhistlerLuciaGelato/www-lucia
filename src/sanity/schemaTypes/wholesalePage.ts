@@ -106,6 +106,35 @@ export const wholesalePage = defineType({
         }),
       ],
     }),
+    defineField({
+      name: "suppliers",
+      title: "Suppliers",
+      description:
+        "Shown in “Where our ingredients come from”. Suppliers with the same “Supplies” are grouped on one card, in the order listed here.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({ name: "name", title: "Name", type: "string", validation: (r) => r.required() }),
+            defineField({
+              name: "supplies",
+              title: "Supplies",
+              type: "string",
+              placeholder: "Pistachio",
+              validation: (r) => r.required(),
+            }),
+            defineField({
+              name: "url",
+              title: "Website or Instagram (optional)",
+              type: "url",
+              validation: (r) => r.uri({ scheme: ["http", "https"] }),
+            }),
+          ],
+          preview: { select: { title: "name", subtitle: "supplies" } },
+        }),
+      ],
+    }),
   ],
   preview: { prepare: () => ({ title: "Wholesale" }) },
 });
