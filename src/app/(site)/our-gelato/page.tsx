@@ -115,7 +115,7 @@ export default async function OurGelatoPage() {
         />
         <div className="mx-auto grid max-w-[73.5rem] gap-5 lg:grid-cols-[558fr_601fr] lg:gap-[1.125rem]">
           <div className="flex flex-col gap-5 lg:gap-[1.375rem]">
-            <div className="flex flex-col items-center gap-2 rounded-[1.25rem] border-2 border-alpenglow bg-[#fff5ef] px-[1.875rem] py-5 text-center font-ui text-[#e0676b]">
+            <div className="flex flex-col items-center gap-2 rounded-[1.25rem] border-2 border-alpenglow bg-[#fff5ef] px-[1.875rem] py-5 text-center font-ui text-strawberry">
               <h2 className="text-lg font-extrabold">Have allergies or dietary restrictions?</h2>
               <p className="text-[0.9375rem] leading-[1.35] font-medium">
                 Please let our team know before ordering. We&rsquo;re always happy to help you explore
@@ -180,7 +180,7 @@ export default async function OurGelatoPage() {
                 className="-top-16 -left-36 w-[30rem] opacity-80 lg:-left-[8.5rem] lg:w-[32rem]"
               />
               <h2 className="eyebrow !text-[2.5rem] !leading-[0.85]">What is gelato?</h2>
-              <p className="mx-auto mt-4 max-w-[28.75rem] text-lg leading-[1.35] text-[#e0676b]">
+              <p className="mx-auto mt-4 max-w-[28.75rem] text-lg leading-[1.35] text-strawberry">
                 Gelato is a traditional Italian frozen dessert known for its smooth, creamy texture and rich,
                 intense flavours. Made with more milk, less cream, and less air than traditional ice cream,
                 gelato has a denser, silkier consistency that lets the natural flavours of its ingredients
