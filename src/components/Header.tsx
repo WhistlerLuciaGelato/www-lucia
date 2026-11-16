@@ -145,10 +145,12 @@ export function Header() {
           </button>
         </div>
       </div>
-      {/* Tucked 1px under the header so no hairline shows between them at fractional heights. */}
+      {/* Tucked 1px under the header so no hairline shows between them at fractional heights. The
+          clip keeps the drop shadow below the wiggle; its blur would otherwise creep up over the nav
+          as a faint line. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-[calc(100%-1px)] h-[21px] bg-repeat-x drop-shadow-[0_3px_3px_rgb(33_33_33/0.07)]"
+        className="pointer-events-none absolute inset-x-0 top-[calc(100%-1px)] h-[21px] bg-repeat-x drop-shadow-[0_3px_3px_rgb(33_33_33/0.07)] [clip-path:inset(0_0_-16px_0)]"
         style={{ backgroundImage: wiggle, backgroundSize: "60px 21px" }}
       />
 
