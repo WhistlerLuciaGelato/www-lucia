@@ -93,7 +93,7 @@ export function PintCard({
         />
         {sticker ? (
           <Image
-            src="/brand/made-on-the-mountain-badge.webp"
+            src="/brand/made-on-the-mountain-badge.svg"
             alt=""
             width={228}
             height={228}

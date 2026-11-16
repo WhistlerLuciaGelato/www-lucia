@@ -80,7 +80,7 @@ export async function Footer() {
         </div>
 
         <Image
-          src="/brand/made-on-the-mountain-badge.webp"
+          src="/brand/made-on-the-mountain-badge.svg"
           alt="Made on the Mountain"
           width={288}
           height={288}
