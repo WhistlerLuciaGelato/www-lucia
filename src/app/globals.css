@@ -413,7 +413,11 @@
  * Netlify's free plan injects a "Powered by Netlify" badge (an iframe fixed to the bottom-right
  * corner) that covers the cart, form buttons and the Studio's Publish button. Hidden on purpose;
  * remove this if the Netlify team moves to a paid plan, where the badge can be turned off instead.
+ * Several of the frame's details are matched so a single rename on Netlify's side doesn't bring it back.
  */
-#nl-badge-frame {
+#nl-badge-frame,
+iframe[id^="nl-badge"],
+iframe[title="Powered by Netlify"],
+iframe[data-nl-ready] {
   display: none !important;
 }
