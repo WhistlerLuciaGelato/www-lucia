@@ -152,12 +152,15 @@ export default async function Home() {
         <CreamWave edge="bottom" />
       </section>
 
-      {/* Where's Lucia? */}
-      <section className="relative isolate overflow-x-clip px-4 pt-6 pb-20 sm:px-8 lg:-mt-24 lg:pb-[7rem]">
-        <div className="mx-auto grid max-w-[90rem] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,42rem)] lg:gap-6 lg:pl-[3.75rem]">
-          <div className="text-center lg:pt-24">
+      {/*
+        Where's Lucia? Side by side with the trailer photo only from 1400px: below that the photo's
+        672px leaves the three cards too narrow for their buttons, so the photo sits underneath.
+      */}
+      <section className="relative isolate overflow-x-clip px-4 pt-6 pb-20 sm:px-8 lg:pb-[7rem] min-[87.5rem]:-mt-24">
+        <div className="mx-auto grid max-w-[90rem] items-center gap-12 min-[87.5rem]:grid-cols-[minmax(0,1fr)_minmax(0,42rem)] min-[87.5rem]:gap-6 min-[87.5rem]:pl-[3.75rem]">
+          <div className="text-center min-[87.5rem]:pt-24">
             <h2 className="display text-6xl text-strawberry sm:text-7xl lg:text-[5rem]">{where.title}</h2>
-            <ul className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-4 lg:mt-[3.75rem]">
+            <ul className="mx-auto mt-12 grid max-w-[48rem] gap-10 sm:grid-cols-3 sm:gap-4 lg:mt-[3.75rem] min-[87.5rem]:max-w-none">
               {wheres.map((w) => (
                 <li key={w.key} className={`flex flex-col items-center ${w.text}`}>
                   <span className="grid h-[5.625rem] place-items-end">
@@ -170,8 +173,9 @@ export default async function Home() {
                     />
                   </span>
                   <p className="mt-2 text-lg font-bold tracking-[0.02em]">{where[w.key].title}</p>
-                  <p className="mt-1 max-w-[15rem] text-lg tracking-[0.02em]">{where[w.key].copy}</p>
-                  <Link href={w.href} className={`btn mt-4 ${w.button}`}>
+                  <p className="mt-1 mb-4 max-w-[15rem] text-lg tracking-[0.02em]">{where[w.key].copy}</p>
+                  {/* Pushed to the bottom so the three buttons line up whatever the text length. */}
+                  <Link href={w.href} className={`btn mt-auto ${w.button}`}>
                     {where[w.key].cta}
                   </Link>
                 </li>
@@ -184,8 +188,8 @@ export default async function Home() {
             alt={where.photo.alt}
             width={where.photo.width}
             height={where.photo.height}
-            sizes="(min-width: 1024px) 672px, 95vw"
-            className="mx-auto w-full max-w-[42rem] lg:mr-[-4.3rem] lg:ml-0"
+            sizes="(min-width: 672px) 672px, 95vw"
+            className="mx-auto w-full max-w-[42rem] min-[87.5rem]:mr-[-4.3rem] min-[87.5rem]:ml-0"
           />
         </div>
       </section>
