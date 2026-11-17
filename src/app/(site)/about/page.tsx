@@ -2,50 +2,32 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Bear, Container, PageHeading } from "@/components/ui";
-
-export const metadata: Metadata = {
-  title: "Our story",
-  description:
-    "Since 2007, Whistler Lucia Gelato has been whipping up small-batch gelato and sorbets at our kitchen in Base II — the only frozen treats made right here in Whistler.",
-};
+import { Rich, paragraphs } from "@/components/Rich";
+import { getPageContent } from "@/lib/page-content";
+import { aboutPage } from "@/data/pages/about";
 
 /** The bubbles under the story: a pale brand colour with its darker shade for the text. */
 const pillars = [
-  {
-    title: "Made here",
-    body: "Since 2007, we've been whipping up small-batch gelato and sorbets at our kitchen in Base II — the only frozen treats made right here in Whistler.",
-    bg: "bg-alpine text-lakeside",
-  },
-  {
-    title: "Sea to Sky sourced",
-    body: "We source ingredients from the Sea to Sky, celebrate the community that shaped us, and never forget where we come from.",
-    bg: "bg-blush text-strawberry",
-  },
-  {
-    title: "Powered by adventure",
-    body: "Inspired by the peaks and powered by a love of adventure, our gelato is playful, handmade, and full of local flavour.",
-    bg: "bg-peach text-heatwave",
-  },
-  {
-    title: "Just like Whistler",
-    body: "For us, gelato isn't just dessert — it's an experience. Bold, joyful, a little whimsical.",
-    bg: "bg-light-green text-grass",
-  },
-];
+  { key: "madeHere", bg: "bg-alpine text-lakeside" },
+  { key: "seaToSky", bg: "bg-blush text-strawberry" },
+  { key: "adventure", bg: "bg-peach text-heatwave" },
+  { key: "whistler", bg: "bg-light-green text-grass" },
+] as const;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { metaDescription } = await getPageContent("aboutPage", aboutPage);
+  return { title: "Our story", description: metaDescription };
+}
 
 const bears = ["bike", "kayak", "snowboard-pink", "hiker", "zipline", "ski-touring", "bmx", "whitewater"];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { heading, story, pillars: bubbles, lucia, sayHi } = await getPageContent("aboutPage", aboutPage);
   return (
     <>
       <section className="pt-16 pb-12 sm:pt-24">
         <Container>
-          <PageHeading
-            eyebrow="About us"
-            title="Proudly local, since 2007"
-            tone="strawberry"
-            intro="It all started with a trip to Italy."
-          />
+          <PageHeading eyebrow={heading.eyebrow} title={heading.title} tone="strawberry" intro={heading.intro} />
         </Container>
       </section>
 
@@ -54,10 +36,10 @@ export default function AboutPage() {
           <div className="grid items-center gap-12 rounded-[4rem] bg-snow lg:grid-cols-2">
             <div className="relative mx-auto w-full max-w-md">
               <Image
-                src="/photos/skiers-cones.webp"
-                alt="Friends sharing Lucia gelato on the mountain"
-                width={1200}
-                height={1833}
+                src={story.photo.src}
+                alt={story.photo.alt}
+                width={story.photo.width}
+                height={story.photo.height}
                 sizes="(min-width: 1024px) 40vw, 90vw"
                 className="aspect-[4/5] w-full rounded-[3rem] object-cover shadow-soft"
               />
@@ -71,29 +53,19 @@ export default function AboutPage() {
               />
             </div>
             <div className="prose-lucia text-lg leading-relaxed text-ink/85">
-              <h2 className="subhead text-3xl text-lakeside">How we started</h2>
-              <p className="mt-4">
-                The idea for Lucia Gelato started during our travels, where we discovered the simple pleasure
-                of stopping for gelato — whether after a long day outside, exploring new places, or just
-                enjoying the moment.
-              </p>
-              <p>
-                Those experiences stayed with us. Back in Whistler, we kept thinking about how to bring that
-                same feeling here: something simple, high-quality, and enjoyable for everyone.
-              </p>
-              <p>
-                That curiosity led us to learn more about gelato, from traditional techniques to the
-                importance of fresh, natural ingredients. Inspired by the Italian approach, we make gelato and
-                sorbetto in a true artisan style — honest, clean, and full of flavour.
-              </p>
-              <h2 className="subhead pt-6 text-3xl text-lakeside">Our commitment</h2>
-              <p className="mt-4">
-                Lucia Gelato is about more than ice cream. It&rsquo;s about creating something that fits the
-                Whistler lifestyle, whether you&rsquo;re finishing a bike ride, skiing, or simply enjoying a
-                sunny afternoon. We hope every scoop brings a little of that experience: quality ingredients,
-                craftsmanship, and good moments.
-              </p>
-              <p className="subhead pt-2 text-2xl text-strawberry">Ciao, Tancrede &amp; Team Lucia</p>
+              <h2 className="subhead text-3xl text-lakeside">{story.startedTitle}</h2>
+              {paragraphs(story.started).map((p, i) => (
+                <p key={p} className={i === 0 ? "mt-4" : undefined}>
+                  <Rich text={p} />
+                </p>
+              ))}
+              <h2 className="subhead pt-6 text-3xl text-lakeside">{story.commitmentTitle}</h2>
+              {paragraphs(story.commitment).map((p, i) => (
+                <p key={p} className={i === 0 ? "mt-4" : undefined}>
+                  <Rich text={p} />
+                </p>
+              ))}
+              <p className="subhead pt-2 text-2xl text-strawberry">{story.signOff}</p>
             </div>
           </div>
         </Container>
@@ -104,9 +76,9 @@ export default function AboutPage() {
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {pillars.map((p) => (
               // Each bubble's text is the darker shade of its own colour (brand guidelines).
-              <li key={p.title} className={`rounded-[1.875rem] p-7 ${p.bg}`}>
-                <h2 className="subhead text-2xl">{p.title}</h2>
-                <p className="mt-3 leading-relaxed">{p.body}</p>
+              <li key={p.key} className={`rounded-[1.875rem] p-7 ${p.bg}`}>
+                <h2 className="subhead text-2xl">{bubbles[p.key].title}</h2>
+                <p className="mt-3 leading-relaxed">{bubbles[p.key].body}</p>
               </li>
             ))}
           </ul>
@@ -115,27 +87,23 @@ export default function AboutPage() {
 
       <section className="relative overflow-hidden bg-lakeside py-20 text-snow sm:py-28">
         <Image
-          src="/bears/ski-jump-white.png"
-          alt=""
-          aria-hidden
-          width={616}
-          height={560}
+          src={lucia.illustration.src}
+          alt={lucia.illustration.alt}
+          aria-hidden={lucia.illustration.alt ? undefined : true}
+          width={lucia.illustration.width}
+          height={lucia.illustration.height}
           className="pointer-events-none absolute -top-6 -left-10 w-64 opacity-90 sm:w-96"
         />
         <Container className="relative">
           <div className="ml-auto max-w-xl">
-            <p className="eyebrow text-alpine">Living the Whistler lifestyle</p>
-            <h2 className="display mt-4 text-5xl sm:text-6xl">Meet Lucia</h2>
+            <p className="eyebrow text-alpine">{lucia.eyebrow}</p>
+            <h2 className="display mt-4 text-5xl sm:text-6xl">{lucia.title}</h2>
             <div className="prose-lucia mt-6 text-lg leading-relaxed text-snow/90">
-              <p>
-                Lucia is no ordinary bear. She&rsquo;s a Whistler bear — and our beloved mascot. No matter the
-                season, you can find her eating a cone anywhere: on the slopes, at the pump track, or at one
-                of her favourite lakeside spots.
-              </p>
-              <p>
-                She&rsquo;s a true local, just like us. Every new flavour is a chance for Lucia to try a new
-                mountainside adventure — look for her on every pint.
-              </p>
+              {paragraphs(lucia.body).map((p) => (
+                <p key={p}>
+                  <Rich text={p} />
+                </p>
+              ))}
             </div>
           </div>
         </Container>
@@ -152,16 +120,14 @@ export default function AboutPage() {
 
       <section className="py-20">
         <Container className="text-center">
-          <h2 className="display text-4xl text-lakeside sm:text-5xl">Come say hi</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-ink/80">
-            Questions, ideas, or a flavour you&rsquo;re dreaming of? We&rsquo;d love to hear from you.
-          </p>
+          <h2 className="display text-4xl text-lakeside sm:text-5xl">{sayHi.title}</h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink/80">{sayHi.intro}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/contact" className="btn btn-primary">
-              Contact us
+              {sayHi.contactLabel}
             </Link>
             <Link href="/find-us" className="btn btn-sky">
-              Find Lucia
+              {sayHi.findUsLabel}
             </Link>
           </div>
         </Container>

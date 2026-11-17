@@ -1,23 +1,31 @@
 import Image from "next/image";
 import Link from "next/link";
-import { nav, site } from "@/data/site";
+import { site } from "@/data/site";
+import { siteText } from "@/data/pages/site-text";
 import { getSiteSettings } from "@/lib/content";
+import { getPageContent } from "@/lib/page-content";
 import { phoneHref } from "@/lib/format";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
+import { siteNav } from "@/components/Header";
 
 // Footer link columns, in the order shown in the design.
-const columns = [
+const columnHrefs = [
   ["/find-us", "/our-gelato", "/wholesale"],
   ["/order", "/events", "/about"],
-].map((hrefs) => hrefs.map((href) => nav.find((n) => n.href === href)!));
+];
 
 export async function Footer() {
-  const { contact } = await getSiteSettings();
+  const [{ contact }, { menu, footer, newsletter }] = await Promise.all([
+    getSiteSettings(),
+    getPageContent("siteText", siteText),
+  ]);
+  const nav = siteNav(menu);
+  const columns = columnHrefs.map((hrefs) => hrefs.map((href) => nav.find((n) => n.href === href)!));
   return (
     <footer className="relative mt-24 bg-petal text-base tracking-[0.02em] text-black lg:text-lg">
       <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-8 lg:flex lg:justify-center lg:gap-14 lg:py-24">
         <address className="not-italic leading-normal lg:w-[16rem]">
-          <p className="font-bold">Our kitchen at Base II</p>
+          <p className="font-bold">{footer.kitchenHeading}</p>
           <p>{contact.kitchenStreet}</p>
           <p>{contact.kitchenCity}</p>
           <p className="mt-[1.2em]">
@@ -32,7 +40,7 @@ export async function Footer() {
           </p>
           <p className="mt-[1.2em]">
             <a href={contact.instagramUrl} className="hover:underline">
-              <span className="font-bold">Instagram</span>
+              <span className="font-bold">{footer.instagramLabel}</span>
               <br />
               {contact.instagramHandle}
             </a>
@@ -63,7 +71,7 @@ export async function Footer() {
               {i === 1 ? (
                 <li>
                   <Link href="/contact" className="font-bold hover:underline">
-                    Contact us
+                    {menu.about.contact}
                   </Link>
                 </li>
               ) : null}
@@ -73,10 +81,10 @@ export async function Footer() {
 
         <div className="lg:w-80">
           <p className="font-heading text-2xl leading-[1.05] font-bold text-strawberry">
-            New flavours, trailer sightings &amp; Lucia&rsquo;s latest adventures.
+            {newsletter.heading}
           </p>
-          <p className="mt-[1.2em] text-strawberry">A few emails a season. No spam, just gelato.</p>
-          <NewsletterForm />
+          <p className="mt-[1.2em] text-strawberry">{newsletter.intro}</p>
+          <NewsletterForm buttonLabel={newsletter.buttonLabel} success={newsletter.success} />
         </div>
 
         <Image

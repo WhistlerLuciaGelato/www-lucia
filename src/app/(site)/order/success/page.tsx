@@ -6,6 +6,8 @@ import { Bear, Container } from "@/components/ui";
 import { getShop, getSiteSettings } from "@/lib/content";
 import { emailConfigured } from "@/lib/email";
 import { money, phoneHref, prettyDate } from "@/lib/format";
+import { getPageContent } from "@/lib/page-content";
+import { orderPage } from "@/data/pages/order";
 import {
   describeCard,
   getSquareConfig,
@@ -138,14 +140,18 @@ async function OrderSummary({
 }
 
 export default async function SuccessPage({ searchParams }: PageProps<"/order/success">) {
-  const [shop, { contact }] = await Promise.all([getShop(), getSiteSettings()]);
+  const [shop, { contact }, { success }] = await Promise.all([
+    getShop(),
+    getSiteSettings(),
+    getPageContent("orderPage", orderPage),
+  ]);
   return (
     <section className="pt-16 sm:pt-24">
       <Container className="text-center">
         <ClearCart />
         <Bear name="ski-jump" className="mx-auto w-40" />
-        <h1 className="display mt-6 text-5xl text-strawberry sm:text-6xl">Thank you!</h1>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-ink/85">Your order is in and Lucia is on it.</p>
+        <h1 className="display mt-6 text-5xl text-strawberry sm:text-6xl">{success.title}</h1>
+        <p className="mx-auto mt-5 max-w-xl text-lg text-ink/85">{success.intro}</p>
         <Suspense fallback={null}>
           <OrderSummary
             searchParams={searchParams as Promise<{ order?: string }>}
@@ -170,7 +176,7 @@ export default async function SuccessPage({ searchParams }: PageProps<"/order/su
           .
         </p>
         <Link href="/" className="btn btn-primary mt-8">
-          Back home
+          {success.homeButton}
         </Link>
       </Container>
     </section>

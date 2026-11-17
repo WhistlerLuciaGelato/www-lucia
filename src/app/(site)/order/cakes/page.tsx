@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Blob } from "@/components/Blob";
 import { CakeBuilder } from "@/components/shop/CakeBuilder";
 import { getShop } from "@/lib/content";
+import { getPageContent } from "@/lib/page-content";
+import { orderPage } from "@/data/pages/order";
 
-export const metadata: Metadata = {
-  title: "Gelato cakes",
-  description:
-    "Custom gelato cakes for birthdays, weddings and special moments. Choose your size, base and flavours — made to order in Whistler.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { cakesMetaDescription } = await getPageContent("orderPage", orderPage);
+  return { title: "Gelato cakes", description: cakesMetaDescription };
+}
 
 /** Strawberry, for the hero band and its curved bottom edge. */
 const STRAWBERRY = "#ff8f8f";
@@ -17,18 +18,18 @@ const STRAWBERRY = "#ff8f8f";
  * a curved bottom edge, then the four steps as pastel cards beside the cake summary.
  */
 export default async function CakesPage() {
-  const shop = await getShop();
+  const [shop, page] = await Promise.all([getShop(), getPageContent("orderPage", orderPage)]);
+  const hero = page.cakesHero;
   return (
     <>
       {/* Hero band: the header's snow wiggle bites into its top edge. */}
       <section className="bg-strawberry px-4 pt-20 pb-10 text-center sm:px-8 sm:pt-28 lg:pt-[7.3rem]">
-        <p className="eyebrow !text-lg text-petal lg:!text-xl">Order · Gelato cakes</p>
+        <p className="eyebrow !text-lg text-petal lg:!text-xl">{hero.eyebrow}</p>
         <h1 className="display mx-auto mt-5 max-w-[37rem] text-6xl text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:text-[5rem]">
-          Make it a cake
+          {hero.title}
         </h1>
         <p className="mx-auto mt-6 max-w-2xl font-ui text-lg leading-relaxed font-semibold text-ink/80">
-          Custom-made for birthdays, weddings and special moments. Two layers of gelato or sorbet on your
-          choice of base — made to order with {shop.cakeLeadDays} days&rsquo; notice.
+          {hero.intro} — made to order with {shop.cakeLeadDays} days&rsquo; notice.
         </p>
       </section>
 
@@ -49,7 +50,7 @@ export default async function CakesPage() {
         <Blob shape="pebble" color="#ffe1c2" className="-right-8 bottom-16 w-36 rotate-45 sm:w-48" />
 
         <div className="mx-auto max-w-[76.125rem] pt-16 sm:pt-24 lg:pt-28">
-          <CakeBuilder shop={shop} />
+          <CakeBuilder shop={shop} content={page.cakeBuilder} />
         </div>
       </section>
     </>

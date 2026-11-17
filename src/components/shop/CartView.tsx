@@ -14,6 +14,7 @@ import {
   type Fulfillment,
 } from "@/lib/checkout";
 import type { Catalogue } from "@/lib/content-types";
+import type { OrderPage } from "@/data/pages/order";
 import { addDays, money, prettyDate } from "@/lib/format";
 import { firstDeliveryDate, pickupProblem } from "@/lib/pickup";
 import { promoDiscount, type PromoTerms } from "@/lib/promo";
@@ -60,7 +61,16 @@ function emailOrderLink(
   return `mailto:${to}?subject=${encodeURIComponent(delivery ? "Delivery order" : "Pickup order")}&body=${encodeURIComponent(body)}`;
 }
 
-export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; contactEmail: string }) {
+/** The cart and checkout; its headings and empty-cart copy come from the Studio (Order, cakes & cart). */
+export function CartView({
+  catalogue,
+  contactEmail,
+  content,
+}: {
+  catalogue: Catalogue;
+  contactEmail: string;
+  content: OrderPage["cart"];
+}) {
   const items = useCart();
   const router = useRouter();
   const today = useToday();
@@ -119,16 +129,14 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
     return (
       <div className="mx-auto max-w-xl rounded-[2.5rem] bg-mist p-10 text-center">
         <Bear name="hiker" className="mx-auto w-28" />
-        <p className="subhead mt-6 text-3xl text-lakeside">Your cart is empty</p>
-        <p className="mt-3 text-ink/80">
-          Lucia&rsquo;s out exploring. Pick a pint or build a cake to get started.
-        </p>
+        <p className="subhead mt-6 text-3xl text-lakeside">{content.empty.title}</p>
+        <p className="mt-3 text-ink/80">{content.empty.text}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/our-gelato#order-pints" className="btn btn-primary">
-            Shop pints
+            {content.empty.pintsButton}
           </Link>
           <Link href="/order/cakes" className="btn btn-berry">
-            Build a cake
+            {content.empty.cakeButton}
           </Link>
         </div>
       </div>
@@ -290,7 +298,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
         <div className="rounded-[2.5rem] bg-mist p-6 sm:p-8 lg:sticky lg:top-28">
           {checkoutOrder ? (
             <>
-              <h2 className="subhead text-2xl text-lakeside">Payment</h2>
+              <h2 className="subhead text-2xl text-lakeside">{content.paymentHeading}</h2>
               <p className="mt-2 text-sm text-ink/80">
                 {zone
                   ? `Delivery ${prettyDate(pickupDate)} · ${deliverTo}`
@@ -310,7 +318,7 @@ export function CartView({ catalogue, contactEmail }: { catalogue: Catalogue; co
             </>
           ) : (
             <>
-              <h2 className="subhead text-2xl text-lakeside">Pickup or delivery</h2>
+              <h2 className="subhead text-2xl text-lakeside">{content.pickupHeading}</h2>
               <p className="mt-3 rounded-2xl bg-white/70 px-4 py-3 font-ui text-sm text-ink/80">
                 <strong className="text-ink">
                   Please order at least {leadDays} day{leadDays === 1 ? "" : "s"} ahead.

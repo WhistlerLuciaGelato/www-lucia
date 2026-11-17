@@ -17,6 +17,35 @@ export const structure: StructureResolver = (S) =>
             .defaultOrdering([{ field: "orderRank", direction: "asc" }]),
         ),
       singleton(S, "siteSettings", "Announcement & contact"),
+      S.listItem()
+        .title("Pages: text & photos")
+        .id("pages")
+        .child(
+          S.list()
+            .title("Pages: text & photos")
+            .items([
+              singleton(S, "homePage", "Home"),
+              singleton(S, "aboutPage", "About"),
+              singleton(S, "ourGelatoPage", "Our gelato"),
+              singleton(S, "findUsPage", "Find us"),
+              singleton(S, "orderPage", "Order, cakes & cart"),
+              singleton(S, "contactPage", "Contact"),
+              singleton(S, "siteText", "Header, footer & newsletter"),
+              S.divider(),
+              S.listItem()
+                .title("Weddings & events: see its “Page text & photos” tab")
+                .id("events-text")
+                .child(
+                  S.document().schemaType("eventsPage").documentId("eventsPage").title("Weddings & events"),
+                ),
+              S.listItem()
+                .title("Wholesale: see its “Page text & photos” tab")
+                .id("wholesale-text")
+                .child(
+                  S.document().schemaType("wholesalePage").documentId("wholesalePage").title("Wholesale"),
+                ),
+            ]),
+        ),
       S.divider(),
       S.documentTypeListItem("pintFlavour").title("Pint flavours"),
       singleton(S, "shopSettings", "Online shop: prices, pickup & cakes"),

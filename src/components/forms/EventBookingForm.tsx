@@ -11,9 +11,12 @@ import { CHOOSE_PACKAGE_EVENT } from "@/components/events/RequestPackageLink";
 export function EventBookingForm({
   packages: eventPackages,
   travelFees,
+  success,
 }: {
   packages: EventsContent["packages"];
   travelFees: EventsContent["travelFees"];
+  /** The thank-you shown once the request is sent (from the Studio). */
+  success: { title: string; message: string };
 }) {
   const travelOptions = [...travelFees.map((t) => t.area), "Other"];
   const { state, submit, fieldError } = useFormSubmit();
@@ -43,10 +46,8 @@ export function EventBookingForm({
         state={state}
         success={
           <>
-            <p className="subhead text-2xl">Thanks — your request is in!</p>
-            <p className="mt-2 font-normal">
-              We&rsquo;ll be in touch soon to confirm availability and details.
-            </p>
+            <p className="subhead text-2xl">{success.title}</p>
+            <p className="mt-2 font-normal">{success.message}</p>
           </>
         }
       />

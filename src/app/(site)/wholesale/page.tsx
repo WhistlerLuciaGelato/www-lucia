@@ -5,13 +5,13 @@ import { WholesaleOrderForm } from "@/components/forms/WholesaleOrderForm";
 import { SectionHeading } from "@/components/ui";
 import { getWholesale } from "@/lib/content";
 import type { Supplier } from "@/lib/content-types";
-import { orderCutoff } from "@/data/wholesale";
+import { getPageContent } from "@/lib/page-content";
+import { wholesalePageText } from "@/data/pages/wholesale";
 
-export const metadata: Metadata = {
-  title: "Wholesale",
-  description:
-    "Premium small-batch gelato for cafés, restaurants and retailers across Whistler, Squamish and Pemberton. Sizes, delivery schedule and quote requests.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { metaDescription } = await getPageContent("wholesalePage", wholesalePageText);
+  return { title: "Wholesale", description: metaDescription };
+}
 
 /** Bluebird, for the hero band and its curved bottom edge. */
 const BLUEBIRD = "#78bdc7";
@@ -33,7 +33,11 @@ const anchor = "scroll-mt-28 lg:scroll-mt-44";
  * flavour list and the quote request form. No prices anywhere: Lucia quotes each request.
  */
 export default async function WholesalePage() {
-  const content = await getWholesale();
+  const [content, page] = await Promise.all([
+    getWholesale(),
+    getPageContent("wholesalePage", wholesalePageText),
+  ]);
+  const { hero, pricing, delivery, flavoursText, suppliersText, order } = page;
   const { formats: wholesaleFormats, deliverySchedule, flavourGroups: wholesaleFlavours } = content;
   // Bestsellers repeat flavours from the other lists, so count each name once.
   const flavourCount = new Set(wholesaleFlavours.flatMap((g) => g.flavours)).size;
@@ -49,16 +53,16 @@ export default async function WholesalePage() {
     <>
       {/* Hero band: the header's snow wiggle bites into its top edge. */}
       <section className="bg-bluebird px-4 pt-20 pb-24 text-center sm:px-8 sm:pt-28 sm:pb-32 lg:pt-[7.3rem] lg:pb-[10rem]">
-        <p className="eyebrow !text-lg text-seafoam lg:!text-xl">Wholesale</p>
+        <p className="eyebrow !text-lg text-seafoam lg:!text-xl">{hero.eyebrow}</p>
         <h1 className="display mx-auto mt-5 max-w-[37rem] text-6xl text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:text-[5rem]">
-          Put Lucia on your menu
+          {hero.title}
         </h1>
         <div className="mt-8 flex flex-wrap justify-center gap-3 lg:mt-10">
           <a href="#order" className="btn btn-berry">
-            Place an order
+            {hero.orderButton}
           </a>
           <a href="#flavours" className="btn btn-primary">
-            Browse flavours
+            {hero.flavoursButton}
           </a>
         </div>
       </section>
@@ -82,12 +86,8 @@ export default async function WholesalePage() {
           className={`mx-auto -mt-12 grid max-w-[76.125rem] gap-6 lg:grid-cols-2 lg:gap-[4.375rem] ${anchor}`}
         >
           <div className="rounded-[2.1875rem] border border-strawberry bg-petal px-6 py-10 sm:px-[3.125rem] sm:py-[3.125rem]">
-            <h2 className="display text-center text-4xl text-strawberry sm:text-[2.5rem]">
-              Wholesale Pricing
-            </h2>
-            <p className="mx-auto mt-4 max-w-sm text-center font-ui text-ink/80">
-              Sizes we make for wholesale. Request a quote below and we&rsquo;ll send you our pricing.
-            </p>
+            <h2 className="display text-center text-4xl text-strawberry sm:text-[2.5rem]">{pricing.title}</h2>
+            <p className="mx-auto mt-4 max-w-sm text-center font-ui text-ink/80">{pricing.intro}</p>
             <ul className="mt-6 divide-y divide-strawberry/30 font-ui">
               {wholesaleFormats.map((f) => (
                 <li key={f.id} className="py-3.5">
@@ -96,19 +96,17 @@ export default async function WholesalePage() {
                 </li>
               ))}
               <li className="py-3.5">
-                <p className="font-extrabold text-ink">Other custom size</p>
-                <p className="text-sm text-ink/70">
-                  Choose &ldquo;Other custom size&rdquo; in the form and tell us what you need in the notes.
-                </p>
+                <p className="font-extrabold text-ink">{pricing.customSize}</p>
+                <p className="text-sm text-ink/70">{pricing.customSizeNote}</p>
               </li>
             </ul>
           </div>
 
           <div className="rounded-[2.1875rem] border border-lakeside bg-seafoam px-6 py-10 sm:px-[3.125rem] sm:py-[3.125rem]">
-            <h2 className="display text-center text-4xl text-lakeside sm:text-[2.5rem]">Delivery Schedule</h2>
+            <h2 className="display text-center text-4xl text-lakeside sm:text-[2.5rem]">{delivery.title}</h2>
             <p className="mt-5 flex justify-center">
               <span className="rounded-full border border-lakeside bg-snow px-4 py-1.5 text-center font-ui text-sm font-extrabold text-lakeside">
-                {orderCutoff}
+                {delivery.cutoff}
               </span>
             </p>
             <ul className="mt-6 divide-y divide-lakeside/25 font-ui">
@@ -132,9 +130,9 @@ export default async function WholesalePage() {
         <Blob shape="bean" color="#ffeee9" className="right-[2%] bottom-24 w-24 rotate-[-88deg] sm:w-28" />
         <div className="mx-auto max-w-[76.125rem] rounded-[2.1875rem] bg-mist p-6 sm:p-10 lg:p-14">
           <SectionHeading
-            eyebrow="Wholesale flavours list"
+            eyebrow={flavoursText.eyebrow}
             title={flavourCount >= 100 ? "Over 100 flavours" : `${flavourCount} flavours`}
-            intro="Gelato, sorbetto, vegan, boozy and cookie sandwiches. Don't see what you're after? Ask about custom flavours."
+            intro={flavoursText.intro}
             align="left"
           />
           <div className="mt-10">
@@ -147,9 +145,9 @@ export default async function WholesalePage() {
         <section id="suppliers" className={`px-4 py-12 sm:px-8 ${anchor}`}>
           <div className="mx-auto max-w-[76.125rem]">
             <SectionHeading
-              eyebrow="Our suppliers"
-              title="Where our ingredients come from"
-              intro="We buy from farms and producers close to home wherever we can. Here's who goes into your gelato."
+              eyebrow={suppliersText.eyebrow}
+              title={suppliersText.title}
+              intro={suppliersText.intro}
             />
             <ul className="mt-10 flex flex-wrap justify-center gap-5">
               {supplierGroups.map((group, i) => {
@@ -190,13 +188,17 @@ export default async function WholesalePage() {
 
       <section id="order" className={`px-4 py-12 sm:px-8 lg:pb-20 ${anchor}`}>
         <div className="mx-auto max-w-5xl rounded-[2.1875rem] bg-white p-6 shadow-soft ring-1 ring-alpine/60 sm:p-12">
-          <SectionHeading
-            eyebrow="Quote request"
-            title="Place a wholesale order"
-            intro="Tell us what you'd like and where to deliver it. We'll reply with a quote and your delivery day. New partners welcome!"
-          />
+          <SectionHeading eyebrow={order.eyebrow} title={order.title} intro={order.intro} />
           <div className="mt-10">
-            <WholesaleOrderForm content={content} />
+            <WholesaleOrderForm
+              content={content}
+              text={{
+                cutoff: delivery.cutoff,
+                replyNote: order.replyNote,
+                successTitle: order.successTitle,
+                successMessage: order.successMessage,
+              }}
+            />
           </div>
         </div>
       </section>

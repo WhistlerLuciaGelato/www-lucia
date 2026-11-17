@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 
 /** A package's "More info": closed at first, and drops open when tapped (Lucia, Nov 2026). */
-export function MoreInfo({ children }: { children: React.ReactNode }) {
+export function MoreInfo({ label, children }: { label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   return (
@@ -15,7 +15,7 @@ export function MoreInfo({ children }: { children: React.ReactNode }) {
         onClick={() => setOpen((o) => !o)}
         className="flex w-full cursor-pointer items-center justify-between gap-2 py-1 font-bold"
       >
-        More info
+        {label}
         <svg
           aria-hidden
           viewBox="0 0 12 8"

@@ -6,6 +6,7 @@ import { cart } from "@/lib/cart-store";
 import { money } from "@/lib/format";
 import { CAKE_MAX_QTY } from "@/data/shop";
 import type { Shop } from "@/lib/content-types";
+import type { OrderPage } from "@/data/pages/order";
 import { Bear } from "@/components/ui";
 
 /** Each step gets one of the pastel card colourways from the redesigned pages. */
@@ -112,7 +113,8 @@ function Choice({
   );
 }
 
-export function CakeBuilder({ shop }: { shop: Shop }) {
+/** The cake builder on the Gelato cakes page; its headings come from the Studio (Order, cakes & cart). */
+export function CakeBuilder({ shop, content }: { shop: Shop; content: OrderPage["cakeBuilder"] }) {
   const { cakeSizes, cakeBases, cakeCombos, cakeLeadDays } = shop;
   const [size, setSize] = useState(cakeSizes[0].id);
   const [base, setBase] = useState(cakeBases[0].id);
@@ -136,7 +138,7 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
       }}
     >
       <div className="space-y-6 lg:col-span-2">
-        <Step n={1} title="Choose your size" accent="strawberry">
+        <Step n={1} title={content.steps.size} accent="strawberry">
           <div className="grid gap-3 sm:grid-cols-2">
             {cakeSizes.map((s) => (
               <Choice
@@ -153,7 +155,7 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
           </div>
         </Step>
 
-        <Step n={2} title="Pick your base" accent="lakeside">
+        <Step n={2} title={content.steps.base} accent="lakeside">
           <div className="grid gap-3 sm:grid-cols-3">
             {cakeBases.map((b) => (
               <Choice
@@ -170,7 +172,7 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
           </div>
         </Step>
 
-        <Step n={3} title="Choose your flavours" accent="heatwave">
+        <Step n={3} title={content.steps.flavours} accent="heatwave">
           <div className="grid gap-3 sm:grid-cols-3">
             {cakeCombos.map((c) => (
               <Choice
@@ -187,15 +189,15 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
             ))}
           </div>
           <p className="mt-5 font-ui text-sm text-ink/75">
-            Want a different size or flavour?{" "}
+            {content.customQuestion}{" "}
             <Link href="/contact" className="font-bold text-lake-deep underline underline-offset-2">
-              Ask us about a custom cake
+              {content.customLinkLabel}
             </Link>
             .
           </p>
         </Step>
 
-        <Step n={4} title="Allergies or dietary needs?" accent="lakeside">
+        <Step n={4} title={content.steps.dietary} accent="lakeside">
           <label htmlFor="cake-dietary" className="label">
             Let us know about any allergies or dietary restrictions{" "}
             <span className="font-normal text-ink/50">(optional)</span>
@@ -218,7 +220,7 @@ export function CakeBuilder({ shop }: { shop: Shop }) {
       <aside className="lg:sticky lg:top-40 lg:self-start">
         <div className="relative rounded-[2.5rem] border border-strawberry bg-rose p-7 sm:p-8">
           <Bear name="snowboard-pink" className="absolute top-5 right-5 w-20 sm:w-24" />
-          <p className="eyebrow text-strawberry">Your cake</p>
+          <p className="eyebrow text-strawberry">{content.summaryEyebrow}</p>
           <p className="display mt-3 text-5xl text-strawberry">{sizeInfo.label} cake</p>
           <dl className="mt-6 space-y-3 font-ui text-ink">
             <div>

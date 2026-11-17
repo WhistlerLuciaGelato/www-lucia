@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
@@ -8,17 +9,18 @@ import { Wave } from "@/components/Wave";
 import { BearInView } from "@/components/events/BearInView";
 import { MoreInfo } from "@/components/events/MoreInfo";
 import { RequestPackageLink } from "@/components/events/RequestPackageLink";
-import { Rich, paragraphs } from "@/components/events/Rich";
+import { Rich, paragraphs } from "@/components/Rich";
 import { EventBookingForm } from "@/components/forms/EventBookingForm";
 import { travelFeeLabel } from "@/data/events";
 import { getEvents } from "@/lib/content";
 import type { EventPackage } from "@/lib/content-types";
+import { getPageContent } from "@/lib/page-content";
+import { eventsPageText, type EventsPageText } from "@/data/pages/events";
 
-export const metadata: Metadata = {
-  title: "Weddings & events",
-  description:
-    "Bring the Lucia Gelato trailer or our wooden gelato display to your wedding, party or corporate event. Serving Whistler, Squamish, Pemberton and Vancouver.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { metaDescription } = await getPageContent("eventsPage", eventsPageText);
+  return { title: "Weddings & events", description: metaDescription };
+}
 
 /** Section colours, for the wave edges (they need literal colours). */
 const STRAWBERRY = "#ff8f8f";
@@ -49,7 +51,15 @@ const accent = {
 /** Header links land on #packages, #faq and #book; keep them clear of the sticky header. */
 const anchor = "scroll-mt-24 lg:scroll-mt-40";
 
-function PackageCard({ pkg, index }: { pkg: EventPackage; index: number }) {
+function PackageCard({
+  pkg,
+  index,
+  text,
+}: {
+  pkg: EventPackage;
+  index: number;
+  text: EventsPageText["packageCards"];
+}) {
   const a = accent[pkg.accent] ?? accent.lakeside;
   const short = pkg.name.replace(/^The\s+/i, "");
   return (
@@ -68,7 +78,7 @@ function PackageCard({ pkg, index }: { pkg: EventPackage; index: number }) {
       </BearInView>
       <h2 className={`display text-[2.5rem] ${a.text}`}>{pkg.name}</h2>
       <p className="flex flex-col items-center gap-[0.3125rem] font-ui">
-        <span className={`text-xs font-bold ${a.text}`}>Starting at</span>
+        <span className={`text-xs font-bold ${a.text}`}>{text.startingAt}</span>
         <span className={`text-[1.625rem] leading-none font-black ${a.text}`}>
           ${pkg.basePrice.toLocaleString("en-CA")}
         </span>
@@ -87,7 +97,7 @@ function PackageCard({ pkg, index }: { pkg: EventPackage; index: number }) {
         ))}
       </ul>
       {pkg.moreInfo ? (
-        <MoreInfo>
+        <MoreInfo label={text.moreInfo}>
           {paragraphs(pkg.moreInfo).map((p) => (
             <p key={p} className="mb-[0.5625rem] last:mb-0">
               <Rich text={p} />
@@ -96,7 +106,7 @@ function PackageCard({ pkg, index }: { pkg: EventPackage; index: number }) {
         </MoreInfo>
       ) : null}
       <RequestPackageLink packageId={pkg.id} className={`pill-link mt-auto !text-sm ${a.button}`}>
-        Request {short}
+        {text.request} {short}
       </RequestPackageLink>
     </li>
   );
@@ -108,7 +118,8 @@ function PackageCard({ pkg, index }: { pkg: EventPackage; index: number }) {
  * the FAQ and the booking request form.
  */
 export default async function EventsPage() {
-  const events = await getEvents();
+  const [events, page] = await Promise.all([getEvents(), getPageContent("eventsPage", eventsPageText)]);
+  const { hero, travelInfo, faqText, booking } = page;
   const { packages, faq, gallery } = events;
   const pills = [...new Set([...events.travelFees.map(travelFeeLabel), ...events.terms])];
   const half = Math.ceil(faq.length / 2);
@@ -137,17 +148,20 @@ export default async function EventsPage() {
         />
 
         <div className="px-4 pt-16 text-center sm:px-8 lg:pt-[5.8rem]">
-          <p className="eyebrow !text-lg text-rose lg:!text-xl">Packages &amp; pricing</p>
+          <p className="eyebrow !text-lg text-rose lg:!text-xl">{hero.eyebrow}</p>
           <h1 className="subhead mt-5 text-6xl text-snow [text-shadow:0_4px_4px_rgb(0_0_0/0.1)] sm:text-7xl lg:mt-7 lg:text-[5rem]">
-            Bring gelato
-            <br />
-            to your party
+            {hero.title.split("\n").map((l, i) => (
+              <Fragment key={i}>
+                {i > 0 ? <br /> : null}
+                {l}
+              </Fragment>
+            ))}
           </h1>
         </div>
 
         <ul className="relative mx-auto mt-10 grid max-w-md items-start gap-8 px-4 sm:px-8 lg:mt-[3.4rem] lg:max-w-[81rem] lg:grid-cols-3 lg:gap-[2.8125rem]">
           {packages.map((pkg, i) => (
-            <PackageCard key={pkg.id} pkg={pkg} index={i} />
+            <PackageCard key={pkg.id} pkg={pkg} index={i} text={page.packageCards} />
           ))}
           <Blob
             shape="pebble"
@@ -158,7 +172,7 @@ export default async function EventsPage() {
 
         {/* Travel & booking info */}
         <div className="mx-auto max-w-[56rem] px-4 pt-16 pb-12 text-center sm:px-8 lg:pt-[3.75rem]">
-          <h2 className="subhead text-[2.5rem] text-lakeside">Travel &amp; Booking Info</h2>
+          <h2 className="subhead text-[2.5rem] text-lakeside">{travelInfo.title}</h2>
           <ul className="mt-6 flex flex-wrap justify-center gap-2.5">
             {pills.map((t) => (
               <li
@@ -170,13 +184,13 @@ export default async function EventsPage() {
             ))}
           </ul>
           <p className="mt-5 font-ui text-sm text-black">
-            More questions? See{" "}
+            {travelInfo.questionsBefore}{" "}
             <a href="#faq" className="font-bold hover:underline">
-              FAQ
+              {travelInfo.faqLink}
             </a>{" "}
-            below or{" "}
+            {travelInfo.questionsBetween}{" "}
             <Link href="/contact" className="font-bold hover:underline">
-              contact us
+              {travelInfo.contactLink}
             </Link>
           </p>
         </div>
@@ -197,7 +211,7 @@ export default async function EventsPage() {
         <Blob shape="bean" color="#e3f4ef" className="top-20 -left-40 w-[26rem] lg:-left-28 lg:w-[32rem]" />
         <Blob shape="pebble" color="#fcd5d1" className="top-14 right-[6%] hidden w-14 lg:block" />
         <Blob shape="splash" color="#ffe2df" className="-right-40 bottom-0 w-[24rem] lg:w-[26rem]" />
-        <h2 className="subhead text-center text-6xl text-strawberry lg:text-[5rem]">FAQ</h2>
+        <h2 className="subhead text-center text-6xl text-strawberry lg:text-[5rem]">{faqText.title}</h2>
         <div className="mx-auto mt-10 grid max-w-[70.625rem] gap-[0.9375rem] lg:mt-[2.8rem] lg:grid-cols-2 lg:gap-x-[2.0625rem]">
           {faqColumns.map((col, c) => (
             <div key={c} className="flex flex-col gap-[0.9375rem]">
@@ -235,9 +249,9 @@ export default async function EventsPage() {
           ))}
         </div>
         <p className="mt-6 text-center font-ui text-sm text-black">
-          More questions?{" "}
+          {faqText.moreQuestions}{" "}
           <Link href="/contact" className="font-bold hover:underline">
-            Contact us
+            {faqText.contactLink}
           </Link>
         </p>
       </section>
@@ -249,17 +263,20 @@ export default async function EventsPage() {
       >
         <Wave color={ROSE} className="absolute inset-x-0 -top-3.5" />
         <h2 className="eyebrow text-center !text-[2.5rem] !leading-[0.95] text-strawberry">
-          Request a booking
+          {booking.title}
         </h2>
         <p className="mx-auto mt-4 max-w-[22.625rem] text-center font-ui text-sm text-black">
-          Tell us a little about your event and we&rsquo;ll get back to you with availability and a quote.
+          {booking.intro}
         </p>
         <div className="mx-auto mt-8 max-w-[48.75rem]">
-          <EventBookingForm packages={packages} travelFees={events.travelFees} />
+          <EventBookingForm
+            packages={packages}
+            travelFees={events.travelFees}
+            success={{ title: booking.successTitle, message: booking.successMessage }}
+          />
         </div>
         <p className="mx-auto mt-6 max-w-[45.625rem] text-center font-ui text-sm text-black">
-          Please note that event requests are subject to our availability. Our team will be in touch to
-          confirm your event booking.
+          {booking.note}
         </p>
         <Wave color={ROSE} className="absolute inset-x-0 -bottom-3.5 rotate-180" />
       </section>

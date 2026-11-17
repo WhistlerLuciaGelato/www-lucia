@@ -16,7 +16,8 @@
     "apply-feedback-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-feedback-edits.mts",
     "apply-find-us-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-find-us-edits.mts",
     "apply-pint-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-pint-edits.mts",
-    "apply-wholesale-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-wholesale-edits.mts"
+    "apply-wholesale-edits": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/apply-wholesale-edits.mts",
+    "seed-page-text": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local --import ./scripts/lib/src-imports.mjs scripts/seed-page-text.mts"
   },
   "dependencies": {
     "@sanity/client": "8.9.0",

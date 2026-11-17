@@ -6,24 +6,27 @@ import { LocationStatus } from "@/components/LocationStatus";
 import { Wave } from "@/components/Wave";
 import { ScheduleCalendar } from "@/components/find-us/ScheduleCalendar";
 import { SeasonalSpots } from "@/components/find-us/SeasonalSpots";
+import { InstagramText, Lines } from "@/components/find-us/text";
 import { getLocations, getSiteSettings, getStockists } from "@/lib/content";
 import type { Location, Venue } from "@/lib/content-types";
+import { getPageContent } from "@/lib/page-content";
+import { findUsPage } from "@/data/pages/find-us";
 
-export const metadata: Metadata = {
-  title: "Find us",
-  description:
-    "Where to find Whistler Lucia Gelato: seasonal scoop shops, the gelato trailer, grocery stores and partners across Whistler, Squamish and Pemberton.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { metaDescription } = await getPageContent("findUsPage", findUsPage);
+  return { title: "Find us", description: metaDescription };
+}
 
 /** Section colours, for the wave edges (they need literal colours). */
 const PETAL = "#ffeee9";
 const SNOW = "#fffef4";
 const PEACH = "#ffe1c2";
 
+/** Where each shortcut jumps to and its look; the labels come from the Studio. */
 const shortcuts = [
   {
+    key: "scoopShops",
     href: "#map",
-    label: "Summer scoop shops",
     circle: "circle-alpine",
     icon: "icon-cone",
     w: 27,
@@ -32,8 +35,8 @@ const shortcuts = [
     text: "text-lakeside",
   },
   {
+    key: "pints",
     href: "#grocery",
-    label: "Take-home pints",
     circle: "circle-blush",
     icon: "icon-basket-pink",
     w: 70,
@@ -42,8 +45,8 @@ const shortcuts = [
     text: "text-strawberry",
   },
   {
+    key: "otherVendors",
     href: "#scoops",
-    label: "Other vendors",
     circle: "circle-peach",
     icon: "icon-cutlery",
     w: 51,
@@ -51,7 +54,7 @@ const shortcuts = [
     iconClass: "h-[2.98rem]",
     text: "text-heatwave",
   },
-];
+] as const;
 
 function Pill({ children, className }: { children: React.ReactNode; className: string }) {
   return (
@@ -64,8 +67,8 @@ function Pill({ children, className }: { children: React.ReactNode; className: s
 }
 
 /** "Daily, 12 – 7pm"; spots with no hours yet show "Hours TBC". Lines still TBC are faded. */
-function Hours({ spot }: { spot: Location }) {
-  if (!spot.hours.length) return <span className="text-lakeside/60">Hours TBC</span>;
+function Hours({ spot, noHours }: { spot: Location; noHours: string }) {
+  if (!spot.hours.length) return <span className="text-lakeside/60">{noHours}</span>;
   return (
     <ul className="space-y-1">
       {spot.hours.map((h) => {
@@ -96,11 +99,13 @@ function VenueName({ venue }: { venue: Venue }) {
 }
 
 export default async function FindUsPage() {
-  const [spots, { groceryStores, scoopShops, onTheMenu }, { contact }] = await Promise.all([
+  const [spots, { groceryStores, scoopShops, onTheMenu }, { contact }, page] = await Promise.all([
     getLocations(),
     getStockists(),
     getSiteSettings(),
+    getPageContent("findUsPage", findUsPage),
   ]);
+  const { hero, seasonal, schedule, grocery, partners, menu } = page;
 
   return (
     <>
@@ -109,18 +114,14 @@ export default async function FindUsPage() {
         <div className="relative mx-auto max-w-[77.5rem]">
           <div className="relative z-10 flex flex-col lg:absolute lg:top-[3.125rem] lg:left-[0.4375rem] lg:w-[37.5rem]">
             <div className="flex w-full flex-col items-center gap-6 rounded-t-[1.25rem] border border-bluebird bg-snow px-6 pt-10 pb-12 text-center sm:px-10 sm:pt-[2.4375rem]">
-              <h1 className="display text-6xl text-bluebird sm:text-[5rem]">Find Lucia</h1>
-              <p className="text-base tracking-[0.02em] text-lakeside">
-                Handcrafted with care in Whistler, our gelato and sorbetto can be found at our seasonal
-                stands, mobile trailer, and a variety of local partners throughout Whistler, Squamish, and
-                Pemberton.
-              </p>
+              <h1 className="display text-6xl text-bluebird sm:text-[5rem]">{hero.title}</h1>
+              <p className="text-base tracking-[0.02em] text-lakeside">{hero.intro}</p>
               <a
                 href="#schedule"
                 className="btn gap-2.5 bg-seafoam text-bluebird shadow-[0_4px_4px_rgb(0_0_0/0.1)]"
               >
                 <Image src="/find-us/clock.svg" alt="" width={26} height={26} className="size-6" />
-                Schedule &amp; hours
+                {hero.scheduleLabel}
               </a>
             </div>
             <nav
@@ -151,7 +152,7 @@ export default async function FindUsPage() {
                   <span
                     className={`font-heading text-[0.9rem] leading-none font-bold tracking-[0.02em] ${s.text}`}
                   >
-                    {s.label}
+                    {hero.shortcuts[s.key]}
                   </span>
                 </a>
               ))}
@@ -159,8 +160,8 @@ export default async function FindUsPage() {
           </div>
           <div className="relative mt-8 aspect-[750/675] overflow-hidden rounded-[1.25rem] border-2 border-bluebird lg:mt-0 lg:ml-auto lg:w-[46.875rem]">
             <Image
-              src="/find-us/hero-trailer.webp"
-              alt="A Lucia scooper handing a cup of gelato across the counter of the gelato trailer"
+              src={hero.photo.src}
+              alt={hero.photo.alt}
               fill
               priority
               sizes="(min-width: 1024px) 750px, 100vw"
@@ -177,34 +178,35 @@ export default async function FindUsPage() {
       >
         <Wave color={PETAL} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[77.5rem]">
-          <Pill className="bg-alpenglow">Summer only!</Pill>
+          <Pill className="bg-alpenglow">{seasonal.pill}</Pill>
           <h2 className="subhead mt-[0.9375rem] text-[2.5rem] text-strawberry">
-            Seasonal
-            <br />
-            scoop shops
+            <Lines text={seasonal.title} />
           </h2>
           <div className="mt-10 lg:mt-[4.5rem]">
-            <SeasonalSpots spots={spots} instagramUrl={contact.instagramUrl} />
+            <SeasonalSpots spots={spots} instagramUrl={contact.instagramUrl} copy={seasonal} />
           </div>
         </div>
       </section>
 
       {/* Schedule & hours */}
-      <section id="schedule" className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-snow px-4 py-20 sm:px-8 lg:px-[6.25rem]">
+      <section
+        id="schedule"
+        className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-snow px-4 py-20 sm:px-8 lg:px-[6.25rem]"
+      >
         <Wave color={SNOW} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[76.5rem]">
           <div className="flex flex-col items-center gap-[0.9375rem] text-center">
-            <Pill className="bg-alpenglow">Summer only!</Pill>
-            <h2 className="subhead text-6xl text-lakeside sm:text-[5rem]">
-              Schedule &amp; Hours
-            </h2>
+            <Pill className="bg-alpenglow">{schedule.pill}</Pill>
+            <h2 className="subhead text-6xl text-lakeside sm:text-[5rem]">{schedule.title}</h2>
           </div>
           <div className="mt-14 grid gap-12 lg:grid-cols-[31.9375rem_minmax(0,1fr)] lg:gap-[2.1875rem]">
-            <ScheduleCalendar spots={spots} instagramUrl={contact.instagramUrl} />
+            <ScheduleCalendar
+              spots={spots}
+              instagramUrl={contact.instagramUrl}
+              notes={schedule.calendarNote}
+            />
             <div>
-              <p className="text-base text-lakeside">
-                Our outdoor spots open with the seasons and the weather. Here&rsquo;s when to find us.
-              </p>
+              <p className="text-base text-lakeside">{schedule.intro}</p>
               <div className="mt-4 overflow-hidden rounded-[1.25rem] border border-bluebird bg-snow">
                 <table className="w-full text-left font-ui text-base text-lakeside">
                   <caption className="sr-only">Seasonal opening hours</caption>
@@ -214,16 +216,16 @@ export default async function FindUsPage() {
                         scope="col"
                         className="eyebrow py-3.5 pl-[1.5625rem] !text-[1.0625rem] sm:w-[19.5rem]"
                       >
-                        Location
+                        {schedule.table.location}
                       </th>
                       <th
                         scope="col"
                         className="eyebrow hidden py-3.5 !text-[1.0625rem] sm:table-cell sm:w-[10.5rem]"
                       >
-                        Season
+                        {schedule.table.season}
                       </th>
                       <th scope="col" className="eyebrow py-3.5 pr-[1.5625rem] !text-[1.0625rem]">
-                        Hours
+                        {schedule.table.hours}
                       </th>
                     </tr>
                   </thead>
@@ -240,7 +242,7 @@ export default async function FindUsPage() {
                           {spot.scheduleSeason || spot.season}
                         </td>
                         <td className="py-[1.125rem] pr-[1.5625rem] font-medium">
-                          <Hours spot={spot} />
+                          <Hours spot={spot} noHours={schedule.table.noHours} />
                           <LocationStatus
                             closedOn={spot.closedOn}
                             closureNote={spot.closureNote}
@@ -253,14 +255,13 @@ export default async function FindUsPage() {
                 </table>
               </div>
               <div className="mt-[1.875rem] flex max-w-[31.9375rem] flex-col gap-3 rounded-[1.25rem] bg-butter p-5 pb-7">
-                <p className="font-ui text-lg font-extrabold text-ink">Mountain weather disclaimer</p>
+                <p className="font-ui text-lg font-extrabold text-ink">{schedule.weather.title}</p>
                 <p className="font-ui text-sm leading-[1.3] font-medium text-ink/85">
-                  Our outdoor spots are weather-dependent. On stormy, smoky or very cold days we may close
-                  early or stay in the kitchen. Check Instagram{" "}
-                  <a href={contact.instagramUrl} className="font-bold underline-offset-2 hover:underline">
-                    {contact.instagramHandle}
-                  </a>{" "}
-                  for same-day updates before you make the trip.
+                  <InstagramText
+                    text={schedule.weather.text}
+                    href={contact.instagramUrl}
+                    linkClassName="font-bold underline-offset-2 hover:underline"
+                  />
                 </p>
               </div>
             </div>
@@ -269,21 +270,20 @@ export default async function FindUsPage() {
       </section>
 
       {/* Take-home pints: grocery stores */}
-      <section id="grocery" className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-peach px-4 py-20 sm:px-8 lg:px-[6.25rem]">
+      <section
+        id="grocery"
+        className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-peach px-4 py-20 sm:px-8 lg:px-[6.25rem]"
+      >
         <Wave color={PEACH} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto grid max-w-[76.5rem] gap-10 lg:grid-cols-[31.75rem_37.1875rem] lg:justify-between">
           <div>
-            <Pill className="bg-heatwave">Year-round</Pill>
+            <Pill className="bg-heatwave">{grocery.pill}</Pill>
             <h2 className="subhead mt-[0.9375rem] text-5xl text-heatwave sm:text-[3.75rem]">
-              Take home a pint!
+              {grocery.title}
             </h2>
-            <p className="mt-6 text-base text-heatwave">
-              Craving Lucia Gelato from the comfort of your own home? Find our take-home tubs at local grocery
-              stores and retailers throughout Whistler, Squamish and Pemberton. Stock up on your favourite
-              flavours or discover something new!
-            </p>
+            <p className="mt-6 text-base text-heatwave">{grocery.intro}</p>
             <p className="mt-1.5 text-base font-bold text-heatwave">
-              Flavours and availability vary by location.
+              <Lines text={grocery.note} />
             </p>
           </div>
           <div className="grid gap-x-[0.625rem] gap-y-[0.8125rem] sm:grid-cols-2 sm:items-start">
@@ -307,21 +307,18 @@ export default async function FindUsPage() {
       </section>
 
       {/* Scoop partners and menus */}
-      <section id="scoops" className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-snow px-4 pt-20 sm:px-8 lg:px-16">
+      <section
+        id="scoops"
+        className="relative scroll-mt-28 sm:scroll-mt-32 lg:scroll-mt-36 bg-snow px-4 pt-20 sm:px-8 lg:px-16"
+      >
         <Wave color={SNOW} className="absolute inset-x-0 -top-3.5" />
         <div className="mx-auto max-w-[81.875rem]">
           <div className="mx-auto flex max-w-[41.875rem] flex-col items-center gap-[0.9375rem] text-center text-grass">
-            <Pill className="bg-grass">Seasonal</Pill>
-            <h2 className="subhead text-5xl sm:text-[3.75rem]">Scoop partners</h2>
-            <p className="mt-2 text-base">
-              We&rsquo;re proud to partner with local businesses throughout the Sea to Sky corridor that serve
-              Lucia Gelato by the scoop! Whether you&rsquo;re exploring Whistler, spending the day in
-              Squamish, or visiting Pemberton, you can enjoy your favourite flavours at these local spots.
-            </p>
+            <Pill className="bg-grass">{partners.pill}</Pill>
+            <h2 className="subhead text-5xl sm:text-[3.75rem]">{partners.title}</h2>
+            <p className="mt-2 text-base">{partners.intro}</p>
             <p className="text-base font-bold">
-              Flavours and availability vary by location.
-              <br />
-              Check directly with our partners for current availability.
+              <Lines text={partners.note} />
             </p>
           </div>
 
@@ -352,9 +349,7 @@ export default async function FindUsPage() {
           <div className="mt-[1.5625rem] overflow-hidden rounded-[1.25rem] border-2 border-grass bg-white pb-10">
             <div aria-hidden className="h-[3.9375rem] bg-grass" />
             <div className="px-6 sm:px-[2.625rem]">
-              <h3 className="subhead mt-[1.875rem] text-center text-[2rem] text-grass">
-                Also on the menu at&hellip;
-              </h3>
+              <h3 className="subhead mt-[1.875rem] text-center text-[2rem] text-grass">{menu.title}</h3>
               <div className="mt-[1.875rem] flex flex-wrap justify-center gap-10">
                 {onTheMenu.map((group, i) => (
                   <div key={group.group}>
@@ -372,17 +367,15 @@ export default async function FindUsPage() {
                 ))}
               </div>
               <p className="mt-[1.875rem] text-center font-ui font-bold text-grass">
-                Flavours, menu offerings, and availability vary by location.
-                <br />
-                Please check directly with each business to see how they&rsquo;re serving Lucia Gelato!
+                <Lines text={menu.note} />
               </p>
               <div className="mt-[1.875rem] flex flex-wrap items-center justify-center gap-4">
-                <p className="text-xl font-bold text-grass italic">Want Lucia on your menu?</p>
+                <p className="text-xl font-bold text-grass italic">{menu.wholesalePrompt}</p>
                 <Link
                   href="/wholesale"
                   className="eyebrow rounded-[1.25rem] bg-grass px-5 py-2.5 !text-[0.9375rem] text-snow transition hover:brightness-95"
                 >
-                  Become a wholesale partner
+                  {menu.wholesaleLabel}
                 </Link>
               </div>
             </div>

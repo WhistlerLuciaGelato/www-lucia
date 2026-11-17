@@ -3,13 +3,14 @@
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
 import { FormNotice } from "@/components/forms/fields";
 
-export function NewsletterForm() {
+/** The footer's email sign-up; its button and thank-you words come from the Studio (Header, footer & newsletter). */
+export function NewsletterForm({ buttonLabel, success }: { buttonLabel: string; success: string }) {
   const { state, submit, fieldError } = useFormSubmit();
 
   if (state.status === "success" || state.status === "fallback") {
     return (
       <div className="mt-5">
-        <FormNotice state={state} success="You're in! Watch your inbox for Lucia's next adventure." />
+        <FormNotice state={state} success={success} />
       </div>
     );
   }
@@ -42,7 +43,7 @@ export function NewsletterForm() {
         />
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
         <button type="submit" className="btn bg-strawberry !text-base text-snow" disabled={state.status === "submitting"}>
-          {state.status === "submitting" ? "Joining…" : "Sign up"}
+          {state.status === "submitting" ? "Joining…" : buttonLabel}
         </button>
       </div>
       {fieldError("email") || state.status === "error" ? (

@@ -5,6 +5,10 @@ import { Fragment, useState } from "react";
 import type { Location } from "@/lib/content-types";
 import { LocationStatus } from "@/components/LocationStatus";
 import { PinkMap } from "@/components/find-us/PinkMap";
+import { InstagramText } from "@/components/find-us/text";
+import type { FindUsPage } from "@/data/pages/find-us";
+
+type Copy = FindUsPage["seasonal"];
 
 /** Description text: **double asterisks** and @handles are bold, line breaks are kept. */
 function RichText({ text }: { text: string }) {
@@ -28,7 +32,17 @@ function RichText({ text }: { text: string }) {
   ));
 }
 
-function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean; onSelect: () => void }) {
+function SpotCard({
+  spot,
+  active,
+  onSelect,
+  buttons,
+}: {
+  spot: Location;
+  active: boolean;
+  onSelect: () => void;
+  buttons: Copy["cardButtons"];
+}) {
   const panelId = `spot-${spot.id}`;
   return (
     <li
@@ -85,13 +99,13 @@ function SpotCard({ spot, active, onSelect }: { spot: Location; active: boolean;
               rel="noopener noreferrer"
               className="btn btn-berry !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg"
             >
-              Show in Google Maps
+              {buttons.googleMaps}
             </a>
             <a
               href="#schedule"
               className="btn btn-berry !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg"
             >
-              Schedule
+              {buttons.schedule}
             </a>
           </div>
         </div>
@@ -116,7 +130,15 @@ const mapButton = "btn !text-base shadow-[0_4px_4px_rgb(0_0_0/0.1)] sm:!text-lg"
  * cards. Picking a card (or a pin) opens that card and flies the map to it. Under the map:
  * nearest-spot, show-all and schedule buttons, and a note to check Instagram.
  */
-export function SeasonalSpots({ spots, instagramUrl }: { spots: Location[]; instagramUrl: string }) {
+export function SeasonalSpots({
+  spots,
+  instagramUrl,
+  copy,
+}: {
+  spots: Location[];
+  instagramUrl: string;
+  copy: Copy;
+}) {
   const [activeId, setActiveId] = useState<string | undefined>(spots[0]?.id);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState("");
@@ -157,18 +179,18 @@ export function SeasonalSpots({ spots, instagramUrl }: { spots: Location[]; inst
             disabled={locating}
             className={`${mapButton} bg-strawberry text-snow`}
           >
-            {locating ? "Finding you…" : "Find scoop nearest me"}
+            {locating ? "Finding you…" : copy.mapButtons.nearest}
           </button>
           <button
             type="button"
             onClick={() => setActiveId(undefined)}
             className={`${mapButton} bg-lakeside text-snow`}
           >
-            See all on map
+            {copy.mapButtons.seeAll}
           </button>
           <a href="#schedule" className={`${mapButton} gap-2.5 bg-seafoam text-bluebird`}>
             <Image src="/find-us/clock.svg" alt="" width={26} height={26} className="size-6" />
-            Schedule &amp; hours
+            {copy.mapButtons.schedule}
           </a>
         </div>
         {geoError ? (
@@ -177,19 +199,14 @@ export function SeasonalSpots({ spots, instagramUrl }: { spots: Location[]; inst
           </p>
         ) : null}
         <div className="mt-10 flex flex-col items-center gap-2.5 rounded-[1.25rem] bg-white p-5 text-center lg:mt-[6.25rem]">
-          <p className="eyebrow px-5 py-2 !text-xl text-heatwave">Take note!</p>
+          <p className="eyebrow px-5 py-2 !text-xl text-heatwave">{copy.note.title}</p>
           <p className="max-w-[35.5rem] text-base leading-[1.18] text-heatwave">
-            Please note that locations, hours, and operating dates vary throughout the season. We try our best
-            to keep this page up to date, but please check our latest updates on{" "}
-            <a
+            <InstagramText
+              text={copy.note.text}
               href={instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline-offset-2 hover:underline"
-            >
-              Instagram
-            </a>{" "}
-            before heading out to find us!
+              linkClassName="underline-offset-2 hover:underline"
+              newTab
+            />
           </p>
         </div>
       </div>
@@ -200,6 +217,7 @@ export function SeasonalSpots({ spots, instagramUrl }: { spots: Location[]; inst
             spot={spot}
             active={spot.id === activeId}
             onSelect={() => setActiveId(spot.id)}
+            buttons={copy.cardButtons}
           />
         ))}
       </ul>

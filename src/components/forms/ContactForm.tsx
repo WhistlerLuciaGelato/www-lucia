@@ -2,8 +2,10 @@
 
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
+import type { ContactPage } from "@/data/pages/contact";
 
-export function ContactForm() {
+/** The contact form; its button and thank-you words come from the Studio (Pages › Contact). */
+export function ContactForm({ copy }: { copy: ContactPage["form"] }) {
   const { state, submit, fieldError } = useFormSubmit();
 
   if (state.status === "success") {
@@ -12,10 +14,8 @@ export function ContactForm() {
         state={state}
         success={
           <>
-            <p className="subhead text-2xl">Message sent — thanks!</p>
-            <p className="mt-2 font-normal">
-              We&rsquo;ll get back to you as soon as we&rsquo;re off the hill.
-            </p>
+            <p className="subhead text-2xl">{copy.successTitle}</p>
+            <p className="mt-2 font-normal">{copy.successText}</p>
           </>
         }
       />
@@ -69,7 +69,7 @@ export function ContactForm() {
       />
       <div className="sm:col-span-2">
         <button type="submit" className="btn btn-primary" disabled={state.status === "submitting"}>
-          {state.status === "submitting" ? "Sending…" : "Send message"}
+          {state.status === "submitting" ? "Sending…" : copy.sendLabel}
         </button>
       </div>
       <div className="sm:col-span-2">

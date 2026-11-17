@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { Location } from "@/lib/content-types";
 import { useToday } from "@/lib/cart-store";
 import { calendarColors, isOpenOn, nextOpenDate, weekdayOf, ymd } from "@/components/find-us/schedule";
+import { InstagramText } from "@/components/find-us/text";
+import type { FindUsPage } from "@/data/pages/find-us";
 
 const weekdays = [
   { short: "M", long: "Monday" },
@@ -49,7 +51,16 @@ function weeksOf({ year, month }: Month): (string | null)[][] {
  * every spot that's open, and the key underneath. Dates come from each location's
  * "Open dates" in the Studio. Today is worked out in the browser because pages are cached.
  */
-export function ScheduleCalendar({ spots, instagramUrl }: { spots: Location[]; instagramUrl: string }) {
+export function ScheduleCalendar({
+  spots,
+  instagramUrl,
+  notes,
+}: {
+  spots: Location[];
+  instagramUrl: string;
+  /** The note above the calendar, while spots have open dates coming up and when they don't. */
+  notes: FindUsPage["schedule"]["calendarNote"];
+}) {
   const today = useToday();
   const [picked, setPicked] = useState<Month | null>(null);
 
@@ -65,32 +76,21 @@ export function ScheduleCalendar({ spots, instagramUrl }: { spots: Location[]; i
     <div>
       {upcoming ? (
         <p className="text-base font-bold text-heatwave">
-          Check{" "}
-          <a
+          <InstagramText
+            text={notes.open}
             href={instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline-offset-2 hover:underline"
-          >
-            Instagram
-          </a>{" "}
-          to confirm we&rsquo;re open before heading out!
+            linkClassName="underline-offset-2 hover:underline"
+            newTab
+          />
         </p>
       ) : (
         <p className="text-base text-heatwave">
-          <strong className="font-bold">
-            Our retail scooping locations are currently closed for the season.
-          </strong>{" "}
-          Stay tuned for updates here or on{" "}
-          <a
+          <InstagramText
+            text={notes.closed}
             href={instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold underline-offset-2 hover:underline"
-          >
-            Instagram
-          </a>{" "}
-          in late May / early June.
+            linkClassName="font-bold underline-offset-2 hover:underline"
+            newTab
+          />
         </p>
       )}
 

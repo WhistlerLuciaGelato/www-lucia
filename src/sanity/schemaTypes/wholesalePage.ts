@@ -1,13 +1,16 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
+import { blurb, line, pageTextGroup, section, seoDescription } from "./pageFields";
 import { wholesaleKindOptions } from "./options";
 
 export const wholesalePage = defineType({
   name: "wholesalePage",
   title: "Wholesale",
   type: "document",
+  groups: [{ name: "lists", title: "Sizes, flavours & suppliers", default: true }, pageTextGroup],
   fields: [
     defineField({
       name: "formats",
+      group: "lists",
       title: "Sizes",
       description:
         "Listed under Wholesale Pricing and offered in the quote request form. Prices aren't shown on the website.",
@@ -49,6 +52,7 @@ export const wholesalePage = defineType({
     }),
     defineField({
       name: "deliverySchedule",
+      group: "lists",
       title: "Delivery schedule",
       type: "array",
       of: [
@@ -65,6 +69,7 @@ export const wholesalePage = defineType({
     }),
     defineField({
       name: "flavourGroups",
+      group: "lists",
       title: "Flavour lists",
       type: "array",
       of: [
@@ -108,6 +113,7 @@ export const wholesalePage = defineType({
     }),
     defineField({
       name: "suppliers",
+      group: "lists",
       title: "Suppliers",
       description:
         "Shown in “Where our ingredients come from”. Suppliers with the same “Supplies” are grouped on one card, in the order listed here.",
@@ -135,6 +141,72 @@ export const wholesalePage = defineType({
         }),
       ],
     }),
+    section(
+      "hero",
+      "Top of the page",
+      [
+        line("eyebrow", "Small heading"),
+        line("title", "Big heading"),
+        line("orderButton", "“Place an order” button"),
+        line("flavoursButton", "“Browse flavours” button"),
+      ],
+      { group: "pageText", collapsed: false },
+    ),
+    section(
+      "pricing",
+      "Wholesale Pricing card",
+      [
+        line("title", "Heading"),
+        blurb("intro", "Text", { rows: 2 }),
+        line("customSize", "Last size in the list", {
+          description: "Matches “Other custom size” in the quote form, so keep the wording close.",
+        }),
+        blurb("customSizeNote", "Text under the last size", { rows: 2 }),
+      ],
+      { group: "pageText", description: "The sizes themselves are under Sizes." },
+    ),
+    section(
+      "delivery",
+      "Delivery Schedule card",
+      [
+        line("title", "Heading"),
+        line("cutoff", "Order deadline", {
+          description: "Shown at the top of the card and again next to the quote form’s button.",
+        }),
+      ],
+      { group: "pageText", description: "The areas and days are under Delivery schedule." },
+    ),
+    section(
+      "flavoursText",
+      "Flavours section",
+      [line("eyebrow", "Small heading"), blurb("intro", "Text", { rows: 2 })],
+      {
+        group: "pageText",
+        description: "The big heading counts the flavours for you, e.g. “Over 100 flavours”.",
+      },
+    ),
+    section(
+      "suppliersText",
+      "Suppliers section",
+      [line("eyebrow", "Small heading"), line("title", "Heading"), blurb("intro", "Text", { rows: 2 })],
+      { group: "pageText", description: "The suppliers themselves are under Suppliers." },
+    ),
+    section(
+      "order",
+      "Quote request form",
+      [
+        line("eyebrow", "Small heading"),
+        line("title", "Heading"),
+        blurb("intro", "Text above the form", { rows: 2 }),
+        line("replyNote", "Text next to the button", {
+          description: "Under the order deadline.",
+        }),
+        line("successTitle", "Thank-you heading", { description: "Shown once a request is sent." }),
+        blurb("successMessage", "Thank-you text", { rows: 2 }),
+      ],
+      { group: "pageText" },
+    ),
+    seoDescription({ group: "pageText" }),
   ],
   preview: { prepare: () => ({ title: "Wholesale" }) },
 });

@@ -6,11 +6,13 @@ import { useToday } from "@/lib/cart-store";
 import { Field, FormNotice, Honeypot, SelectField, TextArea } from "@/components/forms/fields";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
 import { OTHER_FLAVOUR, OTHER_FORMAT } from "@/lib/forms";
-import { orderCutoff } from "@/data/wholesale";
 
 type Line = { id: number; format: string; flavour: string; qty: number };
 
-export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
+/** The form's own words, from the Studio (Wholesale › Page text & photos). */
+type FormText = { cutoff: string; replyNote: string; successTitle: string; successMessage: string };
+
+export function WholesaleOrderForm({ content, text }: { content: WholesaleContent; text: FormText }) {
   const { formats: wholesaleFormats, flavourGroups, deliverySchedule } = content;
   const newLine = (id: number): Line => ({
     id,
@@ -40,10 +42,8 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
         state={state}
         success={
           <>
-            <p className="subhead text-2xl">Quote request received — thank you!</p>
-            <p className="mt-2 font-normal">
-              We&rsquo;ll be in touch by email with your quote and delivery day.
-            </p>
+            <p className="subhead text-2xl">{text.successTitle}</p>
+            <p className="mt-2 font-normal">{text.successMessage}</p>
           </>
         }
       />
@@ -246,8 +246,8 @@ export function WholesaleOrderForm({ content }: { content: WholesaleContent }) {
 
       <div className="flex flex-col gap-4 rounded-[1.25rem] bg-seafoam p-5 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="font-ui">
-          <p className="font-extrabold text-ink">{orderCutoff}</p>
-          <p className="text-sm text-ink/70">We&rsquo;ll reply by email with your quote and delivery day.</p>
+          <p className="font-extrabold text-ink">{text.cutoff}</p>
+          <p className="text-sm text-ink/70">{text.replyNote}</p>
         </div>
         <button type="submit" className="btn btn-primary" disabled={state.status === "submitting"}>
           {state.status === "submitting" ? "Sending…" : "Request quote"}
